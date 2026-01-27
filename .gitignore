@@ -1,0 +1,98 @@
+# Node modules
+node_modules/
+frontend/node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+env/
+ENV/
+backend/__pycache__/
+backend/venv/
+backend/env/
+
+# Environment Variables (CRITICAL - Contains API Keys)
+.env
+.env.local
+.env.production
+.env.development
+*.env
+!.env.example
+
+# API Keys & Secrets (DO NOT COMMIT)
+**/*secrets*
+**/*secret*
+**/credentials.json
+**/config.prod.json
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+dist-ssr/
+*.local
+frontend/node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache
+.cache/
+.pytest_cache/
+
+# Coverage
+htmlcov/
+.coverage
+coverage/.sqlite
+
+# Build outputs
+frontend/dist/
+frontend/build/
+backend/dist/
+backend/build/
+
+# Docker
+.dockerignore
+
+# Vercel
+.vercel
+.env*.local

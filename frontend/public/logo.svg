@@ -1,0 +1,106 @@
+<svg width="1000" height="1000" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1000" height="1000" fill="#0F172A"/>
+  
+  <!-- Hexagonal Grid Pattern (Subtle) -->
+  <defs>
+    <pattern id="hexgrid" x="0" y="0" width="60" height="52" patternUnits="userSpaceOnUse">
+      <path d="M30 0 L45 13 L45 39 L30 52 L15 39 L15 13 Z" stroke="#1E293B" stroke-width="1" fill="none" opacity="0.15"/>
+    </pattern>
+    
+    <!-- Glow Filters -->
+    <filter id="glow-gold" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="15" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="glow-soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="1000" height="1000" fill="url(#hexgrid)"/>
+  
+  <!-- Neural Network Connections (Electric Cyan) -->
+  <!-- S-shaped pathways from CENTER to each node -->
+  <path d="M 500 350 Q 400 300 300 250" stroke="#06B6D4" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 500 350 Q 600 300 700 250" stroke="#06B6D4" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 500 350 Q 400 450 300 550" stroke="#06B6D4" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 500 350 Q 600 450 700 550" stroke="#06B6D4" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  
+  <!-- Agent Nodes -->
+  
+  <!-- Node 1: Audience Surgeon (Top-Left, Blue) -->
+  <circle cx="300" cy="250" r="60" fill="#3B82F6" opacity="0.9" filter="url(#glow-soft)"/>
+  <circle cx="300" cy="250" r="50" fill="#3B82F6"/>
+  <circle cx="300" cy="250" r="35" fill="#60A5FA" opacity="0.5"/>
+  
+  <!-- Node 2: Trend Sniper (Top-Right, Purple) -->
+  <circle cx="700" cy="250" r="60" fill="#8B5CF6" opacity="0.9" filter="url(#glow-soft)"/>
+  <circle cx="700" cy="250" r="50" fill="#8B5CF6"/>
+  <circle cx="700" cy="250" r="35" fill="#A78BFA" opacity="0.5"/>
+  
+  <!-- Node 3: SEO Architect (Bottom-Left, Green) -->
+  <circle cx="300" cy="550" r="60" fill="#10B981" opacity="0.9" filter="url(#glow-soft)"/>
+  <circle cx="300" cy="550" r="50" fill="#10B981"/>
+  <circle cx="300" cy="550" r="35" fill="#34D399" opacity="0.5"/>
+  
+  <!-- Node 4: Strategy Synthesizer (Bottom-Right, Orange) -->
+  <circle cx="700" cy="550" r="60" fill="#F59E0B" opacity="0.9" filter="url(#glow-soft)"/>
+  <circle cx="700" cy="550" r="50" fill="#F59E0B"/>
+  <circle cx="700" cy="550" r="35" fill="#FBBF24" opacity="0.5"/>
+  
+  <!-- CORE Node: ROI Predictor (CENTER, Gold - Largest) -->
+  <circle cx="500" cy="350" r="120" fill="#FCD34D" opacity="0.3" filter="url(#glow-gold)"/>
+  <circle cx="500" cy="350" r="100" fill="#FCD34D" filter="url(#glow-gold)"/>
+  <circle cx="500" cy="350" r="85" fill="#FDE68A"/>
+  <circle cx="500" cy="350" r="60" fill="#FEF3C7" opacity="0.8"/>
+  
+  <!-- Pulse Ring Animation (CSS will handle this) -->
+  <circle cx="500" cy="350" r="110" stroke="#FCD34D" stroke-width="2" fill="none" opacity="0.4" class="pulse-ring"/>
+  
+  <!-- Brand Text -->
+  <text x="500" y="750" font-family="Inter, sans-serif" font-size="120" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="8">
+    STRATIFY
+  </text>
+  
+  <text x="780" y="750" font-family="Inter, sans-serif" font-size="120" font-weight="200" font-style="italic" fill="#06B6D4" text-anchor="start">
+    .ai
+  </text>
+  
+  <!-- Agent Labels (Optional - can be removed for cleaner look) -->
+  <text x="300" y="200" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#60A5FA" text-anchor="middle" opacity="0.7">
+    AUDIENCE
+  </text>
+  <text x="700" y="200" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#A78BFA" text-anchor="middle" opacity="0.7">
+    TRENDS
+  </text>
+  <text x="300" y="620" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#34D399" text-anchor="middle" opacity="0.7">
+    SEO
+  </text>
+  <text x="700" y="620" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#FBBF24" text-anchor="middle" opacity="0.7">
+    STRATEGY
+  </text>
+  <text x="500" y="280" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="#FBBF24" text-anchor="middle" opacity="0.9">
+    CORE
+  </text>
+  
+  <!-- CSS Animation Styles -->
+  <style>
+    @keyframes pulse {
+      0%, 100% { r: 110; opacity: 0.4; }
+      50% { r: 125; opacity: 0.2; }
+    }
+    
+    .pulse-ring {
+      animation: pulse 2s ease-in-out infinite;
+    }
+  </style>
+</svg>

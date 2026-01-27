@@ -1,0 +1,61 @@
+# CRITICAL SECURITY - Environment & Secrets
+.env
+.env.local
+.env.production
+*.env
+!.env.example
+
+# API Keys (NEVER COMMIT)
+**/groq_key*
+**/serpapi_key*
+**/stripe_key*
+**/jwt_secret*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+mongodb_data/
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite
