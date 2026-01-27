@@ -8,8 +8,4 @@ passlib
 bcrypt
 python-multipart
 groq
-crewai
-crewai-tools
-langchain
-langchain-groq
 razorpay
