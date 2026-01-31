@@ -17,7 +17,7 @@ export default function Profile() {
 
   const fetchProfile = async () => {
     try {
-      const response = await authAPI.get('/profile');
+      const response = await authAPI.getProfile();
       setProfile(response.data);
       setName(response.data.name || user?.email?.split('@')[0] || 'User');
       setLoading(false);
@@ -28,8 +28,8 @@ export default function Profile() {
         name: user?.email?.split('@')[0] || 'User',
         email: user?.email,
         tier: user?.tier || 'free',
-        usage_month: 2,
-        total_strategies: 2
+        usage_month: 0,
+        total_strategies: 0
       });
       setName(user?.email?.split('@')[0] || 'User');
       setLoading(false);
@@ -38,7 +38,7 @@ export default function Profile() {
 
   const updateProfile = async () => {
     try {
-      await authAPI.put('/profile', { name });
+      await authAPI.updateProfile({ name });
       setProfile({ ...profile, name });
       setEditMode(false);
     } catch (error) {

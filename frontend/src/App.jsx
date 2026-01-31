@@ -7,6 +7,8 @@ import Dashboard from './components/Dashboard';
 import Generate from './components/Generate';
 import History from './components/History';
 import Navbar from './components/Navbar';
+import StrategyGenerator from './components/StrategyGenerator';
+import StrategyPlanner from './components/StrategyPlanner';
 import Upgrade from './pages/Upgrade';
 import Profile from './pages/Profile';
 import { authAPI } from './api';
@@ -167,6 +169,14 @@ function App() {
             <Route 
               path="/generate" 
               element={user ? <Generate /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/strategy" 
+              element={user ? <StrategyGenerator /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/planner" 
+              element={user ? <StrategyPlanner /> : <Navigate to="/login" />} 
             />
             <Route 
               path="/history" 

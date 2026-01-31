@@ -39,7 +39,7 @@ export default function Login() {
             <Sparkles className="w-8 h-8 text-white" />
           </div>
             <h2 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent mb-2">
-              Stratify.ai
+              AgentForge
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-8">
               AI Content Strategy Platform

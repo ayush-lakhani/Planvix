@@ -21,7 +21,7 @@ export default function StrategyResults({ strategy, onReset }) {
   };
 
   const handleExport = () => {
-    const dataStr = JSON.stringify(strategy.strategy, null, 2);
+    const dataStr = JSON.stringify(strategy.strategy || strategy, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
@@ -29,6 +29,63 @@ export default function StrategyResults({ strategy, onReset }) {
     link.download = 'content-strategy.json';
     link.click();
   };
+
+  // Check if content is HTML string or JSON object
+  const isHTMLContent = typeof strategy.content === 'string' && strategy.content.includes('<div');
+  const strategyData = strategy.strategy || (isHTMLContent ? null : strategy.content);
+
+  // If it's HTML content, render it directly
+  if (isHTMLContent) {
+    return (
+      <div className="animate-fade-in">
+        {/* Header Actions */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {strategy.topic || 'Your Content Strategy'}
+            </h2>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={onReset}
+              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-xl shadow hover:shadow-lg transition-all"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Back to History
+            </button>
+          </div>
+        </div>
+
+        {/* Render HTML Content */}
+        <div 
+          className="glass-card p-8 prose prose-lg dark:prose-invert max-w-none"
+          dangerouslySetInnerHTML={{ __html: strategy.content }}
+        />
+
+        {/* Share Buttons */}
+        <ShareButtons strategy={strategy} />
+      </div>
+    );
+  }
+
+  // If strategyData is not available, show error
+  if (!strategyData) {
+    return (
+      <div className="animate-fade-in">
+        <div className="glass-card p-8 text-center">
+          <p className="text-red-600 dark:text-red-400 mb-4">
+            Unable to display strategy content. The data format may be incompatible.
+          </p>
+          <button
+            onClick={onReset}
+            className="btn-gradient"
+          >
+            Back to History
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in">
@@ -89,7 +146,7 @@ export default function StrategyResults({ strategy, onReset }) {
       <div className="glass-card p-8">
         {/* Persona Tab */}
         {activeTab === 'persona' && (
-          <PersonaDisplay personas={strategy.strategy.personas} />
+          <PersonaDisplay personas={strategyData.personas} />
         )}
 
         {/* Competitor Gaps Tab */}
@@ -98,7 +155,7 @@ export default function StrategyResults({ strategy, onReset }) {
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
               Competitor Gaps & Opportunities
             </h3>
-            {strategy.strategy.competitor_gaps.map((gap, index) => (
+            {strategyData.competitor_gaps.map((gap, index) => (
               <div key={index} className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 p-6 rounded-xl border-l-4 border-orange-500">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <h4 className="text-lg font-bold text-gray-900 dark:text-white">{gap.gap}</h4>
@@ -137,7 +194,7 @@ export default function StrategyResults({ strategy, onReset }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {strategy.strategy.keywords.map((keyword, index) => (
+                  {strategyData.keywords.map((keyword, index) => (
                     <tr key={index} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                       <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">{keyword.term}</td>
                       <td className="py-3 px-4 text-gray-600 dark:text-gray-400">{keyword.intent}</td>
@@ -191,7 +248,7 @@ export default function StrategyResults({ strategy, onReset }) {
               30-Day Content Calendar
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {strategy.strategy.calendar.map((item, index) => (
+              {strategyData.calendar.map((item, index) => (
                 <div key={index} className="bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 p-6 rounded-xl border border-primary-200 dark:border-primary-800">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-sm font-bold text-primary-600 dark:text-primary-400">
@@ -216,7 +273,7 @@ export default function StrategyResults({ strategy, onReset }) {
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
               Ready-to-Post Content
             </h3>
-            {strategy.strategy.sample_posts.map((post, index) => (
+            {strategyData.sample_posts.map((post, index) => (
               <div key={index} className="glass-card p-6 border-2 border-primary-200 dark:border-primary-800">
                 <div className="flex items-start justify-between mb-4">
                   <h4 className="text-xl font-bold text-gray-900 dark:text-white">{post.title}</h4>

@@ -5,7 +5,7 @@ export default function LoadingSpinner({ message = "Generating your strategy..."
       <div className="relative mb-8">
         <img 
           src="/logo.png" 
-          alt="Stratify" 
+          alt="AgentForge" 
           className="h-40 w-auto animate-pulse"
           style={{
             filter: 'drop-shadow(0 8px 24px rgba(59, 130, 246, 0.5))'
@@ -17,7 +17,7 @@ export default function LoadingSpinner({ message = "Generating your strategy..."
 
       {/* Brand Text */}
       <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent mb-2">
-        Stratify AI
+        AgentForge AI
       </h2>
       
       {/* Loading Message */}

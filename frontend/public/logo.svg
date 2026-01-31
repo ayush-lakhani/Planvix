@@ -68,12 +68,10 @@
   
   <!-- Brand Text -->
   <text x="500" y="750" font-family="Inter, sans-serif" font-size="120" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="8">
-    STRATIFY
+    AGENTFORGE
   </text>
   
-  <text x="780" y="750" font-family="Inter, sans-serif" font-size="120" font-weight="200" font-style="italic" fill="#06B6D4" text-anchor="start">
-    .ai
-  </text>
+
   
   <!-- Agent Labels (Optional - can be removed for cleaner look) -->
   <text x="300" y="200" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#60A5FA" text-anchor="middle" opacity="0.7">

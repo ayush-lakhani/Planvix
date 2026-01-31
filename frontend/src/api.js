@@ -29,15 +29,21 @@ export const authAPI = {
   signup: (email, password) => api.post('/api/auth/signup', { email, password }),
   login: (email, password) => api.post('/api/auth/login', { email, password }),
   getMe: () => api.get('/api/auth/me'),
+  getProfile: () => api.get('/api/profile'),
+  updateProfile: (data) => api.put('/api/profile', data),
 };
 
 // Strategy API
 export const strategyAPI = {
   generate: (data) => api.post('/api/strategy', data),
   getHistory: () => api.get('/api/history'),
-  getById: (id) => api.get(`/api/strategy/${id}`),
-  delete: (id) => api.delete(`/api/strategy/${id}`),
-  submitFeedback: (strategyId, rating) => api.post('/feedback', { strategy_id: strategyId, rating }),
+  getById: (id) => api.get(`/api/history/${id}`),
+  delete: (id) => api.delete(`/api/history/${id}`),
+  deleteStrategy: (id) => api.delete(`/api/history/${id}`),
+  submitFeedback: (strategyId, rating) => 
+    api.post('/feedback', { strategy_id: strategyId, rating }),
+  generateStrategy: (data) => api.post('/api/strategy', data),
 };
+
 
 export default api;

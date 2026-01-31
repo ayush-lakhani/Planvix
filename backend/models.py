@@ -3,7 +3,7 @@ Data models and schemas for the Content Strategy Planner
 Includes both Pydantic models (for API validation) and SQLAlchemy models (for database)
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Optional
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, JSON
@@ -195,7 +195,7 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     tier = Column(String(50), default="free")  # free, pro, agency
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now(timezone.utc))
     
     # Relationship to strategies
     strategies = relationship("Strategy", back_populates="user", cascade="all, delete-orphan")
@@ -220,7 +220,7 @@ class Strategy(Base):
     # Metadata
     cache_key = Column(String(255), index=True)  # MD5 hash of input
     generation_time = Column(Integer)  # Seconds
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now(timezone.utc))
     
     # Relationship to user
     user = relationship("User", back_populates="strategies")

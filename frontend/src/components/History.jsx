@@ -31,18 +31,23 @@ export default function History() {
     
     try {
       await strategyAPI.delete(id);
+      // Update UI immediately
       setStrategies(strategies.filter(s => s.id !== id));
+      console.log('✅ Strategy deleted successfully');
     } catch (error) {
-      console.error('Failed to delete strategy:', error);
+      console.error('❌ Failed to delete strategy:', error);
+      alert('Failed to delete strategy. Please try again.');
     }
   };
 
   const handleView = async (id) => {
     try {
       const response = await strategyAPI.getById(id);
+      console.log('📊 Strategy data received:', response.data);
       setSelectedStrategy(response.data);
     } catch (error) {
-      console.error('Failed to load strategy:', error);
+      console.error('❌ Failed to load strategy:', error);
+      alert('Failed to load strategy details. Please try again.');
     }
   };
 
@@ -137,18 +142,24 @@ export default function History() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                      {strategy.goal}
+                      {strategy.topic || strategy.goal || 'Untitled Strategy'}
                     </h3>
                     <div className="flex flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      <span className="flex items-center gap-1">
-                        👥 {strategy.audience}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        🏢 {strategy.industry}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        📱 {strategy.platform}
-                      </span>
+                      {strategy.audience && (
+                        <span className="flex items-center gap-1">
+                          👥 {strategy.audience}
+                        </span>
+                      )}
+                      {strategy.industry && (
+                        <span className="flex items-center gap-1">
+                          🏢 {strategy.industry}
+                        </span>
+                      )}
+                      {strategy.platform && (
+                        <span className="flex items-center gap-1">
+                          📱 {strategy.platform}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-500">
                       Generated {format(new Date(strategy.created_at), 'MMM d, yyyy • h:mm a')}

@@ -8,8 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pymongo import MongoClient
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
-from datetime import datetime as dt_now # Alias for explicit calls if needed
+from datetime import datetime, timedelta, timezone
 import redis
 import hashlib
 import json
@@ -19,6 +18,7 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
 from bson import ObjectId
 from dotenv import load_dotenv # Added for loading environment variables
+load_dotenv()
 
 # Rate Limiting
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -38,6 +38,10 @@ from fastapi.responses import StreamingResponse
 try:
     from crew import create_content_strategy_crew
     CREW_AI_ENABLED = bool(os.getenv("GROQ_API_KEY"))
+    if CREW_AI_ENABLED:
+        print("✅ CrewAI Elite Mode: Enabled")
+    else:
+        print("⚠️  CrewAI: GROQ_API_KEY missing - running in Demo Mode")
 except:
     CREW_AI_ENABLED = False
 
@@ -149,7 +153,7 @@ class Token(BaseModel):
 limiter = Limiter(key_func=get_remote_address, default_limits=[f"{RATE_LIMIT_PER_MINUTE}/minute"])
 
 app = FastAPI(
-    title="Stratify.ai",
+    title="AgentForge",
     description="AI-Powered Content Strategy Platform | 5 Elite Agents | ROI Predictions | SEO Keywords | Production SaaS",
     version="2.0.0-production"
 )
@@ -178,7 +182,7 @@ def get_password_hash(password: str) -> str:
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
+    expire = datetime.now(timezone.utc) + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -376,11 +380,11 @@ def generate_demo_strategy(strategy_input: StrategyInput) -> dict:
 @app.get("/")
 async def root():
     return {
-        "message": "AI Content Strategy Planner API - MongoDB Edition",
+        "message": "AgentForge API - Premium AI Strategy Platform",
         "version": "2.0.0",
         "database": "MongoDB",
         "cache": "Redis" if REDIS_ENABLED else "Disabled",
-        "ai": "CrewAI" if CREW_AI_ENABLED else "Demo Mode"
+        "ai": "CrewAI Elite" if CREW_AI_ENABLED else "Demo Mode"
     }
 
 @app.get("/api/health")
@@ -396,7 +400,7 @@ async def health_check():
         "database": db_status,
         "redis": "healthy" if REDIS_ENABLED else "disabled",
         "crewai": "enabled" if CREW_AI_ENABLED else "demo mode",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 @app.post("/api/auth/signup", response_model=Token)
@@ -408,7 +412,7 @@ async def signup(user_data: UserCreate):
         "email": user_data.email,
         "hashed_password": get_password_hash(user_data.password),
         "tier": "free",
-        "created_at": datetime.utcnow()
+        "created_at": datetime.now(timezone.utc)
     }
     
     result = users_collection.insert_one(user_doc)
@@ -437,7 +441,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
     }
 
 # ============================================================================
-# STRIPE CHECKOUT (Pro Tier)
+# RAZORPAY CHECKOUT (Pro Tier)
 # ============================================================================
 
 @app.post("/api/pro-checkout")
@@ -465,7 +469,1304 @@ async def create_checkout_session(request: Request, current_user: dict = Depends
         }
     
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Razorpay error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# STRATEGY GENERATOR ENDPOINT (Coffee Format)
+# ============================================================================
+
+@app.post("/api/strategy")
+async def generate_strategy(request: Request, credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Generate 10-section content strategy matching coffee format"""
+    import time
+    start_time = time.time()
+    
+    try:
+        # Verify token
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        user_id = payload.get("sub")
+        
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        # Get user
+        user = users_collection.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get request data
+        data = await request.json()
+        topic = data.get("topic", "").strip()
+        
+        if not topic:
+            raise HTTPException(status_code=400, detail="Topic is required")
+        
+        # Check usage limits (3/day for free, unlimited for pro)
+        today_key = f"strategy_usage:{user_id}:{datetime.now().strftime('%Y-%m-%d')}"
+        
+        if REDIS_ENABLED:
+            try:
+                usage_today = int(redis_client.get(today_key) or 0)
+                
+                # Enforce limits for free tier
+                if user.get("tier") != "pro" and usage_today >= 3:
+                    raise HTTPException(
+                        status_code=429,
+                        detail="Monthly limit reached! Upgrade to Pro for unlimited strategies (₹2,400/month)"
+                    )
+                
+                # Increment usage
+                redis_client.incr(today_key)
+                redis_client.expire(today_key, 86400)  # 24 hours
+            except Exception as e:
+                print(f"Redis error: {e}")
+                usage_today = 0
+        else:
+            usage_today = 0
+        
+        
+        # Generate strategy using experience-based routing
+        if CREW_AI_ENABLED:
+            try:
+                strategy_content = generate_coffee_format_strategy(topic)
+            except Exception as e:
+                print(f"CrewAI error: {e}, using experience-based template")
+                strategy_content = generate_experience_based_strategy(data)
+        else:
+            # Use experience-based generation
+            strategy_content = generate_experience_based_strategy(data)
+        
+        # Calculate generation time
+        generation_time = f"{int(time.time() - start_time)} seconds"
+        
+        # Get total strategies count
+        total_strategies = strategies_collection.count_documents({"user_id": user_id})
+        
+        # Save strategy to database
+        strategy_doc = {
+            "user_id": user_id,
+            "topic": topic,
+            "content": strategy_content,
+            "type": "strategy",
+            "created_at": datetime.now(),
+            "generation_time": generation_time,
+            "feedback": None
+        }
+        
+        result = strategies_collection.insert_one(strategy_doc)
+        strategy_id = str(result.inserted_id)
+        
+        return {
+            "id": strategy_id,
+            "content": strategy_content,
+            "topic": topic,
+            "generation_time": generation_time,
+            "usage": {
+                "today": usage_today + 1,
+                "total": total_strategies + 1
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Strategy generation error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# HISTORY ENDPOINT
+# ============================================================================
+
+@app.get("/api/history")
+async def get_user_history(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get all strategies for the authenticated user"""
+    try:
+        # Verify JWT token
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        # Fetch all strategies for this user, sorted by creation date (newest first)
+        strategies = list(strategies_collection.find(
+            {"user_id": user_id}
+        ).sort("created_at", -1))
+        
+        # Convert ObjectId to string and format response
+        formatted_strategies = []
+        for strategy in strategies:
+            formatted_strategies.append({
+                "id": str(strategy["_id"]),
+                "topic": strategy.get("topic", "Untitled Strategy"),
+                "content": strategy.get("content", ""),
+                "created_at": strategy.get("created_at").isoformat() if strategy.get("created_at") else None,
+                "generation_time": strategy.get("generation_time", "Unknown"),
+                "feedback": strategy.get("feedback")
+            })
+        
+        return {
+            "strategies": formatted_strategies,
+            "total": len(formatted_strategies)
+        }
+        
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        print(f"❌ History fetch error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/api/history/{strategy_id}")
+async def delete_strategy(strategy_id: str, credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Delete a specific strategy"""
+    try:
+        # Verify JWT token
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        # Delete the strategy (only if it belongs to this user)
+        query = {
+            "_id": ObjectId(strategy_id),
+            "user_id": user_id
+        }
+        print(f"🗑️ Attempting to delete strategy with query: {query}")
+        result = strategies_collection.delete_one(query)
+        
+        if result.deleted_count == 0:
+            print(f"⚠️ Strategy {strategy_id} not found or doesn't belong to user {user_id}")
+            raise HTTPException(status_code=404, detail="Strategy not found")
+        
+        print(f"✅ Strategy {strategy_id} deleted successfully")
+        return {"message": "Strategy deleted successfully"}
+        
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        print(f"❌ Delete error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/history/{strategy_id}")
+async def get_strategy_by_id(strategy_id: str, credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get a specific strategy by ID"""
+    try:
+        # Verify JWT token
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        # Fetch the strategy (only if it belongs to this user)
+        strategy = strategies_collection.find_one({
+            "_id": ObjectId(strategy_id),
+            "user_id": user_id
+        })
+        
+        if not strategy:
+            raise HTTPException(status_code=404, detail="Strategy not found")
+        
+        # Format response
+        return {
+            "id": str(strategy["_id"]),
+            "topic": strategy.get("topic", "Untitled Strategy"),
+            "content": strategy.get("content", ""),
+            "created_at": strategy.get("created_at").isoformat() if strategy.get("created_at") else None,
+            "generation_time": strategy.get("generation_time", "Unknown"),
+            "feedback": strategy.get("feedback")
+        }
+        
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        print(f"❌ Get strategy error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+def generate_experience_based_strategy(data: dict) -> str:
+    """Route to appropriate strategy based on experience level"""
+    experience = data.get("experience", "beginner").lower()
+    topic = data.get("topic", "Business")
+    goal = data.get("goal", "")
+    audience = data.get("audience", "")
+    industry = data.get("industry", "General")
+    platform = data.get("platform", "Instagram")
+    content_type = data.get("contentType", "Reels")
+    
+    if experience == "beginner":
+        return generate_beginner_strategy(topic, goal, audience, industry, platform, content_type)
+    elif experience == "intermediate":
+        return generate_intermediate_strategy(topic, goal, audience, industry, platform, content_type)
+    elif experience == "expert":
+        return generate_expert_strategy(topic, goal, audience, industry, platform, content_type)
+    else:
+        return generate_strategy_template(topic)
+
+
+def generate_beginner_strategy(topic, goal, audience, industry, platform, content_type):
+    """Beginner: Copy-paste scripts + iPhone guides"""
+    return f"""
+<div class="strategy-sections">
+<div class="experience-badge" style="background: #10B981; color: white; padding: 0.75rem 1.5rem; border-radius: 1rem; font-weight: bold; text-align: center; margin-bottom: 2rem;">
+🎯 BEGINNER MODE ACTIVATED - Copy-Paste Ready Scripts
+</div>
+
+<h1 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 2rem; color: #7C3AED;">
+CONTENT STRATEGY FOR {topic.upper()} (BEGINNER MODE)
+</h1>
+
+<section class="strategy-section">
+<h2>1. BUSINESS GOAL (Refined)</h2>
+<p><strong>Your Goal:</strong> {goal or f'Grow {topic} presence on {platform}'}</p>
+<p><strong>SMART Goal:</strong> Generate 10,000 engaged followers and 200 qualified leads in 90 days through consistent {content_type} content.</p>
+<p><strong>Why This Works:</strong> Beginners need clear, achievable targets with step-by-step guidance.</p>
+</section>
+
+<section class="strategy-section">
+<h2>2. TARGET AUDIENCE</h2>
+<p><strong>Your Audience:</strong> {audience or 'Working professionals aged 25-40'}</p>
+<p><strong>Where They Are:</strong> {platform} (2-3 hours daily)</p>
+<p><strong>What They Want:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Quick, actionable tips</li>
+<li>Relatable content</li>
+<li>Clear next steps</li>
+<li>No jargon or complexity</li>
+</ul>
+</section>
+
+<section class="strategy-section">
+<h2>3. BRAND POSITIONING</h2>
+<p><strong>Your Angle:</strong> The Helpful Friend - Simple, relatable, and supportive</p>
+<p><strong>Why This Works for Beginners:</strong> Authenticity beats perfection. Your audience wants real people, not polished influencers.</p>
+</section>
+
+<section class="strategy-section">
+<h2>4. CONTENT PILLARS</h2>
+<div style="margin-top: 1rem;">
+<h3 style="color: #7C3AED;">Pillar 1: Educational Tips (40%)</h3>
+<p><strong>3 Reel Ideas (Copy These):</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>"5 Mistakes I Made So You Don't Have To"</li>
+<li>"The One Thing That Changed Everything"</li>
+<li>"How I [Result] in 30 Days"</li>
+</ul>
+</div>
+
+<div style="margin-top: 1.5rem;">
+<h3 style="color: #7C3AED;">Pillar 2: Behind the Scenes (30%)</h3>
+<p><strong>3 Reel Ideas:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>"Day in My Life" - Show your routine</li>
+<li>"Real Talk" - Share struggles</li>
+<li>"Morning Routine" - Relatable content</li>
+</ul>
+</div>
+
+<div style="margin-top: 1.5rem;">
+<h3 style="color: #7C3AED;">Pillar 3: Results & Testimonials (30%)</h3>
+<p><strong>3 Reel Ideas:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>"Before vs After" - Show transformation</li>
+<li>"Client Success Story"</li>
+<li>"This Actually Works" - Proof</li>
+</ul>
+</div>
+</section>
+
+<section class="strategy-section" style="background: #DBEAFE; padding: 1.5rem; border-radius: 1rem;">
+<h2 style="color: #1E40AF;">5. EXECUTION PLAN (BEGINNER-FRIENDLY)</h2>
+
+<h3 style="color: #7C3AED; margin-top: 1rem;">🎥 REEL 1: "I Failed 47 Times..." [COPY-PASTE SCRIPT]</h3>
+<div style="background: white; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<p><strong>Hook (0-1 second):</strong></p>
+<p style="margin-left: 1rem;">"I failed 47 times before this..." [Sad face, look down]</p>
+
+<p style="margin-top: 1rem;"><strong>Body (2-8 seconds):</strong></p>
+<p style="margin-left: 1rem;">"Until I discovered this 3-minute trick..." [Show your solution/app/product]</p>
+<p style="margin-left: 1rem;">"Now I [result] every single day" [Smile, show confidence]</p>
+
+<p style="margin-top: 1rem;"><strong>CTA (9-12 seconds):</strong></p>
+<p style="margin-left: 1rem;">"Save this + DM me 'START'" [Point to screen]</p>
+</div>
+
+<h3 style="color: #7C3AED; margin-top: 1.5rem;">📱 SHOOTING GUIDE (iPhone Only)</h3>
+<div style="background: white; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<p><strong>Equipment:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>✅ iPhone (any model)</li>
+<li>✅ Window for natural light</li>
+<li>✅ Stack of books as tripod (or $15 phone holder)</li>
+<li>❌ NO expensive camera needed</li>
+</ul>
+
+<p style="margin-top: 1rem;"><strong>3 Camera Positions:</strong></p>
+<ol style="margin-left: 1.5rem;">
+<li><strong>Table Setup:</strong> Phone on books, you sit across</li>
+<li><strong>Hand-held:</strong> Arm's length, slightly above eye level</li>
+<li><strong>Tripod:</strong> Chest height, 3 feet away</li>
+</ol>
+
+<p style="margin-top: 1rem;"><strong>Lighting Trick:</strong></p>
+<p style="margin-left: 1rem;">Face the window. Film between 10 AM - 2 PM for best light.</p>
+</div>
+
+<h3 style="color: #7C3AED; margin-top: 1.5rem;">✂️ EDITING (CapCut - Free App)</h3>
+<div style="background: white; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<p><strong>Step-by-Step:</strong></p>
+<ol style="margin-left: 1.5rem;">
+<li>Import video to CapCut</li>
+<li>Speed: Set to 1.2x (makes it snappier)</li>
+<li>Audio: Search "trending {platform}" → Pick top song</li>
+<li>Text: Add your hook as text overlay (yellow, bold)</li>
+<li>Export: 1080x1920, 60fps</li>
+</ol>
+<p style="margin-top: 0.5rem;"><strong>Total Time:</strong> 5 minutes per Reel</p>
+</div>
+
+<h3 style="color: #7C3AED; margin-top: 1.5rem;">⏰ POSTING SCHEDULE (Copy to Calendar)</h3>
+<div style="background: white; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<table style="width: 100%; border-collapse: collapse;">
+<tr style="background: #F3F4F6;">
+<th style="border: 1px solid #E5E7EB; padding: 0.5rem;">Day</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.5rem;">Time</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.5rem;">Content Type</th>
+</tr>
+<tr>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Monday</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">8:00 AM</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Educational Tip</td>
+</tr>
+<tr style="background: #F9FAFB;">
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Wednesday</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">1:00 PM</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Behind the Scenes</td>
+</tr>
+<tr>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Friday</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">7:00 PM</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Results/Testimonial</td>
+</tr>
+</table>
+<p style="margin-top: 0.5rem;"><strong>Why These Times:</strong> Morning commute, lunch break, evening wind-down = highest engagement</p>
+</div>
+</section>
+
+<section class="strategy-section">
+<h2>6. HASHTAG STRATEGY (Beginner-Friendly)</h2>
+<p><strong>Use Exactly 10 Hashtags Per Post:</strong></p>
+<div style="background: #F3F4F6; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<p><strong>Copy-Paste This:</strong></p>
+<p style="font-family: monospace; margin-top: 0.5rem;">
+#{industry.lower()}tips #{platform.lower()}growth #contentcreator #smallbusiness #entrepreneur #socialmediatips #digitalmarketing #businessgrowth #{topic.lower().replace(' ', '')} #viral{content_type.lower()}
+</p>
+</div>
+</section>
+
+<section class="strategy-section">
+<h2>7. ENGAGEMENT STRATEGY</h2>
+<p><strong>Daily Routine (30 Minutes):</strong></p>
+<ol style="margin-left: 1.5rem;">
+<li><strong>Morning (10 min):</strong> Reply to all comments on your posts</li>
+<li><strong>Afternoon (10 min):</strong> Comment on 20 posts in your niche</li>
+<li><strong>Evening (10 min):</strong> DM 5 people who engaged with your content</li>
+</ol>
+<p style="margin-top: 1rem;"><strong>What to Comment:</strong> "Love this! [Specific detail about their post]" - Be genuine!</p>
+</section>
+
+<section class="strategy-section">
+<h2>8. GROWTH MILESTONES</h2>
+<table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+<tr style="background: #F3F4F6;">
+<th style="border: 1px solid #E5E7EB; padding: 0.75rem;">Week</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.75rem;">Followers Goal</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.75rem;">Action</th>
+</tr>
+<tr>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">Week 1-2</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">100-500</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">Post 3x/week, engage daily</td>
+</tr>
+<tr style="background: #F9FAFB;">
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">Week 3-4</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">500-1,500</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">Analyze top post, create similar</td>
+</tr>
+<tr>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">Month 2</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">1,500-5,000</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">Collaborate with 3 similar accounts</td>
+</tr>
+<tr style="background: #F9FAFB;">
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">Month 3</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">5,000-10,000</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">Launch first paid offer</td>
+</tr>
+</table>
+</section>
+
+<section class="strategy-section">
+<h2>9. BEGINNER MISTAKES TO AVOID</h2>
+<div style="background: #FEE2E2; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<p><strong>❌ DON'T:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Buy followers (kills engagement)</li>
+<li>Post without a caption</li>
+<li>Use 30 hashtags (looks spammy)</li>
+<li>Ignore comments</li>
+<li>Give up after 2 weeks</li>
+</ul>
+</div>
+
+<div style="background: #D1FAE5; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem;">
+<p><strong>✅ DO:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Be consistent (3x/week minimum)</li>
+<li>Engage with your audience daily</li>
+<li>Save your best-performing posts</li>
+<li>Ask questions in captions</li>
+<li>Have fun and be yourself!</li>
+</ul>
+</div>
+</section>
+
+<section class="strategy-section">
+<h2>10. YOUR FIRST 7 DAYS</h2>
+<div style="background: #DBEAFE; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<p><strong>Day 1:</strong> Set up profile (bio, profile pic, link)</p>
+<p><strong>Day 2:</strong> Film 3 Reels using scripts above</p>
+<p><strong>Day 3:</strong> Edit Reels in CapCut (5 min each)</p>
+<p><strong>Day 4:</strong> Post Reel #1 at 8 AM</p>
+<p><strong>Day 5:</strong> Engage 30 min, plan next week</p>
+<p><strong>Day 6:</strong> Post Reel #2 at 1 PM</p>
+<p><strong>Day 7:</strong> Post Reel #3 at 7 PM, celebrate! 🎉</p>
+</div>
+</section>
+
+<section class="strategy-section" style="background: #FEF3C7; padding: 1.5rem; border-radius: 1rem; border-left: 4px solid #F59E0B;">
+<h2 style="color: #92400E;">⚠️ BEGINNER REALITY CHECK</h2>
+<div style="margin-top: 1rem;">
+<p style="font-weight: 600; color: #065F46; margin-bottom: 0.5rem;">✅ This works if:</p>
+<ul style="margin-left: 1.5rem; color: #065F46;">
+<li>You follow the scripts exactly (don't overthink!)</li>
+<li>You post 3x per week minimum</li>
+<li>You engage 30 minutes daily</li>
+<li>You stick with it for 90 days</li>
+<li>You track what works and do more of it</li>
+</ul>
+</div>
+
+<div style="margin-top: 1.5rem;">
+<p style="font-weight: 600; color: #991B1B; margin-bottom: 0.5rem;">❌ This fails if:</p>
+<ul style="margin-left: 1.5rem; color: #991B1B;">
+<li>You try to be "perfect" (done is better than perfect!)</li>
+<li>You post once and expect virality</li>
+<li>You buy followers or use bots</li>
+<li>You give up after 2 weeks</li>
+<li>You ignore your audience</li>
+</ul>
+</div>
+
+<div style="margin-top: 1.5rem; background: white; padding: 1rem; border-radius: 0.5rem;">
+<p style="font-weight: bold; color: #7C3AED;">💡 BEGINNER TIP:</p>
+<p>Your first 10 posts will feel awkward. That's normal! By post 20, you'll find your rhythm. By post 50, you'll be confident. Just keep going!</p>
+</div>
+</section>
+
+</div>
+"""
+
+
+def generate_intermediate_strategy(topic, goal, audience, industry, platform, content_type):
+    """Intermediate: Canva workflows + efficiency"""
+    return f"""
+<div class="strategy-sections">
+<div class="experience-badge" style="background: #3B82F6; color: white; padding: 0.75rem 1.5rem; border-radius: 1rem; font-weight: bold; text-align: center; margin-bottom: 2rem;">
+⚡ INTERMEDIATE MODE - Canva Workflows & Efficiency
+</div>
+
+<h1 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 2rem; color: #7C3AED;">
+CONTENT STRATEGY FOR {topic.upper()} (INTERMEDIATE MODE)
+</h1>
+
+<section class="strategy-section">
+<h2>1. BUSINESS GOAL (Refined)</h2>
+<p><strong>Your Goal:</strong> {goal or f'Scale {topic} to 50K followers'}</p>
+<p><strong>SMART Goal:</strong> Generate 50,000 engaged followers and 1,000 qualified leads in 90 days through optimized content workflows.</p>
+</section>
+
+<section class="strategy-section">
+<h2>2. TARGET AUDIENCE</h2>
+<p><strong>Your Audience:</strong> {audience or 'Professionals seeking efficiency'}</p>
+<p><strong>Content Preferences:</strong> Polished visuals, clear value, professional tone</p>
+</section>
+
+<section class="strategy-section">
+<h2>3. BRAND POSITIONING</h2>
+<p><strong>Your Angle:</strong> The Efficient Expert - Professional quality with smart workflows</p>
+</section>
+
+<section class="strategy-section">
+<h2>4. CONTENT PILLARS</h2>
+<p><strong>Framework:</strong> 40% Educational, 30% Case Studies, 20% Tools/Resources, 10% Personal</p>
+</section>
+
+<section class="strategy-section" style="background: #DBEAFE; padding: 1.5rem; border-radius: 1rem;">
+<h2 style="color: #1E40AF;">5. EXECUTION PLAN (CANVA WORKFLOWS)</h2>
+
+<h3 style="color: #7C3AED; margin-top: 1rem;">🎨 CANVA TEMPLATE SYSTEM</h3>
+<div style="background: white; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<p><strong>Create 3 Master Templates:</strong></p>
+
+<p style="margin-top: 1rem;"><strong>Template 1: Hook Overlay</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Yellow text with black outline (high contrast)</li>
+<li>Font: Montserrat Bold, 72pt</li>
+<li>Position: Top third of screen</li>
+<li>Animation: Fade in (0.5s)</li>
+</ul>
+
+<p style="margin-top: 1rem;"><strong>Template 2: CTA Sticker</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Design: "DM 'START' NOW" + Arrow pointing right</li>
+<li>Colors: Brand colors (purple/pink gradient)</li>
+<li>Size: 300x150px</li>
+<li>Position: Bottom right corner</li>
+</ul>
+
+<p style="margin-top: 1rem;"><strong>Template 3: Progress Bar</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Before/After split screen design</li>
+<li>Progress indicator (0% → 100%)</li>
+<li>Timestamp overlays</li>
+</ul>
+</div>
+
+<h3 style="color: #7C3AED; margin-top: 1.5rem;">⚙️ BATCH CREATION WORKFLOW</h3>
+<div style="background: white; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<p><strong>Monday (2 hours) - Content Day:</strong></p>
+<ol style="margin-left: 1.5rem;">
+<li><strong>Film (30 min):</strong> Record 5 raw videos back-to-back</li>
+<li><strong>Canva (45 min):</strong> Add graphics to all 5 videos
+  <ul style="margin-left: 1rem;">
+    <li>Import video to Canva</li>
+    <li>Apply master template</li>
+    <li>Customize text (5 min per video)</li>
+    <li>Export as MP4</li>
+  </ul>
+</li>
+<li><strong>CapCut (30 min):</strong> Add audio + transitions
+  <ul style="margin-left: 1rem;">
+    <li>Import from Canva</li>
+    <li>Add trending audio</li>
+    <li>Speed adjustments (1.1x-1.3x)</li>
+    <li>Smooth transitions</li>
+  </ul>
+</li>
+<li><strong>Schedule (15 min):</strong> Upload to Later/Planoly for the week</li>
+</ol>
+
+<p style="margin-top: 1rem;"><strong>Result:</strong> 5 professional Reels in 2 hours = 15 min per Reel</p>
+</div>
+
+<h3 style="color: #7C3AED; margin-top: 1.5rem;">📊 CONTENT CALENDAR (Copy This)</h3>
+<div style="background: white; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<table style="width: 100%; border-collapse: collapse;">
+<tr style="background: #F3F4F6;">
+<th style="border: 1px solid #E5E7EB; padding: 0.5rem;">Day</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.5rem;">Content Type</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.5rem;">Canva Template</th>
+</tr>
+<tr>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Mon 8AM</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Educational</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Hook Overlay</td>
+</tr>
+<tr style="background: #F9FAFB;">
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Wed 1PM</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Case Study</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Progress Bar</td>
+</tr>
+<tr>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Fri 7PM</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Tool/Resource</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">CTA Sticker</td>
+</tr>
+</table>
+</div>
+</section>
+
+<section class="strategy-section">
+<h2>6. OPTIMIZATION STRATEGY</h2>
+<p><strong>Weekly Review (30 min every Sunday):</strong></p>
+<ol style="margin-left: 1.5rem;">
+<li>Check Instagram Insights for top 3 performing Reels</li>
+<li>Identify common elements (hook, topic, format)</li>
+<li>Create 2 variations of winning formula for next week</li>
+<li>Archive or delete bottom 20% performers</li>
+</ol>
+</section>
+
+<section class="strategy-section">
+<h2>7. TOOLS STACK</h2>
+<div style="background: #F3F4F6; padding: 1rem; border-radius: 0.5rem;">
+<p><strong>Essential Tools:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li><strong>Canva Pro:</strong> $12.99/mo - Templates + brand kit</li>
+<li><strong>CapCut:</strong> Free - Video editing</li>
+<li><strong>Later:</strong> $18/mo - Scheduling</li>
+<li><strong>Notion:</strong> Free - Content calendar</li>
+</ul>
+<p style="margin-top: 0.5rem;"><strong>Total Cost:</strong> ~$31/month for professional workflow</p>
+</div>
+</section>
+
+<section class="strategy-section">
+<h2>8. GROWTH METRICS</h2>
+<p><strong>Track Weekly:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Follower growth rate (%)</li>
+<li>Engagement rate (likes + comments + saves / followers)</li>
+<li>Best performing content type</li>
+<li>Optimal posting times</li>
+</ul>
+<p><strong>Goal:</strong> 5-10% engagement rate, 1000+ followers/week by Month 2</p>
+</section>
+
+<section class="strategy-section">
+<h2>9. COLLABORATION STRATEGY</h2>
+<p><strong>Month 2-3: Partner with 5-10 accounts</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Similar follower count (±20%)</li>
+<li>Same niche, non-competing</li>
+<li>Cross-promote each other's content</li>
+<li>Joint Lives or challenges</li>
+</ul>
+</section>
+
+<section class="strategy-section">
+<h2>10. 90-DAY ROADMAP</h2>
+<div style="background: #DBEAFE; padding: 1rem; border-radius: 0.5rem;">
+<p><strong>Month 1:</strong> Build workflow, post 5x/week, reach 5K followers</p>
+<p><strong>Month 2:</strong> Optimize top performers, collaborate, reach 20K followers</p>
+<p><strong>Month 3:</strong> Scale with ads ($200-500), launch offer, reach 50K followers</p>
+</div>
+</section>
+
+<section class="strategy-section" style="background: #FEF3C7; padding: 1.5rem; border-radius: 1rem;">
+<h2 style="color: #92400E;">⚠️ INTERMEDIATE REALITY CHECK</h2>
+<p style="color: #065F46;"><strong>✅ This works if:</strong> You batch create, track metrics, and optimize weekly</p>
+<p style="color: #991B1B; margin-top: 0.5rem;"><strong>❌ This fails if:</strong> You create content daily without analyzing performance</p>
+</section>
+
+</div>
+"""
+
+
+def generate_expert_strategy(topic, goal, audience, industry, platform, content_type):
+    """Expert: Viral frameworks + A/B testing"""
+    return f"""
+<div class="strategy-sections">
+<div class="experience-badge" style="background: #8B5CF6; color: white; padding: 0.75rem 1.5rem; border-radius: 1rem; font-weight: bold; text-align: center; margin-bottom: 2rem;">
+🚀 EXPERT MODE - Viral Frameworks & Data-Driven Optimization
+</div>
+
+<h1 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 2rem; color: #7C3AED;">
+CONTENT STRATEGY FOR {topic.upper()} (EXPERT MODE)
+</h1>
+
+<section class="strategy-section">
+<h2>1. BUSINESS GOAL (Refined)</h2>
+<p><strong>Your Goal:</strong> {goal or f'Dominate {industry} on {platform}'}</p>
+<p><strong>SMART Goal:</strong> Generate 100,000+ followers and $50K revenue in 90 days through viral content and conversion optimization.</p>
+</section>
+
+<section class="strategy-section">
+<h2>2. TARGET AUDIENCE (Psychographic Segmentation)</h2>
+<p><strong>Primary:</strong> {audience or 'High-intent buyers with proven purchasing behavior'}</p>
+<p><strong>Behavioral Triggers:</strong> FOMO, social proof, authority, scarcity</p>
+</section>
+
+<section class="strategy-section">
+<h2>3. BRAND POSITIONING</h2>
+<p><strong>Strategy:</strong> Category King - Own the conversation in {industry}</p>
+<p><strong>Differentiation:</strong> Data-driven insights + contrarian takes</p>
+</section>
+
+<section class="strategy-section">
+<h2>4. CONTENT PILLARS (Viral Framework)</h2>
+<p><strong>Distribution:</strong> 50% Viral Hooks, 30% Authority Building, 20% Conversion</p>
+</section>
+
+<section class="strategy-section" style="background: #F3E8FF; padding: 1.5rem; border-radius: 1rem;">
+<h2 style="color: #6B21A8;">5. EXECUTION PLAN (EXPERT FRAMEWORKS)</h2>
+
+<h3 style="color: #8B5CF6; margin-top: 1rem;">🎯 HOOK FORMULAS (3 Proven Frameworks)</h3>
+<div style="background: white; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<p><strong>Formula 1: Problem-Agitate-Solve</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li><strong>Hook:</strong> "I wasted 2 years on [bad solution]"</li>
+<li><strong>Agitate:</strong> "Lost $10K and countless hours..."</li>
+<li><strong>Solve:</strong> "Until I discovered [your solution]"</li>
+<li><strong>Proof:</strong> "Now I [specific result]"</li>
+</ul>
+
+<p style="margin-top: 1rem;"><strong>Formula 2: Contrarian Take</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li><strong>Hook:</strong> "{Industry} influencers are lying to you"</li>
+<li><strong>Expose:</strong> "They say [common advice], but..."</li>
+<li><strong>Truth:</strong> "The real secret is [your method]"</li>
+<li><strong>CTA:</strong> "Save this before it's deleted"</li>
+</ul>
+
+<p style="margin-top: 1rem;"><strong>Formula 3: Social Proof</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li><strong>Hook:</strong> "How my client went from $0 to $100K in 60 days"</li>
+<li><strong>Story:</strong> "They were struggling with [problem]..."</li>
+<li><strong>Method:</strong> "We implemented [3-step process]"</li>
+<li><strong>Result:</strong> "[Specific metrics + timeline]"</li>
+</ul>
+</div>
+
+<h3 style="color: #8B5CF6; margin-top: 1.5rem;">📊 HASHTAG CLUSTERS (KD<25 Strategy)</h3>
+<div style="background: white; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<p><strong>Tier 1: Mega (100K-1M posts) - 3 hashtags</strong></p>
+<p style="font-family: monospace; margin-left: 1rem;">#{industry}tips #{platform}marketing #viral{content_type}</p>
+
+<p style="margin-top: 1rem;"><strong>Tier 2: Medium (10K-100K) - 5 hashtags</strong></p>
+<p style="font-family: monospace; margin-left: 1rem;">#{industry}strategy #{topic.replace(' ', '')}growth #contentmarketing #{platform}expert #{industry}hacks</p>
+
+<p style="margin-top: 1rem;"><strong>Tier 3: Niche (1K-10K) - 7 hashtags</strong></p>
+<p style="font-family: monospace; margin-left: 1rem;">#{industry}2024 #{topic.replace(' ', '')}tips #{platform}algorithm #{industry}secrets #{content_type}strategy #{topic.replace(' ', '')}expert #{industry}community</p>
+
+<p style="margin-top: 1rem;"><strong>Total: 15 hashtags per post (optimal for {platform})</strong></p>
+</div>
+
+<h3 style="color: #8B5CF6; margin-top: 1.5rem;">🧪 A/B TESTING MATRIX</h3>
+<div style="background: white; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<table style="width: 100%; border-collapse: collapse;">
+<tr style="background: #F3F4F6;">
+<th style="border: 1px solid #E5E7EB; padding: 0.5rem;">Week</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.5rem;">Test Variable</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.5rem;">Variants</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.5rem;">Winner Action</th>
+</tr>
+<tr>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Week 1</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Hook Type</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Problem vs Contrarian vs Social Proof</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Promote winner 3x</td>
+</tr>
+<tr style="background: #F9FAFB;">
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Week 2</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Posting Time</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">8AM vs 1PM vs 7PM</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Lock in optimal time</td>
+</tr>
+<tr>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Week 3</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">CTA Type</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">DM vs Save vs Comment</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Scale winning CTA</td>
+</tr>
+<tr style="background: #F9FAFB;">
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Week 4</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Content Length</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">15s vs 30s vs 60s</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.5rem;">Optimize duration</td>
+</tr>
+</table>
+</div>
+
+<h3 style="color: #8B5CF6; margin-top: 1.5rem;">💰 CONVERSION FUNNEL</h3>
+<div style="background: white; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<p><strong>Stage 1: Awareness (Viral Content)</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Hook-driven Reels (10M+ reach target)</li>
+<li>Controversial takes (high engagement)</li>
+<li>CTA: "Follow for daily tips"</li>
+</ul>
+
+<p style="margin-top: 1rem;"><strong>Stage 2: Consideration (Authority Content)</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Case studies with metrics</li>
+<li>Behind-the-scenes of results</li>
+<li>CTA: "DM 'STRATEGY' for free guide"</li>
+</ul>
+
+<p style="margin-top: 1rem;"><strong>Stage 3: Conversion (Direct Offer)</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Limited-time offers</li>
+<li>Testimonial compilations</li>
+<li>CTA: "Link in bio - 24hr only"</li>
+</ul>
+</div>
+</section>
+
+<section class="strategy-section">
+<h2>6. ANALYTICS DASHBOARD</h2>
+<p><strong>Track Daily (Non-Negotiable):</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li><strong>Engagement Rate:</strong> Target >15% (likes+comments+saves/followers)</li>
+<li><strong>Reach Rate:</strong> Target >50% (reach/followers)</li>
+<li><strong>Save Rate:</strong> Target >5% (saves/reach) - Highest signal</li>
+<li><strong>Share Rate:</strong> Target >2% (shares/reach) - Viral indicator</li>
+<li><strong>Profile Visit Rate:</strong> Target >10% (visits/reach)</li>
+<li><strong>Follower Conversion:</strong> Target >3% (new followers/profile visits)</li>
+</ul>
+
+<p style="margin-top: 1rem;"><strong>Tools:</strong> Instagram Insights + Metricool + Google Sheets automation</p>
+</section>
+
+<section class="strategy-section">
+<h2>7. PAID AMPLIFICATION</h2>
+<p><strong>Month 2-3: $1,000-2,000 Ad Budget</strong></p>
+<div style="background: #F3F4F6; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+<p><strong>Strategy:</strong></p>
+<ol style="margin-left: 1.5rem;">
+<li>Identify top 3 organic performers (>20% engagement)</li>
+<li>Boost with $50-100 each</li>
+<li>Target: Lookalike audience (1% of followers)</li>
+<li>Objective: Reach + Engagement</li>
+<li>Scale winners to $500+</li>
+</ol>
+<p style="margin-top: 0.5rem;"><strong>Expected ROI:</strong> $1 ad spend = 50-100 new followers (if content is proven)</p>
+</div>
+</section>
+
+<section class="strategy-section">
+<h2>8. INFLUENCER COLLABORATION</h2>
+<p><strong>Target: 10-20 micro-influencers (10K-100K followers)</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Engagement rate >10%</li>
+<li>Audience overlap >30%</li>
+<li>Collaboration: Shoutout-for-shoutout or paid ($100-500)</li>
+<li>Expected: 500-2000 new followers per collab</li>
+</ul>
+</section>
+
+<section class="strategy-section">
+<h2>9. CONTENT REPURPOSING</h2>
+<p><strong>1 Viral Reel → 10 Content Pieces:</strong></p>
+<ol style="margin-left: 1.5rem;">
+<li>Original Reel on Instagram</li>
+<li>Repost on TikTok</li>
+<li>YouTube Shorts</li>
+<li>LinkedIn carousel (screenshots)</li>
+<li>Twitter thread</li>
+<li>Email newsletter</li>
+<li>Blog post (expanded)</li>
+<li>Pinterest pin</li>
+<li>Facebook post</li>
+<li>Instagram Story highlights</li>
+</ol>
+</section>
+
+<section class="strategy-section">
+<h2>10. 90-DAY REVENUE ROADMAP</h2>
+<div style="background: #F3E8FF; padding: 1rem; border-radius: 0.5rem;">
+<p><strong>Month 1: Build + Test</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Post 7x/week, A/B test hooks</li>
+<li>Goal: 10K followers, identify winning formula</li>
+<li>Revenue: $0 (building audience)</li>
+</ul>
+
+<p style="margin-top: 1rem;"><strong>Month 2: Scale + Monetize</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Double down on winners, start ads ($500)</li>
+<li>Launch digital product ($47-97)</li>
+<li>Goal: 50K followers, $5K revenue</li>
+</ul>
+
+<p style="margin-top: 1rem;"><strong>Month 3: Optimize + Expand</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Scale ads ($1500), influencer collabs</li>
+<li>Launch high-ticket offer ($497-997)</li>
+<li>Goal: 100K followers, $50K revenue</li>
+</ul>
+</div>
+</section>
+
+<section class="strategy-section" style="background: #FEF3C7; padding: 1.5rem; border-radius: 1rem;">
+<h2 style="color: #92400E;">⚠️ EXPERT REALITY CHECK</h2>
+<p style="color: #065F46;"><strong>✅ This works if:</strong> You're data-obsessed, test relentlessly, and scale winners aggressively</p>
+<p style="color: #991B1B; margin-top: 0.5rem;"><strong>❌ This fails if:</strong> You rely on "gut feel" instead of metrics, or give up before finding your viral formula</p>
+
+<div style="margin-top: 1rem; background: white; padding: 1rem; border-radius: 0.5rem;">
+<p style="font-weight: bold; color: #8B5CF6;">💡 EXPERT TIP:</p>
+<p>Your first viral hit is luck. Your second is skill. Your third is a system. Build the system.</p>
+</div>
+</section>
+
+</div>
+"""
+
+def generate_strategy_template(topic: str) -> str:
+    """Generate 10-section strategy matching coffee format exactly"""
+    # ... (Existing template function remains below)
+    return f"""
+<div class="strategy-sections">
+
+<h1 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 2rem; color: #7C3AED;">
+CONTENT STRATEGY FOR {topic.upper()}
+</h1>
+
+<section class="strategy-section">
+<h2 style="font-size: 1.75rem; font-weight: bold; margin: 2rem 0 1rem; color: #1E3A8A;">
+1. BUSINESS GOAL (Refined)
+</h2>
+<p><strong>Vague Goal:</strong> "Grow {topic} presence"</p>
+<p><strong>SMART Goal:</strong> Generate 50,000 engaged followers and 500 qualified leads in 90 days through educational content and strategic offers.</p>
+</section>
+
+<section class="strategy-section">
+<h2 style="font-size: 1.75rem; font-weight: bold; margin: 2rem 0 1rem; color: #1E3A8A;">
+2. TARGET AUDIENCE (Narrowed Down)
+</h2>
+<p><strong>Primary Audience (70% focus):</strong> Health-conscious professionals aged 25-40</p>
+<ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+<li>Active on Instagram 2-3 hours daily</li>
+<li>Values convenience and quality</li>
+<li>Willing to pay premium for results</li>
+<li>Seeks expert guidance and community</li>
+<li>Prefers visual, bite-sized content</li>
+</ul>
+<p><strong>Secondary Audience:</strong> Fitness enthusiasts and wellness advocates</p>
+<p><strong>Recommendation:</strong> Focus 70% on primary audience for maximum conversion</p>
+</section>
+
+<section class="strategy-section">
+<h2 style="font-size: 1.75rem; font-weight: bold; margin: 2rem 0 1rem; color: #1E3A8A;">
+3. BRAND POSITIONING & UNIQUE ANGLE
+</h2>
+<p><strong>Positioning Options:</strong></p>
+<ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+<li><strong>The Expert:</strong> Science-backed, data-driven approach</li>
+<li><strong>The Relatable Friend:</strong> Real results, real people</li>
+<li><strong>The Premium Choice:</strong> Luxury experience, exclusive access</li>
+<li><strong>The Community Builder:</strong> Supportive tribe, shared journey</li>
+<li><strong>The Innovator:</strong> Cutting-edge methods, latest trends</li>
+</ol>
+<p><strong>Recommended:</strong> #2 - The Relatable Friend. Authenticity drives engagement and trust.</p>
+</section>
+
+<section class="strategy-section">
+<h2 style="font-size: 1.75rem; font-weight: bold; margin: 2rem 0 1rem; color: #1E3A8A;">
+4. CONTENT PILLARS (What You'll Actually Post)
+</h2>
+
+<div style="margin-top: 1rem;">
+<h3 style="font-size: 1.25rem; font-weight: 600; color: #7C3AED;">Pillar 1: Educational/Value (30%)</h3>
+<p><strong>5 Reel Examples:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>"5 Signs You Need This" - Problem awareness</li>
+<li>"Common Mistakes to Avoid" - Expert tips</li>
+<li>"How It Works in 60 Seconds" - Quick explainer</li>
+<li>"Before You Start, Know This" - Prerequisites</li>
+<li>"The Science Behind Results" - Credibility builder</li>
+</ul>
+</div>
+
+<div style="margin-top: 1.5rem;">
+<h3 style="font-size: 1.25rem; font-weight: 600; color: #7C3AED;">Pillar 2: Product/Offer (25%)</h3>
+<p><strong>5 Reel Examples:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>"What's Included" - Feature showcase</li>
+<li>"Real Results in 30 Days" - Testimonials</li>
+<li>"Limited Time Offer" - Urgency creator</li>
+<li>"How to Get Started" - CTA focused</li>
+<li>"Why Choose Us" - Differentiation</li>
+</ul>
+</div>
+
+<div style="margin-top: 1.5rem;">
+<h3 style="font-size: 1.25rem; font-weight: 600; color: #7C3AED;">Pillar 3: Lifestyle/Relatable (30%)</h3>
+<p><strong>5 Reel Examples:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>"Day in the Life" - Behind the scenes</li>
+<li>"Relatable Struggles" - Humor + empathy</li>
+<li>"Morning Routine" - Aspirational content</li>
+<li>"Weekend Vibes" - Lifestyle integration</li>
+<li>"Real Talk" - Authentic moments</li>
+</ul>
+</div>
+
+<div style="margin-top: 1.5rem;">
+<h3 style="font-size: 1.25rem; font-weight: 600; color: #7C3AED;">Pillar 4: Community/UGC (15%)</h3>
+<p><strong>5 Reel Examples:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>"Customer Spotlight" - Success stories</li>
+<li>"Q&A Friday" - Engagement driver</li>
+<li>"Challenge Results" - Community wins</li>
+<li>"Your Questions Answered" - Interactive</li>
+<li>"Shoutout Saturday" - Recognition</li>
+</ul>
+</div>
+</section>
+
+<section class="strategy-section">
+<h2 style="font-size: 1.75rem; font-weight: bold; margin: 2rem 0 1rem; color: #1E3A8A;">
+5. CONTENT EXECUTION PLAN
+</h2>
+<p><strong>Posting Frequency:</strong> 5-7 Reels per week (1-2 daily)</p>
+<p><strong>Best Posting Times:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>7-9 AM (Morning commute)</li>
+<li>12-1 PM (Lunch break)</li>
+<li>7-9 PM (Evening wind-down)</li>
+</ul>
+<p><strong>Reel Format:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Hook: First 3 seconds grab attention</li>
+<li>Length: 15-30 seconds optimal</li>
+<li>CTA: Clear next step (link in bio, comment, share)</li>
+</ul>
+
+<table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+<thead>
+<tr style="background: #F3F4F6;">
+<th style="border: 1px solid #E5E7EB; padding: 0.75rem;">Week</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.75rem;">Educational</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.75rem;">Product</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.75rem;">Lifestyle</th>
+<th style="border: 1px solid #E5E7EB; padding: 0.75rem;">Community</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">Week 1</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">2 posts</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">1 post</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">2 posts</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">1 post</td>
+</tr>
+<tr style="background: #F9FAFB;">
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">Week 2</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">2 posts</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">2 posts</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">2 posts</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">1 post</td>
+</tr>
+<tr>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">Week 3</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">2 posts</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">1 post</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">2 posts</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">1 post</td>
+</tr>
+<tr style="background: #F9FAFB;">
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">Week 4</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">2 posts</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">2 posts</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">2 posts</td>
+<td style="border: 1px solid #E5E7EB; padding: 0.75rem;">1 post</td>
+</tr>
+</tbody>
+</table>
+</section>
+
+<section class="strategy-section">
+<h2 style="font-size: 1.75rem; font-weight: bold; margin: 2rem 0 1rem; color: #1E3A8A;">
+6. CONVERSION STRATEGY
+</h2>
+<p><strong>Link in Bio:</strong> Linktree with 4 options</p>
+<ul style="margin-left: 1.5rem;">
+<li>Free Guide Download (lead magnet)</li>
+<li>Book Consultation (high-intent)</li>
+<li>Shop Products (direct sale)</li>
+<li>Join Community (engagement)</li>
+</ul>
+<p><strong>Stories Integration:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Polls: "Which topic next?"</li>
+<li>Countdowns: Launch announcements</li>
+<li>Quizzes: "What's your type?"</li>
+<li>Questions: Direct engagement</li>
+</ul>
+<p><strong>Instagram Offers:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>"Show this Reel for 15% off"</li>
+<li>"Comment 'READY' for exclusive access"</li>
+<li>"First 50 get bonus package"</li>
+</ul>
+</section>
+
+<section class="strategy-section">
+<h2 style="font-size: 1.75rem; font-weight: bold; margin: 2rem 0 1rem; color: #1E3A8A;">
+7. HASHTAG STRATEGY
+</h2>
+<p><strong>Large (100k-1M followers):</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>#FitnessMotivation (1.2M)</li>
+<li>#HealthyLifestyle (850K)</li>
+<li>#WellnessJourney (600K)</li>
+<li>#TransformationTuesday (500K)</li>
+</ul>
+<p><strong>Medium (10k-100k):</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>#FitnessCommunity (85K)</li>
+<li>#HealthCoach (45K)</li>
+<li>#WellnessWarrior (30K)</li>
+<li>#MindBodySoul (25K)</li>
+</ul>
+<p><strong>Small/Niche (1k-10k):</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>#YourNiche2024 (5K)</li>
+<li>#LocalFitness (3K)</li>
+<li>#SpecificMethod (2K)</li>
+<li>#CommunityName (1K)</li>
+</ul>
+<p><strong>Usage:</strong> 8-12 hashtags per post, mix all three sizes</p>
+</section>
+
+<section class="strategy-section">
+<h2 style="font-size: 1.75rem; font-weight: bold; margin: 2rem 0 1rem; color: #1E3A8A;">
+8. METRICS TO TRACK
+</h2>
+<p><strong>Weekly Metrics:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Follower growth rate</li>
+<li>Engagement rate (likes + comments + saves)</li>
+<li>Reach and impressions</li>
+<li>Profile visits</li>
+<li>Link clicks</li>
+</ul>
+<p><strong>Monthly Metrics:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Lead generation (email signups)</li>
+<li>Conversion rate (leads to customers)</li>
+<li>Revenue from Instagram</li>
+<li>Top performing content types</li>
+</ul>
+<p><strong>Goal Benchmarks:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Month 1: 5,000 followers, 5% engagement</li>
+<li>Month 2: 15,000 followers, 7% engagement</li>
+<li>Month 3: 50,000 followers, 10% engagement</li>
+<li>90 days: 500 qualified leads</li>
+</ul>
+</section>
+
+<section class="strategy-section">
+<h2 style="font-size: 1.75rem; font-weight: bold; margin: 2rem 0 1rem; color: #1E3A8A;">
+9. CONTENT CREATION TIPS
+</h2>
+<p><strong>Equipment:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>iPhone/Android (no fancy camera needed)</li>
+<li>Natural lighting (near windows)</li>
+<li>Simple tripod ($20-30)</li>
+<li>Wireless mic for audio ($50)</li>
+</ul>
+<p><strong>Editing Tools:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>CapCut (free, easy transitions)</li>
+<li>InShot (text overlays)</li>
+<li>Canva (thumbnails, graphics)</li>
+</ul>
+<p><strong>Batch Creation Workflow:</strong></p>
+<ol style="margin-left: 1.5rem;">
+<li>Film 10-15 Reels in one session</li>
+<li>Edit in batches (2-3 hours)</li>
+<li>Schedule with Later or Planoly</li>
+<li>Engage daily (30 min morning + evening)</li>
+</ol>
+<p><strong>Competitor Spy Method:</strong></p>
+<ul style="margin-left: 1.5rem;">
+<li>Follow top 10 competitors</li>
+<li>Save their best-performing Reels</li>
+<li>Adapt (don't copy) their hooks and formats</li>
+<li>Add your unique angle</li>
+</ul>
+</section>
+
+<section class="strategy-section">
+<h2 style="font-size: 1.75rem; font-weight: bold; margin: 2rem 0 1rem; color: #1E3A8A;">
+10. 90-DAY ROADMAP
+</h2>
+<div style="margin-top: 1rem;">
+<h3 style="font-size: 1.25rem; font-weight: 600; color: #7C3AED;">Month 1: Foundation</h3>
+<ul style="margin-left: 1.5rem;">
+<li>Set up profile optimization (bio, highlights, link)</li>
+<li>Create first 30 Reels (batch filming)</li>
+<li>Post 5-7x per week consistently</li>
+<li>Engage 30 min daily (comments, DMs)</li>
+<li>Goal: 5,000 followers, establish brand voice</li>
+</ul>
+</div>
+
+<div style="margin-top: 1.5rem;">
+<h3 style="font-size: 1.25rem; font-weight: 600; color: #7C3AED;">Month 2: Optimization</h3>
+<ul style="margin-left: 1.5rem;">
+<li>Analyze top 10 performing Reels</li>
+<li>Double down on winning formats</li>
+<li>Launch first paid offer/product</li>
+<li>Run Instagram Stories ads ($200-500)</li>
+<li>Goal: 15,000 followers, 100 leads</li>
+</ul>
+</div>
+
+<div style="margin-top: 1.5rem;">
+<h3 style="font-size: 1.25rem; font-weight: 600; color: #7C3AED;">Month 3: Scale</h3>
+<ul style="margin-left: 1.5rem;">
+<li>Collaborate with 5-10 micro-influencers</li>
+<li>Launch UGC campaign (customer testimonials)</li>
+<li>Increase ad spend to $1,000-2,000</li>
+<li>Host live Q&A or workshop</li>
+<li>Goal: 50,000 followers, 500 qualified leads</li>
+</ul>
+</div>
+</section>
+
+<section class="strategy-section" style="background: #FEF3C7; padding: 1.5rem; border-radius: 1rem; border-left: 4px solid #F59E0B;">
+<h2 style="font-size: 1.75rem; font-weight: bold; margin-bottom: 1rem; color: #92400E;">
+⚠️ FINAL REALITY CHECK
+</h2>
+<div style="margin-top: 1rem;">
+<p style="font-weight: 600; color: #065F46; margin-bottom: 0.5rem;">✅ This works if:</p>
+<ul style="margin-left: 1.5rem; color: #065F46;">
+<li>You post consistently (5-7x per week minimum)</li>
+<li>You engage authentically (not just auto-comments)</li>
+<li>You track metrics weekly and adjust</li>
+<li>You batch create content (don't wing it daily)</li>
+<li>You have a clear offer/product to sell</li>
+</ul>
+</div>
+
+<div style="margin-top: 1.5rem;">
+<p style="font-weight: 600; color: #991B1B; margin-bottom: 0.5rem;">❌ This fails if:</p>
+<ul style="margin-left: 1.5rem; color: #991B1B;">
+<li>You post sporadically (2-3x per week)</li>
+<li>You only promote, never provide value</li>
+<li>You ignore comments and DMs</li>
+<li>You don't analyze what's working</li>
+<li>You give up before 90 days</li>
+</ul>
+</div>
+</section>
+
+</div>
+"""
+
+
+def generate_coffee_format_strategy(topic: str) -> str:
+    """Generate strategy using CrewAI agents (if enabled)"""
+    # This would use CrewAI to generate content
+    # For now, fall back to template
+    return generate_strategy_template(topic)
+
 
 # ============================================================================
 # STRATEGY GENERATION
@@ -523,7 +1824,7 @@ async def generate_strategy(
         "output_data": strategy_dict,
         "cache_key": cache_key,
         "generation_time": int(generation_time),
-        "created_at": datetime.utcnow()
+        "created_at": datetime.now(timezone.utc)
     }
     strategies_collection.insert_one(strategy_doc)
     
@@ -732,8 +2033,8 @@ async def apply_referral(
         {
             "$set": {
                 "tier": "pro",
-                "pro_until": datetime.utcnow() + timedelta(days=7),
-                "updated_at": datetime.utcnow()
+                "pro_until": datetime.now(timezone.utc) + timedelta(days=7),
+                "updated_at": datetime.now(timezone.utc)
             },
             "$inc": {"referral_count": 1}
         }
@@ -744,7 +2045,7 @@ async def apply_referral(
         {"_id": ObjectId(current_user["id"])},
         {"$set": {
             "referred_by": str(referrer["_id"]),
-            "referred_at": datetime.utcnow()
+            "referred_at": datetime.now(timezone.utc)
         }}
     )
     
@@ -787,88 +2088,49 @@ async def get_referral_code(current_user: dict = Depends(get_current_user)):
 # PROFILE ENDPOINTS
 # ============================================================================
 
-@app.get("/profile")
-async def get_profile(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Get user profile information"""
-    try:
-        # Verify token
-        token = credentials.credentials
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
-        user_id = payload.get("sub")
-        
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token")
-        
-        # Get user from database
-        user = users_collection.find_one({"_id": ObjectId(user_id)})
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        # Count strategies for this user
-        total_strategies = strategies_collection.count_documents({"user_id": user_id})
-        
-        # Get monthly usage from Redis
-        usage_month = 0
-        if REDIS_ENABLED:
-            try:
-                current_month = datetime.now().strftime("%Y-%m")
-                count_key = f"strategy_count:{user_id}:{current_month}"
-                current_val = redis_client.get(count_key)
-                usage_month = int(current_val) if current_val else 0
-            except:
-                pass
-        
-        return {
-            "name": user.get("name", user["email"].split("@")[0]),
-            "email": user["email"],
-            "tier": user.get("tier", "free"),
-            "usage_month": usage_month,
-            "total_strategies": total_strategies,
-            "photo": user.get("photo", None)
-        }
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    except Exception as e:
-        print(f"❌ Profile fetch error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+@app.get("/api/profile")
+async def get_profile(current_user: dict = Depends(get_current_user)):
+    """Get user profile information including usage stats"""
+    user_id = current_user["id"]
+    
+    # Count total strategies
+    total_strategies = strategies_collection.count_documents({"user_id": user_id})
+    
+    # Count strategies for this month (calendar month)
+    now = datetime.now(timezone.utc)
+    start_of_month = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
+    usage_month = strategies_collection.count_documents({
+        "user_id": user_id,
+        "created_at": {"$gte": start_of_month}
+    })
+    
+    return {
+        "name": current_user.get("name", current_user["email"].split("@")[0]),
+        "email": current_user["email"],
+        "tier": current_user.get("tier", "free"),
+        "usage_month": usage_month,
+        "total_strategies": total_strategies,
+        "photo": current_user.get("photo", None)
+    }
 
-@app.put("/profile")
-async def update_profile(request: Request, credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Update user profile"""
-    try:
-        # Verify token
-        token = credentials.credentials
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
-        user_id = payload.get("sub")
+@app.put("/api/profile")
+async def update_profile(data: dict, current_user: dict = Depends(get_current_user)):
+    """Update user profile information"""
+    update_fields = {}
+    if "name" in data:
+        update_fields["name"] = data["name"]
+    if "photo" in data:
+        update_fields["photo"] = data["photo"]
+    
+    if not update_fields:
+        return {"success": False, "message": "No fields to update"}
         
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token")
-        
-        # Get update data
-        data = await request.json()
-        update_fields = {}
-        
-        if "name" in data:
-            update_fields["name"] = data["name"]
-        if "photo" in data:
-            update_fields["photo"] = data["photo"]
-        
-        # Update user
-        users_collection.update_one(
-            {"_id": ObjectId(user_id)},
-            {"$set": update_fields}
-        )
-        
-        return {"success": True, "message": "Profile updated successfully"}
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    except Exception as e:
-        print(f"❌ Profile update error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    users_collection.update_one(
+        {"_id": ObjectId(current_user["id"])},
+        {"$set": update_fields}
+    )
+    
+    return {"success": True, "message": "Profile updated successfully"}
 
 
 # ============================================================================
@@ -881,7 +2143,7 @@ async def submit_feedback(request: Request, credentials: HTTPAuthorizationCreden
     try:
         # Verify token
         token = credentials.credentials
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         user_id = payload.get("sub")
         
         if not user_id:
@@ -900,7 +2162,7 @@ async def submit_feedback(request: Request, credentials: HTTPAuthorizationCreden
                 "$set": {
                     "feedback_rating": rating,
                     "feedback_comment": comment,
-                    "feedback_date": datetime.utcnow()
+                    "feedback_date": datetime.now(timezone.utc)
                 }
             }
         )

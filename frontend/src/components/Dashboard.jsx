@@ -3,7 +3,6 @@ import { useAuth } from '../App';
 import { Sparkles, TrendingUp, Zap, ArrowRight, Calendar, BarChart3, Trophy, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { strategyAPI } from '../api';
-import StratifyLogo from './StratifyLogo';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -41,34 +40,19 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto">
         
         {/* Hero Section */}
-        <div className="mb-12 animate-fade-in relative">
-          {/* Floating Logo - Top Left */}
-          <div className="absolute -top-4 -left-8 z-10">
-            <StratifyLogo size="xl" animated={true} />
-          </div>
-          
-          <div className="flex items-center justify-between mb-4">
-            <div className="pl-24">
-              <h1 className="text-5xl font-bold mb-3 tracking-tight text-gray-900 dark:text-white">
-                Watch 5 AI Research Agents{' '}
-                <span className="bg-gradient-to-r from-primary-600 via-accent-600 to-pink-600 bg-clip-text text-transparent">
-                  Build Your Strategy LIVE
-                </span>
-              </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-300">
-                Stop reading AI reports. See academic-grade researchers collaborate in real-time
-              </p>
-            </div>
-            {user?.tier !== 'pro' && (
-              <button 
-                onClick={() => navigate('/upgrade')}
-                className="hidden md:flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105"
-              >
-                <Trophy className="w-5 h-5" />
-                Upgrade to Pro
-              </button>
-            )}
-          </div>
+        <div className="relative text-center mb-16 px-4 animate-fade-in">
+          <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight text-gray-900 dark:text-white">
+            Watch 5 AI Agents{' '}
+            <span className="bg-gradient-to-r from-primary-600 via-accent-600 to-pink-600 bg-clip-text text-transparent">
+              Build Your Strategy
+            </span>
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4">
+            Live multi-agent collaboration for professional content planning
+          </p>
+          <p className="text-lg font-black text-primary-600 dark:text-primary-400 tracking-wider uppercase">
+            AGENTS BUILD STRATEGY
+          </p>
         </div>
 
         {/* Stats Grid - Modern Cards */}

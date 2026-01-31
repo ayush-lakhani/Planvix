@@ -12,6 +12,7 @@ UPGRADE #5: Analytics Dashboard
 # Already added: asyncio, uuid, BackgroundTasks, StreamingResponse
 
 # Add after line 31 - Update CrewAI import
+from datetime import datetime, timedelta, timezone
 from crew import create_content_strategy_crew, create_content_strategy_crew_async
 
 # ============================================================================
@@ -54,7 +55,7 @@ async def stream_strategy_generation(
                 "user_id": current_user["id"],
                 "input_data": strategy_input.dict(),
                 "output_data": strategy_dict,
-                "created_at": datetime.utcnow(),
+                "created_at": datetime.now(timezone.utc),
                 "generation_time": 0  # Placeholder
             }
             strategies_collection.insert_one(strategy_doc)
@@ -82,7 +83,7 @@ def check_strategy_limit(user_id: str, tier: str) -> bool:
         return True  # Unlimited
     
     # Count strategies created today
-    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
     today_count = strategies_collection.count_documents({
         "user_id": user_id,
         "created_at": {"$gte": today_start}
@@ -117,7 +118,7 @@ async def process_strategy_job_background(job_id: str, user_id: str, strategy_in
             "job_id": job_id,
             "input_data": strategy_input.dict(),
             "output_data": strategy_dict,
-            "created_at": datetime.utcnow(),
+            "created_at": datetime.now(timezone.utc),
             "generation_time": 0
         }
         strategies_collection.insert_one(strategy_doc)
@@ -227,7 +228,7 @@ async def get_user_analytics(current_user: dict = Depends(get_current_user)):
                             {
                                 "$gte": [
                                     "$created_at",
-                                    datetime.utcnow() - timedelta(days=7)
+                                    datetime.now(timezone.utc) - timedelta(days=7)
                                 ]
                             },
                             1,
@@ -269,7 +270,7 @@ async def get_user_analytics(current_user: dict = Depends(get_current_user)):
             "daily_limit_remaining": 3 - strategies_collection.count_documents({
                 "user_id": current_user["id"],
                 "created_at": {
-                    "$gte": datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+                    "$gte": datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
                 }
             }) if current_user.get("tier") != "pro" else "Unlimited"
         }

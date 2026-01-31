@@ -1,9 +1,9 @@
 {
-  "name": "stratify-ai",
+  "name": "agentforge",
   "private": true,
   "version": "2.0.0",
   "type": "module",
-  "description": "Stratify.ai - AI-Powered Content Strategy Platform",
+  "description": "AgentForge - AI-Powered Content Strategy Platform",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

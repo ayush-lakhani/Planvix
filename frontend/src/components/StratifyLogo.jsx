@@ -142,4 +142,9 @@ export function SpinningRingLogo({ size = 'md' }) {
 }
 
 // Main export - you can switch between styles
-export default MinimalPulseLogo; // Change this to try different styles
+export default HexagonLogo; // Rotating Hexagon (GitHub Copilot-like) - Geometric & Modern
+
+
+
+
+

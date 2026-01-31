@@ -1,4 +1,4 @@
-# 🚀 Stratify.ai - AI-Powered Content Strategy Platform
+# 🚀 AgentForge - AI-Powered Content Strategy Platform
 
 **Enterprise-grade SaaS for intelligent content strategy generation using multi-agent AI systems**
 
@@ -30,55 +30,41 @@
 
 ## 🎯 Overview
 
-**Stratify.ai** is a production-ready SaaS platform that generates comprehensive content marketing strategies in under 30 seconds using a sophisticated **multi-agent AI system** powered by **CrewAI** and **Groq's Llama 3.3-70B** model.
+**AgentForge** is a production-ready SaaS platform that generates comprehensive content marketing strategies in under 30 seconds using a sophisticated **multi-agent AI system** powered by **CrewAI Elite** and **Groq's Llama 3.3-70B** model.
 
-### What It Does
-
-Stratify.ai analyzes your business goals and generates:
-- **🎯 Audience Personas** - Deep psychological profiling with pain points, desires, and objections
-- **🔍 Competitor Gap Analysis** - Identify market opportunities with high-impact strategies
-- **📊 SEO Keyword Research** - Real SerpAPI data with search volume and difficulty scoring
-- **📅 30-Day Content Calendar** - Week-by-week posting schedule with caption hooks and CTAs
-- **💰 ROI Predictions** - Traffic lift forecasts, engagement rates, and conversion estimates
-- **✨ Ready-to-Use Content** - Sample posts with image prompts and optimal posting times
+### Elite Mode Strategy
+AgentForge analyzes your business goals and generates:
+- **🎯 Audience Intelligence Surgeon** - Deep psychological profiling and persona creation
+- **🔍 Cultural Trend Sniper** - Competitor gap analysis and viral trend monitoring
+- **📊 Organic Traffic Architect** - SEO keyword research with hashtags and difficulty scoring
+- **📅 Strategic Content Synthesizer** - 30-day calendar with caption hooks and CTAs
+- **💰 ROI Performance Predictor** - Traffic lift forecasts and engagement estimates
 
 ### Value Proposition
-
-- **For Creators**: Stop spending 4+ hours planning content. Get pro strategies in 3 minutes.
-- **For Businesses**: Replace $5K/month agencies with $29/month AI-powered strategy.
-- **For Marketers**: Data-driven strategies with real keyword research and ROI forecasting.
+- **For Creators**: Stop spending 4+ hours planning content. Get pro strategies in 30 seconds.
+- **For Businesses**: Scale your organic reach with data-driven AI agents at a fraction of agency costs.
+- **For Marketers**: Fast, accurate strategy generation with real-time trend alignment.
 
 ---
 
 ## ✨ Features
 
-### 🤖 Multi-Agent AI System (CrewAI)
-
-Five specialized AI agents working in sequence:
-
-1. **Audience Surgeon** - Psychological profiling and persona creation
-2. **Trend Sniper** - Competitor gap analysis and market research
-3. **Traffic Architect** - SEO keyword research with SerpAPI integration
-4. **Content Synthesizer** - 30-day calendar and sample post generation
-5. **ROI Predictor** - Performance forecasting and metrics estimation
+### 🤖 CrewAI Elite Multi-Agent System
+Five specialized AI agents working together:
+1. **Audience Surgeon**: Crafts hyper-targeted audience personas.
+2. **Trend Sniper**: Identifies high-ROI competitor gaps.
+3. **Traffic Architect**: Generates SEO-optimized keyword clusters and hashtags.
+4. **Content Synthesizer**: Produces specific sample posts and posting schedules.
+5. **ROI Predictor**: Forecasts performance metrics and growth liftoff.
 
 ### 💎 Production Features
-
-- ✅ **JWT Authentication** - Secure user sessions with MongoDB
-- ✅ **Redis Caching** - 24-hour TTL for fast strategy retrieval
-- ✅ **Rate Limiting** - 30 requests/minute via SlowAPI
-- ✅ **Stripe Integration** - Pro tier checkout ($29/mo)
-- ✅ **Free Tier Limits** - 3 strategies/month (upgradeable)
-- ✅ **History Dashboard** - Search and retrieve past strategies
-- ✅ **Beautiful UI** - Dark mode, glassmorphism, gradient animations
-- ✅ **Mobile Responsive** - Tailwind CSS responsive design
-
-### 📊 Analytics & Insights
-
-- Real-time usage tracking (strategies/month)
-- Success rate monitoring (100% delivery)
-- ROI prediction aggregation
-- User tier management (Free/Pro)
+- ✅ **JWT Authentication**: Secure sessions with MongoDB persistence.
+- ✅ **Redis Caching**: Optimized retrieval for repeat strategy topics.
+- ✅ **Rate Limiting**: Integrated SlowAPI protection (30 requests/min).
+- ✅ **Razorpay Payments**: Seamless Pro tier subscription (₹2,400/mo).
+- ✅ **Free Tier Limits**: 3 strategies per day (upgrade for unlimited).
+- ✅ **Visual Analytics**: Interactive dashboard with real-time usage tracking.
+- ✅ **Elite UI**: Modern glassmorphic design, dark mode, and smooth transitions.
 
 ---
 
@@ -98,11 +84,11 @@ Five specialized AI agents working in sequence:
 ┌─────────────────────────┼──────────────────────────────────┐
 │                   Backend (FastAPI)                        │
 │  ┌────────────────────────────────────────────────────────┐│
-│  │  JWT Auth  │  Rate Limiter  │  Redis Cache  │ Stripe  ││
+│  │  JWT Auth  │  Rate Limiter  │  Redis Cache  │ Razorpay ││
 │  └────────────────────────────────────────────────────────┘│
 │                          │                                  │
 │  ┌─────────────────────────────────────────────────────┐  │
-│  │          CrewAI Multi-Agent System (5 Agents)       │  │
+│  │          CrewAI Elite Multi-Agent System (5 Agents) │  │
 │  │   Audience → Trend → Traffic → Synthesizer → ROI   │  │
 │  └──────────────┬──────────────────────────────────────┘  │
 │                 │                                          │
@@ -112,8 +98,7 @@ Five specialized AI agents working in sequence:
         │                   │            │
     ┌───▼────┐       ┌─────▼─────┐  ┌──▼────┐
     │MongoDB │       │   Redis   │  │ Groq  │
-    │(Users, │       │ (Cache)   │  │ API   │
-    │Strats) │       │           │  │(LLM)  │
+    │(Atlas) │       │ (Cache)   │  │ (LLM) │
     └────────┘       └───────────┘  └───────┘
 ```
 
@@ -121,9 +106,9 @@ Five specialized AI agents working in sequence:
 
 ## 📸 Dashboard Preview
 
-![Stratify.ai Dashboard](C:/Users/Ayush/.gemini/antigravity/brain/c4461ff7-36b4-45b8-b18b-0eb407a924b5/stratify_dashboard_1769332689823.png)
+![AgentForge Dashboard](C:/Users/Ayush/.gemini/antigravity/brain/c4461ff7-36b4-45b8-b18b-0eb407a924b5/stratify_dashboard_1769332689823.png)
 
-*Modern glassmorphic dashboard with real-time stats, progress tracking, and one-click strategy generation*
+*Modern glassmorphic dashboard with real-time stats, progress tracking, and Elite AI strategy generation*
 
 ---
 
@@ -131,17 +116,17 @@ Five specialized AI agents working in sequence:
 
 ### Backend
 - **Framework**: FastAPI (Python 3.11+)
-- **AI**: CrewAI + Groq Llama-3.3-70B
-- **Database**: MongoDB (user data, strategies)
-- **Cache**: Redis (24h TTL)
-- **Auth**: JWT (JSON Web Tokens)
-- **Payments**: Stripe (Pro tier subscriptions)
-- **SEO**: SerpAPI (real keyword data)
+- **AI**: CrewAI Elite + Groq Llama-3.3-70B
+- **Database**: MongoDB (Atlas/Local)
+- **Cache**: Redis (Rate limiting & Cache)
+- **Auth**: JWT (Secure JSON Web Tokens)
+- **Payments**: Razorpay (Pro tier subscriptions)
+- **SEO**: Integrated Trend & Traffic Agents
 - **Validation**: Pydantic v2
 
 ### Frontend
 - **Framework**: React 18 + Vite
-- **Styling**: Tailwind CSS
+- **Styling**: Vanilla CSS (Premium Glassmorphism)
 - **Routing**: React Router v6
 - **HTTP**: Axios
 - **Icons**: Lucide React
@@ -160,9 +145,9 @@ Ensure you have the following installed:
 
 - **Python**: 3.11 or higher ([Download](https://python.org))
 - **Node.js**: 18+ and npm ([Download](https://nodejs.org))
-- **MongoDB**: Local or Atlas ([Get Started](https://mongodb.com))
-- **Redis**: Local or Cloud ([Install](https://redis.io/download))
-- **Git**: Version control ([Download](https://git-scm.com))
+- **MongoDB**: Atlas (Recommended) or Local ([Get Started](https://mongodb.com))
+- **Redis**: Cloud or Local ([Install](https://redis.io/download))
+- **Git**: For version control ([Download](https://git-scm.com))
 
 ---
 
@@ -171,8 +156,8 @@ Ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/stratify-ai.git
-cd stratify-ai
+git clone https://github.com/yourusername/agentforge.git
+cd agentforge
 ```
 
 ### 2. Backend Setup
@@ -212,23 +197,24 @@ npm install
 
 #### Backend (`backend/.env`)
 
-Create `backend/.env` from `backend/.env.example`:
+Create `backend/.env` with the following variables:
 
 ```bash
 # AI & APIs
-GROQ_API_KEY=gsk_your_groq_api_key_here
-SERPAPI_KEY=your_serpapi_key_optional
+GROQ_API_KEY=gsk_your_key                      # Required for AI
+SERPAPI_KEY=your_key                           # Optional for SEO
 
 # Database
-MONGODB_URL=mongodb://localhost:27017/
-REDIS_URL=redis://localhost:6379
+MONGODB_URL=mongodb+srv://...                  # MongoDB Atlas URL
+REDIS_URL=redis://localhost:6379               # Redis Connection
 
 # Authentication
-JWT_SECRET_KEY=your_super_secret_jwt_key_min_32_chars
+JWT_SECRET_KEY=your_min_32_char_secret         # JWT Signing Key
 
-# Stripe (Revenue)
-STRIPE_SECRET_KEY=sk_test_your_stripe_key
-STRIPE_PRICE_ID=price_your_price_id_for_29_per_month
+# Razorpay (Payments)
+RAZORPAY_KEY_ID=rzp_test_...                   # Razorpay API Key
+RAZORPAY_KEY_SECRET=your_secret                # Razorpay API Secret
+RAZORPAY_PLAN_ID=plan_...                      # Razorpay Sub Plan ID
 
 # Server
 PORT=8000
@@ -246,7 +232,8 @@ VITE_API_URL=http://localhost:8000
 
 1. **Groq API** (Required for AI): [console.groq.com](https://console.groq.com)
 2. **SerpAPI** (Optional for real keywords): [serpapi.com](https://serpapi.com)
-3. **Stripe** (For revenue): [stripe.com/docs/keys](https://stripe.com/docs/keys)
+3. **Razorpay** (For revenue): [razorpay.com](https://razorpay.com)
+4. **MongoDB Atlas** (Database): [mongodb.com/cloud/atlas](https://mongodb.com/cloud/atlas)
 
 ---
 
@@ -293,7 +280,7 @@ Open browser: **http://localhost:5173**
 
 #### Register User
 ```http
-POST /api/auth/register
+POST /api/auth/signup
 Content-Type: application/json
 
 {
@@ -324,37 +311,23 @@ Authorization: Bearer {token}
 Content-Type: application/json
 
 {
-  "goal": "Grow Instagram engagement",
-  "audience": "Fitness enthusiasts aged 25-35",
-  "industry": "Health & Wellness",
-  "platform": "Instagram",
-  "contentType": "Reels"
+  "topic": "Digital Marketing for SaaS"
 }
 
 Response: {
-  "strategy": {
-    "persona": {...},
-    "competitor_gaps": [...],
-    "keywords": [...],
-    "calendar": [...],
-    "sample_posts": [...],
-    "roi_prediction": {...}
-  },
-  "cached": false
+  "id": "strategy_id",
+  "content": "...markdown...",
+  "topic": "Digital Marketing for SaaS",
+  "usage": { "today": 1, "total": 1 }
 }
 ```
 
-#### Get History
-```http
-GET /api/history
-Authorization: Bearer {token}
+#### History & Profile
+- **GET `/api/history`**: Retrieve all past strategies.
+- **GET `/api/profile`**: Get real-time usage stats and tier info.
+- **PUT `/api/profile`**: Update display name and photo.
 
-Response: {
-  "strategies": [...]
-}
-```
-
-### Payments
+### Payments (Razorpay)
 
 #### Pro Checkout
 ```http
@@ -362,7 +335,8 @@ POST /api/pro-checkout
 Authorization: Bearer {token}
 
 Response: {
-  "url": "https://checkout.stripe.com/pay/cs_test_..."
+  "subscription_id": "sub_...",
+  "razorpay_key": "rzp_test_..."
 }
 ```
 
@@ -382,11 +356,9 @@ vercel --prod
 
 ### Railway/Render (Backend)
 
-1. Create New Service
-2. Connect GitHub repo
-3. Set environment variables (all from `.env`)
-4. Deploy branch: `main`
-5. Update frontend API URL to deployed backend
+1. Connect GitHub repo.
+2. Set environment variables.
+3. Update frontend `VITE_API_URL` to deployed backend.
 
 ### MongoDB Atlas (Database)
 
@@ -407,13 +379,11 @@ vercel --prod
 ### ✅ Implemented
 
 - **Environment Variables**: All secrets in `.env` (git-ignored)
-- **JWT Authentication**: Secure token-based auth
-- **Password Hashing**: bcrypt with salt
-- **Rate Limiting**: 30 requests/minute
-- **CORS**: Configured for production domains
-- **Input Validation**: Pydantic schemas
-- **SQL Injection**: MongoDB (NoSQL) protection
-- **XSS Protection**: React auto-escaping
+- **JWT Authentication**: Secure token-based access.
+- **Password Hashing**: SHA256 with unique salts.
+- **Rate Limiting**: 30 requests/min via SlowAPI.
+- **CORS Protection**: Domain-restricted access.
+- **Validation**: Strict Pydantic v2 schemas.
 
 ### 🔴 Never Commit
 
@@ -433,26 +403,20 @@ vercel --prod
 ## 📁 Project Structure
 
 ```
-stratify-ai/
+agentforge/
 ├── backend/
-│   ├── main.py              # FastAPI application
-│   ├── crew.py              # CrewAI 5-agent system
-│   ├── models.py            # Pydantic schemas
-│   ├── requirements.txt     # Python dependencies
-│   ├── .env.example         # Environment template
-│   └── .gitignore           # Secure file exclusions
+│   ├── main.py              # FastAPI application (Routes, Logic)
+│   ├── crew.py              # CrewAI Elite 5-agent system
+│   ├── models.py            # Pydantic schemas (Database/API)
+│   ├── revenue_features.py  # Billing & Analytics
+│   └── requirements.txt     # Python dependencies
 ├── frontend/
 │   ├── src/
-│   │   ├── components/      # React components
-│   │   ├── pages/           # Page components
-│   │   ├── App.jsx          # Main app + router
-│   │   ├── api.js           # Axios HTTP client
-│   │   └── index.css        # Tailwind styles
-│   ├── package.json         # Node dependencies
-│   ├── vite.config.js       # Vite configuration
-│   └── .gitignore           # Build exclusions
-├── README.md                # This file
-└── .gitignore               # Root exclusions
+│   │   ├── components/      # UI Components (Sidebar, Dashboard)
+│   │   ├── pages/           # Landing, Profile, History
+│   │   └── api.js           # Axios central API config
+│   └── package.json         # Node dependencies
+└── README.md                # Project documentation
 ```
 
 ---
@@ -490,11 +454,11 @@ npm test
 
 Contributions are welcome! Please follow these steps:
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
+1. Fork the repository.
+2. Create feature branch (`git checkout -b feature/NewFeature`).
+3. Commit changes (`git commit -m 'Add NewFeature'`).
+4. Push to branch (`git push origin feature/NewFeature`).
+5. Open Pull Request.
 
 **Code Standards:**
 - Python: PEP 8, type hints
@@ -511,23 +475,21 @@ This project is licensed under the **MIT License** - see [LICENSE](LICENSE) file
 
 ## 💬 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/stratify-ai/issues)
-- **Email**: support@stratify.ai
-- **Discord**: [Join Community](https://discord.gg/stratifyai)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/agentforge/issues)
+- **Email**: support@agentforge.ai
+- **Discord**: [Join Community](https://discord.gg/agentforge)
 
 ---
 
 ## 🎯 Roadmap
 
-- [x] Multi-agent AI system
-- [x] Free tier with 3 strategies/month
-- [x] Pro tier with Stripe
-- [x] Redis caching
-- [ ] Real-time collaboration
-- [ ] Team workspaces
-- [ ] Advanced analytics dashboard
-- [ ] White-label solution
-- [ ] API access for developers
+- [x] CrewAI Elite Multi-Agent System
+- [x] Pro Tier with Razorpay Integration
+- [x] Redis Caching & Rate Limiting
+- [x] Unified Profile & Usage Stats
+- [ ] Real-time Collaboration Mode
+- [ ] Team Workspace Hierarchy
+- [ ] White-label Strategy Exports
 
 ---
 
@@ -540,16 +502,15 @@ This project is licensed under the **MIT License** - see [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ by the Stratify.ai Team**
+**Built with ❤️ by the AgentForge Team**
 
 *Transforming content strategy from hours to seconds*
 
 ---
 
-## 📊 Stats
+## 📊 Project Stats
 
-![Strategies Generated](https://img.shields.io/badge/Strategies%20Generated-10K+-success)
-![Response Time](https://img.shields.io/badge/Response%20Time-30s-blue)
-![Success Rate](https://img.shields.io/badge/Success%20Rate-100%25-green)
-![Users](https://img.shields.io/badge/Users-1K+-orange)
-
+![Strategies Generated](https://img.shields.io/badge/Elite%20Strategies-100%25%20Success-success)
+![Response Time](https://img.shields.io/badge/Avg%20Response-30s-blue)
+![Agents](https://img.shields.io/badge/Agents-5%20Specialized-orange)
+![Uptime](https://img.shields.io/badge/Backend-Operational-green)

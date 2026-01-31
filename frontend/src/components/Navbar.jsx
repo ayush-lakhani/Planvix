@@ -2,8 +2,8 @@ import { Sparkles, Menu, User, LogOut, Home, Clock, Moon, Sun } from 'lucide-rea
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../App';
-import StratifyLogo from './StratifyLogo'; // MinimalPulseLogo by default
-// You can also import: MinimalPulseLogo, HexagonLogo, GradientOrbLogo, SpinningRingLogo
+import { AgentDotsLogo, AgentDotsCompact } from './BrandLogo';
+
 
 
 export default function Navbar({ darkMode, toggleDarkMode }) {
@@ -19,6 +19,7 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
 
   const navLinks = [
     { path: '/dashboard', label: 'Dashboard', icon: Home },
+    { path: '/planner', label: 'Planner', icon: Sparkles },
     { path: '/generate', label: 'Generate', icon: Sparkles },
     { path: '/history', label: 'History', icon: Clock },
   ];
@@ -28,13 +29,15 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
   return (
     <nav className="sticky top-0 z-50 glass-card border-b border-gray-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo/Brand */}
-          <Link to="/dashboard" className="flex items-center gap-3 group">
-            <StratifyLogo size="md" animated={true} />
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
-              Stratify.ai
-            </span>
+        <div className="flex items-center justify-between w-full">
+          {/* Logo - Desktop */}
+          <Link to="/dashboard" className="hidden md:block">
+            <AgentDotsLogo size="md" showSlogan={true} />
+          </Link>
+
+          {/* Logo - Mobile */}
+          <Link to="/dashboard" className="md:hidden">
+            <AgentDotsCompact />
           </Link>
 
           {/* Desktop Navigation */}

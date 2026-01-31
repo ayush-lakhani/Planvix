@@ -96,3 +96,14 @@ backend/build/
 # Vercel
 .vercel
 .env*.local
+
+# Personal Documents & Images (DO NOT COMMIT)
+*.docx
+*.pdf
+*.jpeg
+*.jpg
+*.png
+WhatsApp Image 2026-01-30 at 11.36.32 AM.jpeg
+Methodology & Requirements.docx
+AgentForge_IEEE_Literature_Review.docx
+Stratify_AI_Literature_Review.docx
