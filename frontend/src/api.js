@@ -8,6 +8,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000
 });
 
 // Add auth token to requests
@@ -20,6 +21,27 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// SILENT AUTH FIX - Handle 401 Unauthorized (Token Expiry)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      console.warn('⚠️ Token expired or invalid. Redirecting to login...');
+      
+      // Clear ALL auth data (critical for security)
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('admin_token');
+      
+      // Force redirect to login
+      if (!window.location.pathname.includes('/login')) {
+         window.location.href = '/login';
+      }
+    }
     return Promise.reject(error);
   }
 );
@@ -43,6 +65,7 @@ export const strategyAPI = {
   submitFeedback: (strategyId, rating) => 
     api.post('/feedback', { strategy_id: strategyId, rating }),
   generateStrategy: (data) => api.post('/api/strategy', data),
+  getBlueprint: (strategyId) => api.post(`/api/strategies/${strategyId}/blueprint`),
 };
 
 

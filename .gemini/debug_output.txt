@@ -1,0 +1,26 @@
+﻿================================================================================
+DEBUGGING 422 ERROR - /api/strategy endpoint
+================================================================================
+
+Request URL: http://localhost:8000/api/strategy
+
+Request Body:
+  goal: "Sell coffee subscriptions on Instagram" (length: 38)
+  audience: "College students aged 18-24" (length: 27)
+  industry: "F&B (Food & Beverage)" (length: 21)
+  platform: "Instagram" (length: 9)
+  contentType: "Mixed Content" (length: 13)
+  experience: "beginner" (length: 8)
+
+
+Sending request...
+
+HTTP Status: 403
+
+Response Body:
+--------------------------------------------------------------------------------
+{
+  "detail": "Not authenticated"
+}
+
+================================================================================

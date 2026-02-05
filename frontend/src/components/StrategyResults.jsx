@@ -36,20 +36,54 @@ export default function StrategyResults({ strategy, onReset }) {
   
   // Robust data extraction
   const getStrategyData = () => {
-    // 1. Check for nested strategy object first (Standard response)
+    // The backend saves the strategy like this:
+    // {
+    //   user_id, industry, platform,
+    //   strategy: { personas, competitor_gaps, keywords, ... },  // Full generated data
+    //   personas: [...],           // Also saved at top level
+    //   competitor_gaps: [...],    // Also saved at top level
+    //   strategic_guidance: {...}, // Saved at top level
+    //   roi_prediction: {...},     // Saved at top level
+    //   ...
+    // }
+    
+    // PRIORITY 1: If data is at top level (from history API), use it directly
+    if (strategy.strategic_guidance || strategy.personas || strategy.keywords) {
+      console.log('[GET_STRATEGY_DATA] Using top-level fields from history API');
+      return strategy;
+    }
+    
+    // PRIORITY 2: Check for nested strategy object (from generation API)
     if (strategy.strategy) {
+      console.log('[GET_STRATEGY_DATA] Using nested strategy object');
       if (strategy.strategy.output_data) return strategy.strategy.output_data;
       return strategy.strategy;
     }
-    // 2. Check for output_data at top level (History detail response)
-    if (strategy.output_data) return strategy.output_data;
-    // 3. Fallback to top-level content (Old format)
-    if (strategy.content && !isHTMLContent) return strategy.content;
-    // 4. Fallback to the object itself
+    
+    // PRIORITY 3: Check for output_data at top level
+    if (strategy.output_data) {
+      console.log('[GET_STRATEGY_DATA] Using output_data');
+      return strategy.output_data;
+    }
+    
+    // PRIORITY 4: Fallback to top-level content (Old format)
+    if (strategy.content && !isHTMLContent) {
+      console.log('[GET_STRATEGY_DATA] Using content field');
+      return strategy.content;
+    }
+    
+    // PRIORITY 5: Fallback to the object itself
+    console.log('[GET_STRATEGY_DATA] Using strategy object as-is');
     return strategy;
   };
 
   const strategyData = getStrategyData();
+  
+  // DEBUG: Log the data structure
+  console.log('[STRATEGY RESULTS] Full strategy object:', strategy);
+  console.log('[STRATEGY RESULTS] Extracted strategyData:', strategyData);
+  console.log('[STRATEGY RESULTS] Has strategic_guidance?', !!strategyData?.strategic_guidance);
+  console.log('[STRATEGY RESULTS] strategic_guidance:', strategyData?.strategic_guidance);
 
   // If it's HTML content, render it directly
   if (isHTMLContent) {
@@ -162,13 +196,120 @@ export default function StrategyResults({ strategy, onReset }) {
       {/* Tab Content */}
       <div className="glass-card p-8">
         {/* Tactical Blueprint Tab */}
-        {activeTab === 'blueprint' && strategyData.tactical_blueprint && (
-          <div className="animate-slide-up">
-            <div 
-              className="prose prose-lg dark:prose-invert max-w-none tactical-blueprint"
-              data-experience={(strategyData.experience || strategy.experience || 'beginner').toLowerCase()}
-              dangerouslySetInnerHTML={{ __html: strategyData.tactical_blueprint }}
-            />
+        {activeTab === 'blueprint' && (
+          <div className="animate-slide-up space-y-6">
+            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+              📋 Tactical Blueprint
+            </h3>
+            
+            {strategyData.strategic_guidance ? (
+              <div className="space-y-8">
+                {/* What to Do */}
+                {strategyData.strategic_guidance.what_to_do && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border-l-4 border-blue-500">
+                    <h4 className="text-xl font-bold text-blue-900 dark:text-blue-100 mb-4">
+                      🎯 What to Do (Objectives)
+                    </h4>
+                    <ul className="space-y-2">
+                      {strategyData.strategic_guidance.what_to_do.map((item, i) => (
+                        <li key={i} className="flex items-start gap-3 text-gray-700 dark:text-gray-300">
+                          <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* How to Do It */}
+                {strategyData.strategic_guidance.how_to_do_it && (
+                  <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl border-l-4 border-green-500">
+                    <h4 className="text-xl font-bold text-green-900 dark:text-green-100 mb-4">
+                      📈 How to Do It (Tactics)
+                    </h4>
+                    <ul className="space-y-2">
+                      {strategyData.strategic_guidance.how_to_do_it.map((item, i) => (
+                        <li key={i} className="flex items-start gap-3 text-gray-700 dark:text-gray-300">
+                          <span className="text-green-600 dark:text-green-400 font-bold mt-1">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* When to Post */}
+                {strategyData.strategic_guidance.when_to_post && (
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-xl border-l-4 border-purple-500">
+                    <h4 className="text-xl font-bold text-purple-900 dark:text-purple-100 mb-4">
+                      📅 When to Post (Timeline)
+                    </h4>
+                    <div className="space-y-3 text-gray-700 dark:text-gray-300">
+                      <p><strong>Frequency:</strong> {strategyData.strategic_guidance.when_to_post.frequency}</p>
+                      <p><strong>Best Times:</strong> {strategyData.strategic_guidance.when_to_post.best_times?.join(', ')}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* What to Focus On */}
+                {strategyData.strategic_guidance.what_to_focus_on && (
+                  <div className="bg-orange-50 dark:bg-orange-900/20 p-6 rounded-xl border-l-4 border-orange-500">
+                    <h4 className="text-xl font-bold text-orange-900 dark:text-orange-100 mb-4">
+                      📊 What to Focus On (KPIs)
+                    </h4>
+                    <ul className="space-y-2">
+                      {strategyData.strategic_guidance.what_to_focus_on.map((item, i) => (
+                        <li key={i} className="flex items-start gap-3 text-gray-700 dark:text-gray-300">
+                          <span className="text-orange-600 dark:text-orange-400 font-bold mt-1">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* ROI Prediction */}
+                {strategyData.roi_prediction && (
+                  <div className="bg-gradient-to-r from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 p-6 rounded-xl border-2 border-primary-200 dark:border-primary-800">
+                    <h4 className="text-xl font-bold text-primary-900 dark:text-primary-100 mb-4">
+                      💰 Expected ROI
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Traffic Lift</p>
+                        <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                          {strategyData.roi_prediction.traffic_lift_percentage}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Engagement Boost</p>
+                        <p className="text-2xl font-bold text-accent-600 dark:text-accent-400">
+                          {strategyData.roi_prediction.engagement_boost_percentage}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Reach</p>
+                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                          {strategyData.roi_prediction.estimated_monthly_reach}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Time to Results</p>
+                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                          {strategyData.roi_prediction.time_to_results}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                <p className="text-gray-500 dark:text-gray-400">
+                  No tactical blueprint data available for this strategy.
+                </p>
+              </div>
+            )}
           </div>
         )}
 

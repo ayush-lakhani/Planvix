@@ -4,6 +4,7 @@ import { ArrowLeft, Clock, Trash2, Eye, ThumbsUp, ThumbsDown } from 'lucide-reac
 import { strategyAPI } from '../api';
 import { format } from 'date-fns';
 import StrategyResults from './StrategyResults';
+import toast from 'react-hot-toast';
 
 export default function History() {
   const [strategies, setStrategies] = useState([]);
@@ -18,7 +19,15 @@ export default function History() {
   const loadHistory = async () => {
     try {
       const response = await strategyAPI.getHistory();
-      setStrategies(response.data.history);
+      console.log('[HISTORY] Raw response:', response);
+      console.log('[HISTORY] Response data:', response.data);
+      
+      // Backend returns { history: [...], count: N }
+      const strategiesArray = response.data?.history || response.data || [];
+      console.log('[HISTORY] Strategies array:', strategiesArray);
+      console.log('[HISTORY] First strategy:', strategiesArray[0]);
+      
+      setStrategies(strategiesArray);
     } catch (error) {
       console.error('Failed to load history:', error);
     } finally {
@@ -26,27 +35,66 @@ export default function History() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (strategy) => {
+    // CRITICAL FIX: Use _id as fallback since backend returns both
+    const strategyId = strategy.id || strategy._id;
+    
+    console.log('[DELETE] Strategy object:', strategy);
+    console.log('[DELETE] Extracted ID:', strategyId);
+    console.log('[DELETE] ID type:', typeof strategyId);
+    
+    if (!strategyId) {
+      console.error('[DELETE] No valid ID found in strategy:', strategy);
+      toast.error('Invalid strategy ID');
+      return;
+    }
+    
     if (!confirm('Are you sure you want to delete this strategy?')) return;
     
     try {
-      await strategyAPI.delete(id);
-      // Update UI immediately
-      setStrategies(strategies.filter(s => s.id !== id));
-      console.log('✅ Strategy deleted successfully');
+      console.log('[DELETE] Attempting to delete strategy with ID:', strategyId);
+      
+      const response = await strategyAPI.delete(strategyId);
+      console.log('[DELETE] Delete response:', response);
+      console.log('[DELETE] Delete request successful, reloading history...');
+      
+      // Reload from server to get fresh data
+      await loadHistory();
+      
+      toast.success('Strategy deleted successfully!');
+      console.log('[OK] Strategy deleted and history reloaded');
     } catch (error) {
-      console.error('❌ Failed to delete strategy:', error);
-      alert('Failed to delete strategy. Please try again.');
+      console.error('[ERROR] Failed to delete strategy:', error);
+      console.error('[ERROR] Error response:', error.response);
+      console.error('[ERROR] Error status:', error.response?.status);
+      console.error('[ERROR] Error data:', error.response?.data);
+      console.error('[ERROR] Error message:', error.message);
+      toast.error(`Failed to delete strategy: ${error.response?.data?.detail || error.message}`);
     }
   };
 
-  const handleView = async (id) => {
+  const handleView = async (strategy) => {
+    // CRITICAL FIX: Use _id as fallback (same as handleDelete)
+    const strategyId = strategy.id || strategy._id;
+    
+    console.log('[VIEW] Strategy object:', strategy);
+    console.log('[VIEW] Extracted ID:', strategyId);
+    
+    if (!strategyId) {
+      console.error('[VIEW] No valid ID found in strategy:', strategy);
+      alert('Invalid strategy ID');
+      return;
+    }
+    
     try {
-      const response = await strategyAPI.getById(id);
-      console.log('📊 Strategy data received:', response.data);
+      console.log('[VIEW] Fetching strategy with ID:', strategyId);
+      const response = await strategyAPI.getById(strategyId);
+      console.log('[VIEW] Strategy loaded:', response.data);
       setSelectedStrategy(response.data);
     } catch (error) {
-      console.error('❌ Failed to load strategy:', error);
+      console.error('[VIEW] Failed to load strategy:', error);
+      console.error('[VIEW] Error response:', error.response);
+      console.error('[VIEW] Error data:', error.response?.data);
       alert('Failed to load strategy details. Please try again.');
     }
   };
@@ -142,7 +190,9 @@ export default function History() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                      {strategy.topic || strategy.goal || 'Untitled Strategy'}
+                      {strategy.industry && strategy.platform 
+                        ? `${strategy.industry} - ${strategy.platform} Strategy`
+                        : strategy.industry || strategy.platform || 'Content Strategy'}
                     </h3>
                     <div className="flex flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-400 mb-3">
                       {strategy.audience && (
@@ -192,14 +242,14 @@ export default function History() {
                       <ThumbsDown className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => handleView(strategy.id)}
+                      onClick={() => handleView(strategy)}
                       className="p-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                       title="View Details"
                     >
                       <Eye className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(strategy.id)}
+                      onClick={() => handleDelete(strategy)}
                       className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                       title="Delete"
                     >

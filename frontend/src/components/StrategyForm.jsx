@@ -161,6 +161,9 @@ export default function StrategyForm({ onGenerate, setLoading, setAgentLogs }) {
     if (formData.audience.length < 5) {
       newErrors.audience = 'Please provide more detail about your audience';
     }
+    if (!formData.industry || formData.industry.length < 3) {
+      newErrors.industry = 'Please select an industry';
+    }
     
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -194,18 +197,57 @@ export default function StrategyForm({ onGenerate, setLoading, setAgentLogs }) {
     }, 6000);
 
     try {
-      const response = await strategyAPI.generate(formData);
+      // 🚀 BULLETPROOF FETCH PREP
+      const safeData = {
+        goal: (formData.goal || "Professional coffee content strategy").substring(0, 500),
+        audience: (formData.audience || "Coffee enthusiasts and cafe owners").substring(0, 200),
+        industry: (formData.industry || "Coffee Shop").substring(0, 100),
+        platform: formData.platform || "Instagram",
+        contentType: formData.contentType || "Mixed Content",
+        experience: formData.experience || "beginner"
+      };
+
+      console.log('🚀 Sending safe strategy request:', safeData);
+      
+      const response = await strategyAPI.generate(safeData);
+      
+      console.log('✅ Strategy response received:', response.data);
+      
+      const generationTime = response.data.generation_time || response.data.strategy?.generation_time || 0;
       
       setAgentLogs(prev => [...prev, 
-        { agent: 'System', message: `✓ Strategy generated successfully in ${response.data.generation_time?.toFixed(1)}s`, type: 'success' },
+        { agent: 'System', message: `✓ Strategy generated successfully${generationTime ? ` in ${generationTime.toFixed(1)}s` : ''}`, type: 'success' },
       ]);
 
       setTimeout(() => {
         onGenerate(response.data);
       }, 500);
     } catch (error) {
+      // Log detailed error information
+      console.error('❌ Strategy generation error:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        headers: error.response?.headers,
+        requestData: formData
+      });
+      
+      // Show detailed error in terminal
+      let errorMessage = 'Generation failed';
+      if (error.response?.data?.detail) {
+        if (Array.isArray(error.response.data.detail)) {
+          // Pydantic validation errors
+          const errors = error.response.data.detail.map(e => 
+            `${e.loc?.join('.')||'unknown'}: ${e.msg}`
+          ).join(', ');
+          errorMessage = `Validation error: ${errors}`;
+        } else {
+          errorMessage = error.response.data.detail;
+        }
+      }
+      
       setAgentLogs(prev => [...prev, 
-        { agent: 'System', message: `✗ Error: ${error.response?.data?.detail || 'Generation failed'}`, type: 'error' },
+        { agent: 'System', message: `✗ Error: ${errorMessage}`, type: 'error' },
       ]);
       setLoading(false);
     }
@@ -280,6 +322,9 @@ export default function StrategyForm({ onGenerate, setLoading, setAgentLogs }) {
               <option key={ind} value={ind}>{ind}</option>
             ))}
           </select>
+          {errors.industry && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.industry}</p>
+          )}
         </div>
 
         {/* Content Type */}

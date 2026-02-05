@@ -168,13 +168,13 @@ class Token(BaseModel):
     """JWT token response"""
     access_token: str
     token_type: str = "bearer"
-    user_id: int
+    user_id: str  # Changed from int to str for MongoDB ObjectId
     email: str
 
 
 class UserResponse(BaseModel):
     """User data response"""
-    id: int
+    id: str  # Changed from int to str for MongoDB ObjectId
     email: str
     tier: str
     created_at: datetime

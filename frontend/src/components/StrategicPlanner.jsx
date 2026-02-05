@@ -21,6 +21,13 @@ export default function StrategicPlanner() {
     fetchUserProfile();
   }, []);
 
+  // Refresh usage count when strategy changes
+  useEffect(() => {
+    if (strategy) {
+      fetchUserProfile();
+    }
+  }, [strategy]);
+
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -34,8 +41,10 @@ export default function StrategicPlanner() {
 
       if (response.ok) {
         const data = await response.json();
-        setUsageCount(data.usage_month || 0);
+        // Fix: Backend returns usage_count, not usage_month
+        setUsageCount(data.usage_count || 0);
         setUserTier(data.tier || 'free');
+        console.log('[PROFILE] Usage count updated:', data.usage_count);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);

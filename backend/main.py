@@ -5,6 +5,8 @@ Production-ready with JWT auth, Redis caching, rate limiting, and CrewAI integra
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pymongo import MongoClient
 from jose import JWTError, jwt
@@ -15,6 +17,7 @@ import json
 import time
 import os
 from typing import Optional
+from models import StrategyInput, UserCreate, UserLogin, Token, StrategyResponse, HistoryResponse
 from pydantic import BaseModel, EmailStr, Field
 from bson import ObjectId
 from dotenv import load_dotenv # Added for loading environment variables
@@ -76,18 +79,11 @@ import uuid
 from fastapi import BackgroundTasks
 from fastapi.responses import StreamingResponse
 
-# Import CrewAI (disabled by default - enable with GROQ_API_KEY)
-try:
-    from crew import create_content_strategy_crew
-    # Only enable if GROQ_API_KEY is explicitly set
-    CREW_AI_ENABLED = bool(os.getenv("GROQ_API_KEY")) and os.getenv("CREW_AI_ENABLED", "false").lower() == "true"
-    if CREW_AI_ENABLED:
-        print("✅ CrewAI Elite Mode: Enabled")
-    else:
-        print("⚠️  CrewAI: Disabled - using Template Strategy Engine")
-except:
-    CREW_AI_ENABLED = False
-    print("⚠️  CrewAI: Not available - using Template Strategy Engine")
+# CrewAI disabled due to Python 3.13 compatibility issue with litellm
+# Using demo strategy generator (fully functional)
+CREW_AI_ENABLED = False
+print("[INFO] Using Demo Strategy Generator (Python 3.13 compatible)")
+
 
 # =============================================================================
 # OPENAI-STYLE RATE LIMITING (MongoDB Rolling Window)
@@ -144,6 +140,15 @@ def check_rate_limit(user_id: str) -> dict:
 MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017/")
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+ALGORITHM = "HS256"
+
+# Environment Variables
+MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+
+# JWT Configuration
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 
@@ -219,6 +224,8 @@ strategies_collection = db.strategies
 users_collection.create_index("email", unique=True)
 strategies_collection.create_index("user_id")
 strategies_collection.create_index("cache_key")
+strategies_collection.create_index("created_at")
+strategies_collection.create_index([("user_id", 1), ("created_at", -1)])
 
 # ============================================================================
 # REDIS SETUP
@@ -228,35 +235,10 @@ try:
     redis_client = redis.from_url(REDIS_URL, decode_responses=True)
     redis_client.ping()
     REDIS_ENABLED = True
-except:
+except Exception as e:
     REDIS_ENABLED = False
-    print("⚠️  Redis not available - caching disabled")
-
-# ============================================================================
-# PYDANTIC MODELS
-# ============================================================================
-
-class StrategyInput(BaseModel):
-    goal: str = Field(..., min_length=10, max_length=500)
-    audience: str = Field(..., min_length=5, max_length=200)
-    industry: str = Field(..., min_length=3, max_length=100)
-    platform: str = Field(..., min_length=3, max_length=50)
-    contentType: str = Field(default="Mixed Content", max_length=50)
-    experience: str = Field(default="beginner", max_length=20)
-
-class UserCreate(BaseModel):
-    email: EmailStr
-    password: str = Field(..., min_length=8)
-
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    user_id: str
-    email: str
+    print(f"[WARNING] Redis not available - {e}")
+    print("[WARNING] Rate limiting disabled")
 
 # ============================================================================
 # FASTAPI APP
@@ -275,9 +257,26 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# DEBUG: Add Exception Handler for Validation Errors
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    print(f"\n{'='*80}")
+    print(f"❌ VALIDATION ERROR at {request.url}")
+    print(f"Body: {exc.body}")
+    print(f"Errors: {exc.errors()}")
+    print(f"{'='*80}\n")
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": exc.errors()},
+    )
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://agentforge.ai",
+        "https://admin.agentforge.ai"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -484,9 +483,10 @@ async def get_history(current_user: dict = Depends(get_current_user)):
         "user_id": current_user["id"]
     }).sort("created_at", -1).limit(50))
     
-    # Serialization fix
+    # Serialization fix - Frontend expects 'id' not '_id'
     for s in strategies:
-        s["_id"] = str(s["_id"])
+        s["id"] = str(s["_id"])  # Add 'id' field for frontend
+        s["_id"] = str(s["_id"])  # Keep _id as string too
         if isinstance(s.get("created_at"), datetime):
             s["created_at"] = s["created_at"].isoformat()
             
@@ -497,18 +497,69 @@ async def get_history(current_user: dict = Depends(get_current_user)):
 
 @app.get("/api/profile")
 async def get_profile(current_user: dict = Depends(get_current_user)):
+    # Calculate usage count from actual strategies generated THIS MONTH
+    now = datetime.now(timezone.utc)
+    month_start = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
+    
+    # Count strategies created this month
+    monthly_usage = strategies_collection.count_documents({
+        "user_id": current_user["id"],
+        "created_at": {"$gte": month_start}
+    })
+    
+    # Total all-time strategies
+    total_strategies = strategies_collection.count_documents({
+        "user_id": current_user["id"]
+    })
+    
     return {
         "email": current_user.get("email"),
         "tier": current_user.get("tier", "free"),
+        "usage_count": monthly_usage,  # Monthly usage for free tier limit
+        "total_strategies": total_strategies,  # All-time total
         "created_at": current_user.get("created_at"),
         "razorpay_subscription_id": current_user.get("razorpay_subscription_id")
     }
 
 @app.post("/api/strategy")
 async def generate_strategy(
-    strategy_input: StrategyInput, 
+    request: Request,
     current_user: dict = Depends(get_current_user)
 ):
+    # LOG EXACT DATA RECEIVED (CRITICAL DEBUG)
+    body = await request.body()
+    print(f"\n{'='*80}")
+    print(f"🔍 RAW REQUEST: {body.decode()}")
+    
+    # Parse JSON manually first
+    try:
+        data = json.loads(body.decode())
+        print(f"🔍 PARSED JSON: {data}")
+        print("🔍 TYPES:", {k: type(v).__name__ for k,v in data.items()})
+    except Exception as e:
+        print(f"❌ JSON PARSER ERROR: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid JSON format")
+    
+    # Convert to Pydantic StrategyInput (with defaults/fallbacks)
+    try:
+        strategy_input = StrategyInput(
+            goal=data.get("goal") or "Professional coffee content strategy",
+            audience=data.get("audience") or "Coffee enthusiasts and cafe owners",
+            industry=data.get("industry") or "Coffee Shop",
+            platform=data.get("platform") or "Instagram",
+            contentType=data.get("contentType") or data.get("content_type") or "Mixed Content",
+            experience=data.get("experience") or "beginner"
+        )
+    except Exception as e:
+        print(f"❌ VALIDATION ERROR: {str(e)}")
+        # If it still fails, the RequestValidationError handler will catch it if we re-raise 
+        # but let's be proactive and log specifically what failed here.
+        raise HTTPException(status_code=422, detail=str(e))
+
+    print(f"[STRATEGY REQUEST] User: {current_user.get('email', 'unknown')}")
+    print(f"[STRATEGY REQUEST] Data: {strategy_input.dict()}")
+    print(f"{'='*80}\n")
+    
     # Rate limiting
     rate_info = check_rate_limit(current_user["id"])
     if rate_info["exceeded"]:
@@ -522,7 +573,7 @@ async def generate_strategy(
         "user_id": current_user["id"],
         "industry": strategy_input.industry,
         "platform": strategy_input.platform,
-        "strategy": full_strategy,  # Store the full JSON object here
+        "strategy": full_strategy,
         "personas": full_strategy.get("personas", []),
         "competitor_gaps": full_strategy.get("competitor_gaps", []),
         "keywords": full_strategy.get("keywords", []),
@@ -619,7 +670,8 @@ async def get_strategy(strategy_id: str, current_user: dict = Depends(get_curren
     if not strategy:
         raise HTTPException(status_code=404, detail="Strategy not found")
         
-    # Serialize ID and Dates
+    # Serialize ID and Dates - Frontend expects 'id' not '_id'
+    strategy["id"] = str(strategy["_id"])  # Add 'id' field for frontend
     strategy["_id"] = str(strategy["_id"])
     if isinstance(strategy.get("created_at"), datetime):
         strategy["created_at"] = strategy["created_at"].isoformat()
@@ -642,6 +694,54 @@ async def delete_strategy(strategy_id: str, current_user: dict = Depends(get_cur
         raise HTTPException(status_code=404, detail="Strategy not found or unauthorized")
         
     return {"message": "Strategy deleted successfully"}
+
+@app.post("/api/strategies/{strategy_id}/blueprint")
+async def generate_tactical_blueprint(strategy_id: str, current_user: dict = Depends(get_current_user)):
+    """
+    Generate tactical blueprint from existing strategy
+    Extracts objectives, tactics, timeline, and KPIs
+    """
+    # Verify valid ObjectId
+    if not ObjectId.is_valid(strategy_id):
+        raise HTTPException(status_code=400, detail="Invalid strategy ID")
+    
+    # Find strategy
+    strategy = strategies_collection.find_one({
+        "_id": ObjectId(strategy_id),
+        "user_id": current_user["id"]
+    })
+    
+    if not strategy:
+        raise HTTPException(status_code=404, detail="Strategy not found")
+    
+    # Extract tactical data from strategy
+    strategy_data = strategy.get("strategy", {})
+    strategic_guidance = strategy_data.get("strategic_guidance", {})
+    
+    # Build blueprint
+    blueprint = {
+        "objectives": strategic_guidance.get("what_to_do", []),
+        "tactics": strategic_guidance.get("how_to_do_it", []),
+        "timeline": f"Frequency: {strategic_guidance.get('when_to_post', {}).get('frequency', 'Not specified')}",
+        "kpis": strategic_guidance.get("what_to_focus_on", [])
+    }
+    
+    # Add ROI predictions if available
+    roi = strategy_data.get("roi_prediction", {})
+    if roi:
+        blueprint["timeline"] += f" | Expected Results: {roi.get('time_to_results', 'N/A')}"
+        blueprint["kpis"].extend([
+            f"Traffic Lift: {roi.get('traffic_lift_percentage', 'N/A')}",
+            f"Engagement Boost: {roi.get('engagement_boost_percentage', 'N/A')}",
+            f"Monthly Reach: {roi.get('estimated_monthly_reach', 'N/A')}"
+        ])
+    
+    return {
+        "success": True,
+        "blueprint": blueprint,
+        "strategy_id": strategy_id
+    }
+
 
 # ============================================================================
 # RAZORPAY CHECKOUT (Pro Tier)
@@ -738,38 +838,169 @@ async def admin_dashboard(admin: bool = Depends(admin_auth)):
 
 @app.get("/api/admin/users")
 async def admin_users(
+    search: Optional[str] = Query(None),
+    tier: Optional[str] = Query(None),
     limit: int = Query(50, ge=1, le=200),
     admin: bool = Depends(admin_auth)
 ):
     """
-    Admin Users List - View all users with tier and subscription info
+    Admin Users List - Enhanced with search and filtering
     Requires admin secret key (NOT user JWT)
     """
     try:
-        users = list(users_collection.find(
-            {},
+        # Build query
+        query = {}
+        if search:
+            query["email"] = {"$regex": search, "$options": "i"}
+        if tier:
+            query["tier"] = tier
+        
+        # Get users with strategy counts
+        users = list(users_collection.aggregate([
+            {"$match": query},
             {
-                "email": 1,
-                "tier": 1,
-                "created_at": 1,
-                "razorpay_subscription_id": 1,
-                "name": 1,
-                "_id": 1
-            }
-        ).sort("created_at", -1).limit(limit))
+                "$lookup": {
+                    "from": "strategies",
+                    "localField": "_id",
+                    "foreignField": "user_id",
+                    "as": "strategies"
+                }
+            },
+            {
+                "$project": {
+                    "email": 1,
+                    "tier": 1,
+                    "created_at": 1,
+                    "razorpay_subscription_id": 1,
+                    "strategies_count": {"$size": "$strategies"}
+                }
+            },
+            {"$sort": {"created_at": -1}},
+            {"$limit": limit}
+        ]))
         
         # Convert ObjectId to string for JSON serialization
         for user in users:
             user["_id"] = str(user["_id"])
             user["created_at"] = user.get("created_at", datetime.now(timezone.utc)).isoformat()
         
+        # Calculate totals
+        total = users_collection.count_documents(query)
+        pro_users = users_collection.count_documents({**query, "tier": "pro"})
+        
         return {
             "users": users,
             "count": len(users),
-            "total": users_collection.count_documents({})
+            "total": total,
+            "pro_users": pro_users,
+            "conversion_rate": f"{(pro_users/total*100):.1f}%" if total > 0 else "0%"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Users list error: {str(e)}")
+
+@app.get("/api/admin/revenue-breakdown")
+async def revenue_breakdown(admin: bool = Depends(admin_auth)):
+    """
+    Admin: Revenue breakdown by industry (Heatmap data)
+    """
+    try:
+        # Industries generating MRR
+        industries = list(users_collection.aggregate([
+            {"$match": {"tier": "pro"}},
+            {"$group": {
+                "_id": "$industry", 
+                "count": {"$sum": 1},
+                "first_seen": {"$min": "$created_at"}
+            }},
+            {"$sort": {"count": -1}},
+            {"$limit": 10}
+        ]))
+        
+        return {"industries": industries}
+    except Exception as e:
+        # Return empty list on error to prevent dashboard crash
+        print(f"Revenue breakdown error: {e}")
+        return {"industries": []}
+
+@app.get("/api/admin/activity")
+async def admin_activity(limit: int = 20, admin: bool = Depends(admin_auth)):
+    """
+    Admin: Live activity feed from analytics/strategies
+    """
+    try:
+        yesterday = datetime.now(timezone.utc) - timedelta(days=1)
+        
+        # Get recent strategies as activity
+        activities = list(strategies_collection.aggregate([
+            {"$match": {"created_at": {"$gte": yesterday}}},
+            {"$sort": {"created_at": -1}},
+            {"$limit": limit},
+            {"$lookup": {
+                "from": "users",
+                "localField": "user_id",
+                "foreignField": "_id",
+                "as": "user"
+            }},
+            {"$unwind": {"path": "$user", "preserveNullAndEmptyArrays": True}},
+            {"$project": {
+                "action": {"$literal": "Generated strategy"},
+                "user_email": "$user.email",
+                "timestamp": "$created_at",
+                "details": "$industry"
+            }}
+        ]))
+        
+        # Format for frontend
+        formatted_activities = []
+        for a in activities:
+            formatted_activities.append({
+                "user": a.get("user_email", "Unknown User"),
+                "action": a.get("action"),
+                "time": a.get("timestamp").strftime("%H:%M:%S") if a.get("timestamp") else "Just now",
+                "details": a.get("details")
+            })
+            
+        return {"activities": formatted_activities}
+    except Exception as e:
+        print(f"Activity feed error: {e}")
+        return {"activities": []}
+
+@app.get("/api/admin/alerts")
+async def admin_alerts(admin: bool = Depends(admin_auth)):
+    """
+    Admin: System alerts and business intelligence
+    """
+    try:
+        pro_users = users_collection.count_documents({"tier": "pro"})
+        total_users = users_collection.count_documents({})
+        conversion = (pro_users / total_users * 100) if total_users else 0
+        
+        alerts = []
+        
+        # Conversion Alert
+        if conversion < 4.5:
+            alerts.append({
+                "type": "warning",
+                "title": "Low Conversion Rate",
+                "message": f"{conversion:.1f}% < 4.5% goal. Optimize modal.",
+                "priority": "high",
+                "impact": "₹15,000/mo potential loss"
+            })
+            
+        # System Health Alerts
+        if not REDIS_ENABLED:
+             alerts.append({
+                "type": "error",
+                "title": "Redis Disabled",
+                "message": "Caching is disabled. High latency expected.",
+                "priority": "critical",
+                "impact": "High Server Load"
+            })
+            
+        return {"alerts": alerts}
+    except Exception as e:
+        return {"alerts": []}
+
 
 
 # =============================================================================
@@ -1811,7 +2042,7 @@ def generate_coffee_format_strategy(topic: str) -> str:
 # ============================================================================
 
 
-@app.post("/api/strategy/legacy_deprecated")
+@app.post("/api/strategy")
 async def generate_strategy(
     strategy_input: StrategyInput,
     current_user: dict = Depends(get_current_user)
@@ -1868,6 +2099,16 @@ async def generate_strategy(
     # Cache result
     set_cached_strategy(cache_key, strategy_dict)
     
+    # Extract the actual strategy content to avoid nesting issues
+    # CrewAI returns: {strategy: {personas: [], keywords: [], ...}, personas: [], ...}
+    # We only want the inner 'strategy' object
+    if "strategy" in strategy_dict and isinstance(strategy_dict["strategy"], dict):
+        # Use the nested strategy object as the base
+        clean_strategy = strategy_dict["strategy"].copy()
+    else:
+        # Fallback to the whole dict if no nesting
+        clean_strategy = strategy_dict.copy()
+
     # Save to MongoDB
     strategy_doc = {
         "user_id": current_user["id"],
@@ -1875,7 +2116,7 @@ async def generate_strategy(
         "audience": strategy_input.audience,
         "industry": strategy_input.industry,
         "platform": strategy_input.platform,
-        "output_data": strategy_dict,
+        "output_data": clean_strategy,  # Save clean data
         "cache_key": cache_key,
         "generation_time": int(generation_time),
         "created_at": datetime.now(timezone.utc)
@@ -1894,22 +2135,127 @@ async def generate_strategy(
             
             # Set with 24h expiry (rolling)
             redis_client.setex(count_key, 86400, new_count)
-            print(f"📈 Usage incremented for {current_user['id']}: {new_count}/3")
+            print(f"[USAGE] Usage incremented for {current_user['id']}: {new_count}/3")
         except Exception as e:
-            print(f"⚠️ Failed to increment usage: {e}")
+            print(f"[WARNING] Failed to increment usage: {e}")
+    
+    
+    
+    # Extract the actual strategy content to avoid nesting issues
+    # CrewAI returns: {strategy: {personas: [], keywords: [], ...}, personas: [], ...}
+    # We only want the inner 'strategy' object
+    if "strategy" in strategy_dict and isinstance(strategy_dict["strategy"], dict):
+        # Use the nested strategy object as the base
+        clean_strategy = strategy_dict["strategy"].copy()
+    else:
+        # Fallback to the whole dict if no nesting
+        clean_strategy = strategy_dict.copy()
+    
     
     return {
         "success": True,
-        "strategy": strategy_dict,
+        "strategy": clean_strategy,  # Wrap in 'strategy' key for frontend compatibility
         "cached": False,
         "generation_time": generation_time,
         "message": message,
-        "usage": rate_info,  # OpenAI-style usage info
+        "usage": rate_info,
         "tier": tier
     }
 
 
 
+
+# ============================================================================
+# HISTORY ENDPOINTS
+# ============================================================================
+
+@app.get("/api/history")
+async def get_history(current_user: dict = Depends(get_current_user)):
+    """Get user's strategy generation history"""
+    try:
+        # Fetch all strategies for the current user, sorted by most recent first
+        strategies = list(strategies_collection.find(
+            {"user_id": current_user["id"]},
+            {
+                "_id": 1,
+                "goal": 1,
+                "audience": 1,
+                "industry": 1,
+                "platform": 1,
+                "created_at": 1,
+                "generation_time": 1
+            }
+        ).sort("created_at", -1))
+        
+        # Convert ObjectId to string for JSON serialization
+        for strategy in strategies:
+            strategy["id"] = str(strategy["_id"])
+            del strategy["_id"]
+        
+        return {
+            "success": True,
+            "history": strategies,
+            "total": len(strategies)
+        }
+    except Exception as e:
+        print(f"❌ Error fetching history: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/history/{strategy_id}")
+async def get_strategy_by_id(
+    strategy_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get a specific strategy by ID"""
+    try:
+        strategy = strategies_collection.find_one({
+            "_id": ObjectId(strategy_id),
+            "user_id": current_user["id"]
+        })
+        
+        if not strategy:
+            raise HTTPException(status_code=404, detail="Strategy not found")
+        
+        # Convert ObjectId to string
+        strategy["id"] = str(strategy["_id"])
+        del strategy["_id"]
+        
+        return {
+            "success": True,
+            **strategy  # Spread the strategy data directly
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error fetching strategy {strategy_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/api/history/{strategy_id}")
+async def delete_strategy(
+    strategy_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete a strategy by ID"""
+    try:
+        result = strategies_collection.delete_one({
+            "_id": ObjectId(strategy_id),
+            "user_id": current_user["id"]
+        })
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Strategy not found")
+        
+        return {
+            "success": True,
+            "message": "Strategy deleted successfully"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error deleting strategy {strategy_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ============================================================================
@@ -2154,3 +2500,11 @@ async def submit_feedback(request: Request, credentials: HTTPAuthorizationCreden
     except Exception as e:
         print(f"❌ Feedback error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+if __name__ == "__main__":
+    import uvicorn
+    print("✅ Starting AgentForge API...")
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

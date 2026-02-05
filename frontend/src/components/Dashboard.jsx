@@ -17,7 +17,13 @@ export default function Dashboard() {
   const loadStrategies = async () => {
     try {
       const response = await strategyAPI.getHistory();
-      setStrategies(response.data.strategies || []);
+      console.log('[DASHBOARD] API response:', response.data);
+      
+      // Backend returns { history: [...], count: N }
+      const strategiesArray = response.data?.history || response.data?.strategies || response.data || [];
+      
+      console.log('[DASHBOARD] Extracted strategies:', strategiesArray);
+      setStrategies(strategiesArray);
     } catch (error) {
       console.error('Failed to load strategies:', error);
     } finally {

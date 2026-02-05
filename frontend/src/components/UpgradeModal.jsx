@@ -3,26 +3,37 @@ import { X, Zap, Infinity, HeadphonesIcon, TrendingUp } from 'lucide-react';
 
 export default function UpgradeModal({ usageCount, onClose, onUpgrade }) {
   const [show, setShow] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   
   useEffect(() => {
-    // Trigger at 2/3 usage
-    if (usageCount >= 2) {
+    // Check if user already dismissed this session
+    const sessionDismissed = sessionStorage.getItem('upgradeModalDismissed');
+    if (sessionDismissed) {
+      setDismissed(true);
+      return;
+    }
+    
+    // Trigger at 2/3 usage (only if not dismissed)
+    if (usageCount >= 2 && !dismissed) {
       setShow(true);
     }
     
     // Exit intent detection
     const handleMouseLeave = (e) => {
-      if (e.clientY <= 0 && !show && usageCount >= 1) {
+      if (e.clientY <= 0 && !show && !dismissed && usageCount >= 1) {
         setShow(true);
       }
     };
     
     document.addEventListener('mouseleave', handleMouseLeave);
     return () => document.removeEventListener('mouseleave', handleMouseLeave);
-  }, [usageCount, show]);
+  }, [usageCount, show, dismissed]);
 
   const handleClose = () => {
     setShow(false);
+    setDismissed(true);
+    // Remember dismissal for this session
+    sessionStorage.setItem('upgradeModalDismissed', 'true');
     if (onClose) onClose();
   };
 

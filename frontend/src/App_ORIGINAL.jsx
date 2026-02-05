@@ -11,9 +11,7 @@ import Upgrade from './pages/Upgrade';
 import Profile from './pages/Profile';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
-import TacticalBlueprint from './pages/TacticalBlueprint';
 import { authAPI } from './api';
-import { Toaster } from 'react-hot-toast';
 
 // Auth Context
 export const AuthContext = createContext(null);
@@ -169,30 +167,6 @@ function App() {
           
           {/* Navbar - Shows on user pages only (not admin routes) */}
           <NavbarWrapper darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-          
-          {/* Toast Notifications */}
-          <Toaster 
-            position="top-right"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: darkMode ? '#1f2937' : '#fff',
-                color: darkMode ? '#fff' : '#1f2937',
-              },
-              success: {
-                iconTheme: {
-                  primary: '#10b981',
-                  secondary: '#fff',
-                },
-              },
-              error: {
-                iconTheme: {
-                  primary: '#ef4444',
-                  secondary: '#fff',
-                },
-              },
-            }}
-          />
 
           <Routes>
             <Route 
@@ -230,10 +204,6 @@ function App() {
             <Route 
               path="/profile" 
               element={user ? <Profile /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/blueprint/:strategyId" 
-              element={user ? <TacticalBlueprint /> : <Navigate to="/login" />} 
             />
             {/* Admin Panel Routes (Separate Authentication) */}
             <Route 
