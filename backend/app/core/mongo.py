@@ -1,4 +1,4 @@
-import redis
+
 from pymongo import MongoClient
 from app.core.config import settings
 
@@ -27,24 +27,4 @@ except Exception as e:
     print(f"DEBUG: Failed to create indexes: {e}")
 
 
-# Redis Setup
-REDIS_ENABLED = False
-redis_client = None
-
-try:
-    print("DEBUG: Connecting to Redis...")
-    # Add timeout to prevent hang
-    redis_client = redis.from_url(
-        settings.REDIS_URL, 
-        decode_responses=True, 
-        socket_timeout=2, 
-        socket_connect_timeout=2
-    )
-    print("DEBUG: Pinging Redis...")
-    redis_client.ping()
-    print("DEBUG: Redis connected.")
-    REDIS_ENABLED = True
-except Exception as e:
-    print(f"DEBUG: Redis connection failed: {e}")
-    print(f"[WARNING] Redis not available - {e}")
-    print("[WARNING] Rate limiting disabled")
+# Redis logic moved to app.core.cache

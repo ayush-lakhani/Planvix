@@ -213,6 +213,12 @@ vercel --prod
 VITE_API_URL=https://your-backend-url.com
 ```
 
+### Razorpay Integration
+Ensure you have the Razorpay script in `index.html`:
+```html
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+```
+
 ## 🔍 File Structure
 
 ```

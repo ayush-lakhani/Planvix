@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Lock } from 'lucide-react';
+import { useDashboard } from '../hooks';
 
 export default function AdminLogin() {
   const [secret, setSecret] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { setAdminSecret, fetchDashboardStats, loading } = useDashboard();
 
   const login = async () => {
     if (!secret.trim()) {
@@ -14,26 +15,19 @@ export default function AdminLogin() {
       return;
     }
 
-    setLoading(true);
     setError('');
     
     try {
-      const res = await fetch('http://localhost:8000/api/admin/dashboard', {
-        headers: { 
-          'Authorization': `Bearer ${secret}` 
-        }
-      });
+      // Set the admin secret in localStorage
+      setAdminSecret(secret);
       
-      if (res.ok) {
-        localStorage.setItem('admin_token', secret);
-        navigate('/admin');
-      } else {
-        setError('❌ Invalid Admin Secret');
-      }
+      // Try to fetch dashboard stats to verify the secret
+      await fetchDashboardStats();
+      
+      // If successful, navigate to admin dashboard
+      navigate('/admin');
     } catch (err) {
-      setError('❌ Connection failed - Is backend running?');
-    } finally {
-      setLoading(false);
+      setError(err.message || '❌ Invalid Admin Secret');
     }
   };
 

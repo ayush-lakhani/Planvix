@@ -9,7 +9,8 @@ export default function StrategyForm({ onGenerate, setLoading, setAgentLogs, loa
     industry: '',
     platform: 'Instagram',
     contentType: 'Mixed Content',
-    experience: 'beginner'
+    experience: 'beginner',
+    strategy_mode: 'conservative' // Default
   });
   
   const [errors, setErrors] = useState({});
@@ -179,7 +180,8 @@ export default function StrategyForm({ onGenerate, setLoading, setAgentLogs, loa
       industry: formData.industry.substring(0, 100),
       platform: formData.platform || "Instagram",
       contentType: formData.contentType || "Mixed Content",
-      experience: formData.experience || "beginner"
+      experience: formData.experience || "beginner",
+      strategy_mode: formData.strategy_mode || "conservative"
     };
 
     console.log('🚀 Sending safe strategy request to parent:', safeData);
@@ -341,6 +343,49 @@ export default function StrategyForm({ onGenerate, setLoading, setAgentLogs, loa
                 </div>
               </label>
             ))}
+          </div>
+        </div>
+
+        {/* Strategy Mode - NEW */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+            <Target className="w-4 h-4" />
+            Strategy Mode
+          </label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label className={`relative flex flex-col p-4 border-2 rounded-xl cursor-pointer transition-all ${
+              formData.strategy_mode === 'conservative'
+                ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
+                : 'border-gray-200 dark:border-gray-700 hover:border-emerald-300'
+            }`}>
+              <input
+                type="radio"
+                name="strategy_mode"
+                value="conservative"
+                checked={formData.strategy_mode === 'conservative'}
+                onChange={(e) => setFormData({ ...formData, strategy_mode: e.target.value })}
+                className="hidden"
+              />
+              <span className="text-emerald-600 dark:text-emerald-400 font-bold mb-1">🛡️ Conservative</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400">Stable growth, safe hooks, lower risk. focus on brand trust.</span>
+            </label>
+
+            <label className={`relative flex flex-col p-4 border-2 rounded-xl cursor-pointer transition-all ${
+              formData.strategy_mode === 'aggressive'
+                ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                : 'border-gray-200 dark:border-gray-700 hover:border-red-300'
+            }`}>
+              <input
+                type="radio"
+                name="strategy_mode"
+                value="aggressive"
+                checked={formData.strategy_mode === 'aggressive'}
+                onChange={(e) => setFormData({ ...formData, strategy_mode: e.target.value })}
+                className="hidden"
+              />
+              <span className="text-red-600 dark:text-red-400 font-bold mb-1">🚀 Aggressive Growth</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400">Viral hooks, trend hijacking, high risk/high reward.</span>
+            </label>
           </div>
         </div>
 

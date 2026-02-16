@@ -11,21 +11,18 @@ import hashlib
 from app.core.config import settings
 
 # Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 security = HTTPBearer()
 
 def hash_password(password: str) -> str:
-    """Hash password using bcrypt"""
-    # Bcrypt has a 72-byte limit, truncate if necessary
-    if len(password.encode('utf-8')) > 72:
-        password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+    """Hash password using Argon2"""
     return pwd_context.hash(password)
 
 get_password_hash = hash_password
 
 def verify_password(password: str, hashed: str) -> bool:
-    """Verify password - supports both bcrypt and legacy SHA256"""
+    """Verify password - supports Argon2 and legacy SHA256"""
     # Legacy SHA256 verification
     def verify_password_sha256(password: str, hashed: str) -> bool:
         try:
@@ -34,11 +31,11 @@ def verify_password(password: str, hashed: str) -> bool:
         except:
             return False
 
-    # Try bcrypt first
-    if hashed.startswith("$2b$") or hashed.startswith("$2a$"):
+    # Let passlib handle identification (Argon2, etc)
+    try:
         return pwd_context.verify(password, hashed)
-    # Fall back to SHA256 for legacy users
-    else:
+    except:
+        # Fallback to legacy check if passlib fails (e.g. unknown hash format)
         return verify_password_sha256(password, hashed)
 
 def create_access_token(data: dict) -> str:
@@ -48,7 +45,7 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
-    from app.core.database import users_collection
+    from app.core.mongo import users_collection
     token = credentials.credentials
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])

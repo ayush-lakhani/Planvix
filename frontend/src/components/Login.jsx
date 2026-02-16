@@ -1,14 +1,13 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Sparkles, ArrowRight } from 'lucide-react';
-import { authAPI } from '../api';
-import { useAuth } from '../App';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, ArrowRight, Zap, Target, Users } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -18,118 +17,169 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await authAPI.login(email, password);
-      const { access_token, user_id, email: userEmail } = response.data;
-      
-      login({ id: user_id, email: userEmail }, access_token);
+      await login(email, password);
+      // Wait a brief moment to ensure token is set before navigation
+      // Although useAuth sets it, App.jsx might need a reload if it doesn't listen to storage
+      // But for now, just navigate. We might need to fix App.jsx next.
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed. Please try again.');
+      console.error('Login error:', err);
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        {/* Header */}
-        <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-primary-600 to-accent-600 rounded-2xl shadow-lg mb-4">
-            <Sparkles className="w-8 h-8 text-white" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4">
+      <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        
+        {/* Left Side - Hero Content */}
+        <div className="hidden md:block space-y-8 animate-slide-right">
+          <div className="relative">
+            <div className="absolute -left-4 -top-4 w-20 h-20 bg-primary-100 dark:bg-primary-900/30 rounded-full blur-xl"></div>
+            <h1 className="text-5xl font-black text-gray-900 dark:text-white relative z-10 leading-tight">
+              Master Your <br/>
+              <span className="bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
+                Content Strategy
+              </span>
+            </h1>
           </div>
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent mb-2">
-              AgentForge
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-8">
-              AI Content Strategy Platform
-            </p>
+          
+          <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+            Join 10,000+ creators using AI agents to dominate their niche. 
+            Automate research, planning, and execution.
+          </p>
+
+          <div className="space-y-6">
+            <div className="flex items-center gap-4 bg-white/50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800 backdrop-blur-sm">
+              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+                <Target className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 dark:text-white">Precision Targeting</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">AI Analyzes your audience deep-dive</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 bg-white/50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800 backdrop-blur-sm">
+              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400">
+                <Users className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 dark:text-white">Multi-Agent Teams</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">5 Specialized agents work for you</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 bg-white/50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800 backdrop-blur-sm">
+              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400">
+                <Zap className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 dark:text-white">Instant ROI</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Get strategies that convert today</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Form */}
-        <div className="glass-card p-8 animate-slide-up">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Right Side - Login Form */}
+        <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 md:p-12 shadow-2xl border border-gray-100 dark:border-gray-800 relative overflow-hidden animate-slide-up">
+          {/* Decorative Elements */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/10 to-accent-500/10 rounded-bl-full"></div>
+          
+          <div className="relative z-10">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h2>
+            <p className="text-gray-500 dark:text-gray-400 mb-8">
+              Sign in to continue your streak
+            </p>
+
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm">
-                {error}
+              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium flex items-center gap-2 animate-shake">
+                <span>⚠️</span> {error}
               </div>
             )}
 
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-premium pl-12"
-                  placeholder="you@example.com"
-                />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                  Email Address
+                </label>
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-600 transition-colors" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all dark:text-white group-hover:bg-gray-100 dark:group-hover:bg-gray-800"
+                    placeholder="name@example.com"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-premium pl-12"
-                  placeholder="••••••••"
-                />
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                  Password
+                </label>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-600 transition-colors" />
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all dark:text-white group-hover:bg-gray-100 dark:group-hover:bg-gray-800"
+                    placeholder="••••••••"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full btn-gradient flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-                  Signing in...
-                </>
-              ) : (
-                <>
-                  Sign In
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
-            </button>
-          </form>
+              <div className="flex items-center justify-between text-sm">
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 transition-colors" />
+                  <span className="text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">Remember me</span>
+                </label>
+                <a href="#" className="font-semibold text-primary-600 hover:text-primary-500 hover:underline">
+                  Forgot password?
+                </a>
+              </div>
 
-          {/* Sign Up Link */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Don't have an account?{' '}
-              <Link 
-                to="/signup" 
-                className="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-primary-600 to-accent-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
               >
-                Sign up for free
-              </Link>
-            </p>
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Sign In</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 text-center">
+              <p className="text-gray-500 dark:text-gray-400">
+                Don't have an account?{' '}
+                <Link to="/signup" className="font-bold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  Create free account
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
-
+      </div>
         {/* Footer */}
         <p className="mt-8 text-center text-xs text-gray-500 dark:text-gray-500">
           By signing in, you agree to our Terms of Service and Privacy Policy
         </p>
-      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from datetime import datetime, timezone
 from app.models.schemas import UserCreate, UserLogin, Token, UserResponse
-from app.core.database import users_collection
+from app.core.mongo import users_collection
 from app.core.security import get_password_hash, verify_password, create_access_token
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])

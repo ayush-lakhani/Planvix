@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./public/logo.png" width="120" alt="AgentForge Logo"/>
+  <img src="frontend/public/logo.png" width="120" alt="AgentForge Logo"/>
   <h1><b>🚀 AgentForge</b></h1>
   <p>
     <strong>AI-Powered Content Strategy Generator</strong>
@@ -161,6 +161,7 @@ graph TB
 
 ## 📸 Showcase
 
+<!-- 
 ### Strategy Generation (30 seconds)
 ![Strategy Generation Demo](./screenshots/strategy-demo.gif)
 
@@ -172,6 +173,7 @@ graph TB
 
 ### Mobile Responsive Design
 ![Mobile View](./screenshots/mobile-responsive.png)
+-->
 
 ---
 

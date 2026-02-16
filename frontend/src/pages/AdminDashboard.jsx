@@ -167,14 +167,14 @@ const OverviewTab = ({ alerts, stats }) => (
         icon={<Users className="w-6 h-6" />} 
       />
       <KPICard 
-        title="Conversion" 
-        value={stats?.revenue?.conversion_rate || '0%'} 
-        change="Goal 8%" 
-        color="purple" 
-        icon={<TrendingUp className="w-6 h-6" />} 
+        title="Active Strategies" 
+        value={stats?.usage?.active_strategies?.toLocaleString() || '0'} 
+        change="Live Now" 
+        color="emerald" 
+        icon={<Zap className="w-6 h-6" />} 
       />
       <KPICard 
-        title="Total Strategies" 
+        title="Lifetime Generated" 
         value={stats?.usage?.total_strategies?.toLocaleString() || '0'} 
         change={`+${stats?.usage?.strategies_today || 0} today`} 
         color="orange" 

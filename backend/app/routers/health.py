@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from app.core.database import mongo_client, REDIS_ENABLED
+from app.core.mongo import mongo_client
+from app.core.redis import redis_client
 from app.core.config import settings
 from datetime import datetime, timezone
 
@@ -16,7 +17,7 @@ async def health_check():
     return {
         "status": "operational",
         "database": db_status,
-        "redis": "healthy" if REDIS_ENABLED else "disabled",
+        "redis": "healthy" if redis_client.enabled else "disabled",
         "crewai": "enabled" if settings.GROQ_API_KEY else "demo mode",
         "timestamp": datetime.now(timezone.utc).isoformat()
     }

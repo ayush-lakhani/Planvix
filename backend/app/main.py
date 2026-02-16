@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -6,7 +9,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.core.config import settings
-from app.routers import auth, strategy, health
+from app.routers import auth, strategy, health, admin
 
 # Initialize rate limiter
 limiter = Limiter(key_func=get_remote_address, default_limits=[f"{settings.RATE_LIMIT_PER_MINUTE}/minute"])
@@ -72,6 +75,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(strategy.router)
 app.include_router(health.router)
+app.include_router(admin.router)
 
 @app.get("/")
 async def root():

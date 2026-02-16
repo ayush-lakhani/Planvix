@@ -11,6 +11,7 @@ Use this guide to test all the API endpoints of the project in Postman.
 > **Handling Variables:** If you see `{{strategy_id}}` in the URL, you must either:
 > 1. Replace it with a real ID (e.g., `6979fa06...`) from your database/History response.
 > 2. Set it as a variable in Postman (right-click the value -> Set as variable).
+> 3. **Note:** Plan ID implementation details can be found in the "Payments (Pro)" section.
 
 ---
 
@@ -125,3 +126,28 @@ Use this guide to test all the API endpoints of the project in Postman.
 ### Create Pro Checkout
 *   **Method:** `POST`
 *   **URL:** `{{newbaseurl}}/api/pro-checkout`
+*   **Body (JSON):**
+```json
+{
+  "plan_id": "plan_Q0kX1234567890" 
+}
+```
+> [!NOTE]
+> **Plan ID:** Use `plan_Q0kX1234567890` for **Test Mode**. In Production, use the actual Plan ID from your Razorpay Dashboard.
+
+*   **Response (Success - 200 OK):**
+```json
+{
+  "subscription_id": "sub_1234567890abcdef",
+  "razorpay_key": "rzp_test_..." 
+}
+```
+> [!CAUTION]
+> **Security Warning:** The `razorpay_key` returned here is the **Public (Publishable) Key**. The Secret Key must **NEVER** be returned by this API or exposed to the frontend.
+
+*   **Response (Error - 400 Bad Request):**
+```json
+{
+  "detail": "Invalid Plan ID provided."
+}
+```

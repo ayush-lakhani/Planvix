@@ -18,15 +18,15 @@ export default function History() {
 
   const loadHistory = async () => {
     try {
-      const response = await strategyAPI.getHistory();
-      console.log('[HISTORY] Raw response:', response);
-      console.log('[HISTORY] Response data:', response.data);
+      const data = await strategyAPI.getHistory(); // Already returns response.data
+      console.log('[HISTORY] API response:', data);
       
-      // Backend returns { history: [...], count: N }
-      const strategiesArray = response.data?.history || response.data || [];
-      console.log('[HISTORY] Strategies array:', strategiesArray);
-      console.log('[HISTORY] First strategy:', strategiesArray[0]);
+      // Normalize response - backend may return array or {history: [...]}
+      const strategiesArray = Array.isArray(data) 
+        ? data 
+        : data?.history || [];
       
+      console.log('[HISTORY] Normalized strategies:', strategiesArray);
       setStrategies(strategiesArray);
     } catch (error) {
       console.error('Failed to load history:', error);
@@ -89,8 +89,8 @@ export default function History() {
     try {
       console.log('[VIEW] Fetching strategy with ID:', strategyId);
       const response = await strategyAPI.getById(strategyId);
-      console.log('[VIEW] Strategy loaded:', response.data);
-      setSelectedStrategy(response.data);
+      console.log('[VIEW] Strategy loaded:', response);
+      setSelectedStrategy(response); // response is already the data
     } catch (error) {
       console.error('[VIEW] Failed to load strategy:', error);
       console.error('[VIEW] Error response:', error.response);

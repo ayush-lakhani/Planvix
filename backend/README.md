@@ -197,7 +197,7 @@ curl http://localhost:8000/api/health
 # Test signup
 curl -X POST http://localhost:8000/api/auth/signup \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"Test123!"}'
+  -d '{"email":"test@example.com","password":"SecureP@ss123!"}'
 
 # Test strategy generation
 curl -X POST http://localhost:8000/api/strategy \
@@ -223,6 +223,7 @@ Key packages:
 - **redis**: Cache client
 - **python-jose**: JWT handling
 - **passlib**: Password hashing
+- **razorpay**: Payment processing
 
 ## 🐛 Troubleshooting
 

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import StrategyForm from './StrategyForm';
 import StrategyResults from './StrategyResults';
 import AgentTerminal from './AgentTerminal';
 import UpgradeModal from './UpgradeModal';
 import ProfileWidget from './ProfileWidget';
 import { strategyAPI } from '../api';
+import { normalizeStrategy, isValidStrategy } from '../utils/strategyUtils';
 
 export default function StrategicPlanner() {
   const [strategy, setStrategy] = useState(null);
@@ -15,6 +16,15 @@ export default function StrategicPlanner() {
   const [userTier, setUserTier] = useState('free');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Handle strategy passed via navigation state (from Dashboard/History)
+  useEffect(() => {
+    if (location.state?.strategy) {
+      console.log('[PLANNER] Received strategy from navigation:', location.state.strategy);
+      setStrategy(location.state.strategy);
+    }
+  }, [location]);
 
   // Fetch user profile and usage on mount
   useEffect(() => {
@@ -70,15 +80,26 @@ export default function StrategicPlanner() {
 
     try {
       const result = await strategyAPI.generate(formData);
-      setStrategy(result);
+      console.log('[STRATEGY RESULT] Raw API response:', result);
       
-      // ✅ OPTIMISTIC UPDATE: Update usage count immediately
-      // This is "Real-Time" for the user, no need to wait for profile fetch
-      setUsageCount(prev => prev + 1);
+      // CRITICAL: Normalize strategy structure
+      const normalized = normalizeStrategy(result);
+      console.log('[STRATEGY RESULT] Normalized:', normalized);
+      console.log('[STRATEGY RESULT] Is valid?', isValidStrategy(normalized));
+      
+      if (!isValidStrategy(normalized)) {
+        throw new Error('Invalid strategy structure received from API');
+      }
+      
+      setStrategy(normalized);
+      
+      // Refresh profile to get updated usage count from server
+      await fetchUserProfile();
       
       setAgentLogs(prev => [...prev, { agent: 'SYSTEM', message: '✅ Strategy generated successfully!', type: 'success' }]);
       
     } catch (error) {
+      console.error('[STRATEGY ERROR]', error);
       setAgentLogs(prev => [...prev, { agent: 'ERROR', message: error.message, type: 'error' }]);
     } finally {
       setLoading(false);
@@ -101,8 +122,12 @@ export default function StrategicPlanner() {
     setShowUpgradeModal(false);
   };
 
+  // Debug logging for state tracking
+  console.log('[PLANNER] Current strategy state:', strategy);
+  console.log('[PLANNER] Has strategy?', !!strategy);
+
   if (strategy) {
-    return <StrategyResults strategy={strategy.data} onReset={handleReset} />;
+    return <StrategyResults strategy={strategy} onReset={handleReset} />;
   } 
 
   return (

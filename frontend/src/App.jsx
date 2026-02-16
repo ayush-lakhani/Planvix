@@ -12,8 +12,10 @@ import Profile from './pages/Profile';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import TacticalBlueprint from './pages/TacticalBlueprint';
-import { authAPI } from './api';
 import { Toaster } from 'react-hot-toast';
+import ErrorBoundary from './components/ErrorBoundary';
+
+import { useAuth as useAuthHook } from './hooks/useAuth';
 
 // Auth Context
 export const AuthContext = createContext(null);
@@ -36,32 +38,13 @@ function NavbarWrapper({ darkMode, toggleDarkMode }) {
 }
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const auth = useAuthHook();
+  const { user } = auth;
   const [isAnimating, setIsAnimating] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
   });
-
-  useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('token');
-    if (token) {
-      authAPI.getMe()
-        .then(response => {
-          setUser(response.data);
-        })
-        .catch(() => {
-          localStorage.removeItem('token');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
     // Apply dark mode
@@ -73,16 +56,6 @@ function App() {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
   }, [darkMode]);
 
-  const login = (userData, token) => {
-    localStorage.setItem('token', token);
-    setUser(userData);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-  };
-
   const toggleDarkMode = () => {
     setIsAnimating(true);
     setTimeout(() => {
@@ -91,7 +64,7 @@ function App() {
     }, 50);
   };
 
-  if (loading) {
+  if (auth.loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-accent-50 dark:from-gray-950 dark:to-gray-900">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary-600"></div>
@@ -100,8 +73,9 @@ function App() {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      <Router>
+    <ErrorBoundary>
+      <AuthContext.Provider value={auth}>
+        <Router>
         <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 transition-colors duration-300">
           {/* Arc Sweep Animation Overlay */}
           {isAnimating && (
@@ -250,8 +224,9 @@ function App() {
             />
           </Routes>
         </div>
-      </Router>
-    </AuthContext.Provider>
+        </Router>
+      </AuthContext.Provider>
+    </ErrorBoundary>
   );
 }
 

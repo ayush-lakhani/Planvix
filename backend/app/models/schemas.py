@@ -11,129 +11,86 @@ from pydantic import BaseModel, EmailStr, Field
 # PYDANTIC MODELS (API Request/Response Schemas)
 # ============================================================================
 
+# ============================================================================
+# PYDANTIC MODELS (API Request/Response Schemas)
+# ============================================================================
+
 class StrategyInput(BaseModel):
     """Input schema for strategy generation"""
-    goal: str = Field(..., min_length=5, max_length=500, description="Business goal (e.g., 'Sell coffee on Instagram')")
-    audience: str = Field(..., min_length=3, max_length=200, description="Target audience (e.g., 'college students')")
-    industry: str = Field(..., min_length=3, max_length=100, description="Industry (e.g., 'F&B', 'SaaS', 'E-commerce')")
-    platform: str = Field(..., min_length=3, max_length=50, description="Primary platform (e.g., 'Instagram', 'LinkedIn')")
-    contentType: str = Field(default="Mixed Content", max_length=50, description="Desired content format (e.g., 'Reels', 'Posts', 'Blogs')")
-    experience: str = Field(default="beginner", max_length=50, description="User experience level (beginner/intermediate/expert)")
+    goal: str = Field(..., min_length=10, max_length=500, description="Business goal")
+    audience: str = Field(..., min_length=5, max_length=200, description="Target audience")
+    industry: str = Field(..., min_length=3, max_length=100, description="Industry")
+    platform: str = Field(..., min_length=3, max_length=50, description="Primary platform")
+    contentType: str = Field(default="Mixed Content", max_length=50, description="Content format")
+    experience: str = Field(default="beginner", max_length=50, description="Experience level")
+    strategy_mode: str = Field(default="conservative", pattern="^(conservative|aggressive)$", description="Risk/Innovation level")
 
     class Config:
         json_schema_extra = {
             "example": {
-                "goal": "Sell coffee subscriptions on Instagram",
-                "audience": "college students aged 18-24",
+                "goal": "Sell premium coffee subscriptions to remote workers",
+                "audience": "Remote tech workers aged 25-35",
                 "industry": "F&B",
                 "platform": "Instagram",
-                "contentType": "Reels/Short Videos"
+                "contentType": "Reels",
+                "strategy_mode": "aggressive"
             }
         }
+        brand_name: Optional[str] = None   # 👈 ADD THIS
 
+# --- Nested Models for ContentStrategy ---
 
-class PersonaModel(BaseModel):
-    """Detailed audience persona"""
-    name: str = Field(..., description="Persona name (e.g., 'Broke College Caffeine Addict')")
-    age_range: str = Field(..., description="Age range (e.g., '18-24')")
-    occupation: str = Field(..., description="Primary occupation")
-    pain_points: List[str] = Field(..., description="Top 3-5 pain points")
-    desires: List[str] = Field(..., description="Top 3-5 desires/aspirations")
-    objections: List[str] = Field(..., description="Common objections to purchase")
-    daily_habits: List[str] = Field(..., description="Relevant daily habits")
-    content_preferences: List[str] = Field(..., description="Preferred content formats")
+class StrategyMetadata(BaseModel):
+    generated_at: str
+    difficulty_score: int
+    confidence_score: int
+    growth_velocity_score: int
+    token_usage: Optional[int] = 0
 
+class StrategicOverview(BaseModel):
+    growth_objective: str
+    target_persona_snapshot: str
+    positioning_angle: str
+    competitive_edge: str
 
-class CompetitorGap(BaseModel):
-    """Individual competitor gap/opportunity"""
-    gap: str = Field(..., description="The missed opportunity")
-    impact: str = Field(..., description="Potential impact (High/Medium/Low)")
-    implementation: str = Field(..., description="How to exploit this gap")
+class SamplePostContent(BaseModel):
+    format: str
+    hook: str
+    script_or_structure: str
+    caption: str
+    cta: str
+    image_prompt: Optional[str] = None # Added back for image generation support
 
+class ContentPillar(BaseModel):
+    pillar_name: str
+    why_it_works: str
+    sample_posts: List[SamplePostContent]
 
-class KeywordModel(BaseModel):
-    """SEO keyword with metadata (SerpAPI enhanced)"""
-    term: str = Field(..., description="Keyword phrase")
-    intent: str = Field(..., description="Search intent (Informational/Transactional/Navigational)")
-    difficulty: str = Field(..., description="Keyword difficulty (Easy/Medium/Hard)")
-    monthly_searches: str = Field(..., description="Estimated monthly search volume")
-    priority: int = Field(..., ge=1, le=10, description="Priority score (1-10)")
-    hashtags: List[str] = Field(default_factory=list, description="Relevant hashtags (5)")
+class KeywordStats(BaseModel):
+    primary: List[str]
+    long_tail: List[str]
+    hashtags: List[str]
 
+class ROIStats(BaseModel):
+    traffic_lift_percentage: str # e.g. "15-25%" - keeping as string for range
+    engagement_boost_percentage: str
+    estimated_monthly_reach: str
+    conversion_rate_estimate: str
+    risk_level: str # Low/Medium/High
 
-class CalendarItem(BaseModel):
-    """Single content calendar entry"""
-    week: int = Field(..., ge=1, le=4, description="Week number (1-4)")
-    day: int = Field(..., ge=1, le=7, description="Day of week (1-7)")
-    topic: str = Field(..., description="Content topic")
-    format: str = Field(..., description="Content format (Reel/Carousel/Story/Post)")
-    caption_hook: str = Field(..., description="Opening hook for caption")
-    cta: str = Field(..., description="Call-to-action")
-
-
-class SamplePost(BaseModel):
-    """Ready-to-use sample post"""
-    title: str = Field(..., description="Post title/hook")
-    caption: str = Field(..., description="Full post caption")
-    hashtags: List[str] = Field(..., description="Recommended hashtags (5-10)")
-    image_prompt: str = Field(..., description="AI image generation prompt")
-    best_time: str = Field(..., description="Optimal posting time")
-
-
-class StrategicGuidance(BaseModel):
-    """Execution guidance (WHAT/HOW/WHERE/WHY/WHEN)"""
-    what_to_do: List[str] = Field(..., description="5-7 specific content types to create")
-    how_to_do_it: List[str] = Field(..., description="5-7 tactical execution tips")
-    where_to_post: Dict = Field(..., description="Platform-specific posting locations")
-    when_to_post: Dict = Field(..., description="Timing strategy (days/times/frequency)")
-    what_to_focus_on: List[str] = Field(..., description="5 key success metrics")
-    why_it_works: List[str] = Field(..., description="5 psychological/strategic reasons")
-    productivity_boosters: List[str] = Field(..., description="5 efficiency tips")
-    things_to_avoid: List[str] = Field(..., description="5 common mistakes to avoid")
-
-
-class ROIPrediction(BaseModel):
-    """ROI and performance predictions"""
-    traffic_lift_percentage: str = Field(..., description="Expected traffic increase (e.g., '23%')")
-    engagement_boost_percentage: str = Field(..., description="Expected engagement lift (e.g., '41%')")
-    estimated_monthly_reach: str = Field(..., description="Projected audience reach (e.g., '5K-10K')")
-    conversion_rate_estimate: str = Field(..., description="Expected conversion rate (e.g., '2-3%')")
-    time_to_results: str = Field(..., description="Expected timeline (e.g., '30-60 days')")
-
-
+class CalendarEntry(BaseModel):
+    day: int
+    format: str
+    theme: str
+    
 class ContentStrategy(BaseModel):
-    """Complete content strategy output - PRODUCTION SCHEMA"""
-    personas: List[PersonaModel]
-    competitor_gaps: List[CompetitorGap]
-    strategic_guidance: StrategicGuidance
-    keywords: List[KeywordModel]
-    calendar: List[CalendarItem]
-    sample_posts: List[SamplePost]
-    roi_prediction: ROIPrediction
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "persona": {
-                    "name": "Broke College Caffeine Addict",
-                    "age_range": "18-24",
-                    "occupation": "Full-time Student",
-                    "pain_points": ["$5 latte guilt", "Tired between classes"],
-                    "desires": ["Affordable quality coffee", "Study fuel"],
-                    "objections": ["Too expensive", "Not sustainable"],
-                    "daily_habits": ["Checks Instagram 5x/day", "Listens to podcasts"],
-                    "content_preferences": ["Quick tips", "Behind-the-scenes"]
-                },
-                "roi_prediction": {
-                    "traffic_lift_percentage": "23%",
-                    "engagement_boost_percentage": "41%",
-                    "estimated_monthly_reach": "5K-10K",
-                    "conversion_rate_estimate": "2-3%",
-                    "time_to_results": "30-45 days"
-                }
-            }
-        }
-
+    """Complete content strategy output - NEW 5-AGENT SCHEMA"""
+    metadata: StrategyMetadata
+    strategic_overview: StrategicOverview
+    content_pillars: List[ContentPillar]
+    content_calendar: List[CalendarEntry]
+    keywords: KeywordStats
+    roi_prediction: ROIStats
 
 class StrategyResponse(BaseModel):
     """API response wrapper"""

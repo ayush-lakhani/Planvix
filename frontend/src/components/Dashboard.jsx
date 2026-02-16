@@ -16,11 +16,13 @@ export default function Dashboard() {
 
   const loadStrategies = async () => {
     try {
-      const response = await strategyAPI.getHistory();
-      console.log('[DASHBOARD] API response:', response.data);
+      const data = await strategyAPI.getHistory(); // Already returns response.data
+      console.log('[DASHBOARD] API response:', data);
       
-      // Backend returns { history: [...], count: N }
-      const strategiesArray = response.data?.history || response.data?.strategies || response.data || [];
+      // Normalize response - backend may return array or {history: [...]}
+      const strategiesArray = Array.isArray(data) 
+        ? data 
+        : data?.history || data?.strategies || [];
       
       console.log('[DASHBOARD] Extracted strategies:', strategiesArray);
       setStrategies(strategiesArray);
