@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Zap, Target, Users } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import logoSquare from '../assets/branding/logo-square.svg';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -90,10 +91,21 @@ export default function Login() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/10 to-accent-500/10 rounded-bl-full"></div>
           
           <div className="relative z-10">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h2>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">
-              Sign in to continue your streak
-            </p>
+            {/* Logo and Branding */}
+            <div className="flex flex-col items-center mb-6">
+              <img 
+                src={logoSquare}
+                alt="Planvix Logo"
+                className="h-16 w-16 mb-3"
+                style={{filter: 'drop-shadow(0 0 12px rgba(99, 102, 241, 0.4))'}}
+              />
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Welcome to Planvix
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                AI Content Strategy OS
+              </p>
+            </div>
 
             {error && (
               <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium flex items-center gap-2 animate-shake">

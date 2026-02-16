@@ -2,7 +2,7 @@ import { Sparkles, Menu, User, LogOut, Home, Clock, Moon, Sun } from 'lucide-rea
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../App';
-import { AgentDotsLogo, AgentDotsCompact } from './BrandLogo';
+import logoHorizontal from '../assets/branding/logo-horizontal.svg';
 
 
 
@@ -31,12 +31,21 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
         <div className="flex items-center justify-between w-full">
           {/* Logo - Desktop */}
           <Link to="/dashboard" className="hidden md:block">
-            <AgentDotsLogo size="md" showSlogan={true} />
+            <img 
+              src={logoHorizontal}
+              alt="Planvix Logo"
+              className="h-8 w-auto object-contain"
+              style={{filter: 'drop-shadow(0 0 10px rgba(99, 102, 241, 0.3))'}}
+            />
           </Link>
 
           {/* Logo - Mobile */}
           <Link to="/dashboard" className="md:hidden">
-            <AgentDotsCompact />
+            <img 
+              src={logoHorizontal}
+              alt="Planvix"
+              className="h-7 w-auto object-contain"
+            />
           </Link>
 
           {/* Desktop Navigation */}
