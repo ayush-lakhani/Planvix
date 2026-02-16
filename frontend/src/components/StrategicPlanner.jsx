@@ -44,10 +44,12 @@ export default function StrategicPlanner() {
 
       if (response.ok) {
         const data = await response.json();
-        const serverUsage = data.usage_month || 0;
+        // Backend returns usage_count, not usage_month
+        const serverUsage = data.usage_count || 0;
         setUsageCount(serverUsage);
         setUserTier(data.tier || 'free');
         console.log('[PROFILE] Usage count updated:', serverUsage);
+        console.log('[PROFILE] Full profile data:', data);
 
         // Check for upgrade trigger (e.g. if limit reached)
         if (serverUsage >= 3 && data.tier === 'free') {
