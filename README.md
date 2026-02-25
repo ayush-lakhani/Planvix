@@ -7,7 +7,7 @@
     <em>Orchestrating 5 Autonomous Agents to Build Your Entire Marketing Strategy</em>
   </p>
 
-  <img src="https://img.shields.io/badge/Status-Internship--Ready%20|%20Production-00D4AA?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Status-Production--Ready%20|%20Stable-00D4AA?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Architecture-Service%20Oriented-6366f1?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Security-RBAC%20|%20Header--Auth-red?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Performance-Redis%20|%20Async-DC382D?style=for-the-badge" />
@@ -34,15 +34,15 @@ Unlike generic LLM wrappers, Planvix implements a **Decoupled Layered Architectu
 
 ## ✨ Key Features (Startup-Grade)
 
-| Feature                       | Industrial Application                                                                                 |
-| :---------------------------- | :----------------------------------------------------------------------------------------------------- |
-| **🏗️ Layered Architecture**   | Full separation of concerns using the **Service Pattern**. Clean, testable, and scalable.              |
-| **🔒 Dual-Layer Auth & RBAC** | JWT for users + `x-admin-secret` header for admin. Separated auth flows with zero cross-contamination. |
-| **📊 Analytics Intelligence** | Complex MongoDB Aggregation Pipelines for MRR, Churn, and KPIs. Cached via **Redis** for speed.        |
-| **⚡ Real-time WebSockets**   | Live activity feeds and generation status updates using a centralized WebSocket manager.               |
-| **🛡️ Global Stability Layer** | React Error Boundaries + Defensive Rendering + Axios Interceptors. **Zero Blank Screens.**             |
-| **🤖 Multi-Agent Engine**     | 5 specialized CrewAI agents (Persona, Trend, Traffic, Synthesis, ROI) for tactical depth.              |
-| **📈 Intelligence Profiles**  | Per-user billing, token usage tracking, and trend analysis—fully database-driven.                      |
+| Feature                       | Industrial Application                                                                                           |
+| :---------------------------- | :--------------------------------------------------------------------------------------------------------------- |
+| **🏗️ Layered Architecture**   | Full separation of concerns using the **Service Pattern**. Clean, testable, and scalable.                        |
+| **🔒 Dual-Layer Auth & RBAC** | JWT for users + `x-admin-secret` header for admin. Separated auth flows with zero cross-contamination.           |
+| **📊 Analytics Intelligence** | Complex MongoDB Aggregation Pipelines for MRR, Churn, and KPIs. Cached via **Redis** for speed.                  |
+| **⚡ Real-time WebSockets**   | Live activity feeds and generation status updates using a centralized WebSocket manager.                         |
+| **🛡️ Global Stability Layer** | React Error Boundaries + Defensive Rendering + Axios Interceptors. **Zero blank screens. Zero runtime crashes.** |
+| **🤖 Multi-Agent Engine**     | 5 specialized CrewAI agents (Persona, Trend, Traffic, Synthesis, ROI) for tactical depth.                        |
+| **📈 Intelligence Profiles**  | Per-user billing, token usage tracking, and trend analysis—fully database-driven.                                |
 
 ---
 
@@ -101,24 +101,36 @@ graph TD
 
 ## 🛡️ Industrial-Grade Security
 
-| Security Layer                   | Implementation                                                                                      |
-| :------------------------------- | :-------------------------------------------------------------------------------------------------- |
-| **🔐 Role-Based Access**         | Strict RBAC with `client`, `admin`, and `superadmin` tiers.                                         |
-| **🎟️ User JWT Auth**             | Stateless user sessions via signed JWTs with explicit role and expiry data.                         |
-| **🔑 Admin Header Auth**         | Admin access via `x-admin-secret` custom header, validated server-side. No JWT cross-contamination. |
-| **🛑 Rate Limiting**             | SlowAPI integration to prevent brute-force attacks on auth endpoints.                               |
-| **🔒 Password Hashing**          | `Bcrypt` with salt rounds for production-safe credential storage.                                   |
-| **🚫 Backend Trust-Zero Filter** | Zero trust for frontend `user_id`. Every filter extracted from JWT `sub` claim on the backend.      |
+| Security Layer                   | Implementation                                                                                                                     |
+| :------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
+| **🔐 Role-Based Access**         | Strict RBAC with `client`, `admin`, and `superadmin` tiers.                                                                        |
+| **🎟️ User JWT Auth**             | Stateless user sessions via signed JWTs with explicit role and expiry data.                                                        |
+| **🔑 Admin Header Auth**         | Admin access via `x-admin-secret` custom header, validated server-side against `ADMIN_SECRET` env var. No JWT cross-contamination. |
+| **🛑 Rate Limiting**             | SlowAPI integration to prevent brute-force attacks on auth endpoints.                                                              |
+| **🔒 Password Hashing**          | `Bcrypt` with salt rounds for production-safe credential storage.                                                                  |
+| **💾 sessionStorage Only**       | Admin secret stored in `sessionStorage` (not `localStorage`) — auto-cleared on tab close.                                          |
+| **🚫 Backend Trust-Zero Filter** | Zero trust for frontend `user_id`. Every filter extracted from JWT `sub` claim on the backend.                                     |
 
 ---
 
 ## 📊 Analytics Engine (High-Performance)
 
-Planvix doesn't just store data; it analyzes it. Our analytics engine is built on **MongoDB Aggregation Pipelines** to provide real-time business intelligence without overloading the application.
+Planvix doesn't just store data — it analyzes it. Our admin analytics engine is built on **MongoDB Aggregation Pipelines** to provide real-time business intelligence with zero hardcoded values.
 
-- **KPI Metrics**: MRR, ARPU, and Churn calculated on-the-fly.
-- **Trend Detection**: Growth trends and AI usage distribution.
-- **Redis Caching**: Heavy KPIs are cached for **60 seconds** to ensure sub-100ms response times.
+- **KPI Metrics**: MRR, ARPU, Churn, and user growth — all computed live from the database.
+- **Tier Distribution**: Free/Pro/Enterprise split with real document counts.
+- **Industry Breakdown**: Top industries extracted from strategy documents.
+- **AI Token Usage**: Total tokens consumed, daily trends, and cost estimates.
+- **Redis Caching**: All heavy admin analytics cached for **60 seconds** (TTL) for sub-100ms response times.
+- **MongoDB Indexes**: Compound indexes on `user_id + created_at` for all collections — queries scale with data.
+
+### Collections
+
+| Collection      | Key Fields                                     | Indexes                                     |
+| :-------------- | :--------------------------------------------- | :------------------------------------------ |
+| `users`         | `email`, `tier`, `role`, `created_at`          | `email` (unique), `created_at`              |
+| `strategies`    | `user_id`, `tokens_used`, `created_at`         | `user_id`, compound `(user_id, created_at)` |
+| `ai_usage_logs` | `user_id`, `tokens_used`, `cost`, `created_at` | `user_id`, compound `(user_id, created_at)` |
 
 ---
 

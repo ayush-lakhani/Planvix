@@ -26,8 +26,8 @@ export default function AdminLogin() {
       setError("");
       setLoading(true);
 
-      // Store secret first
-      localStorage.setItem("adminSecret", secret);
+      // Store secret in sessionStorage (cleared when tab closes)
+      sessionStorage.setItem("adminSecret", secret);
 
       // Validate secret with backend
       await adminAPI.get("/api/admin/dashboard");
@@ -35,7 +35,7 @@ export default function AdminLogin() {
       // Redirect safely
       navigate("/admin", { replace: true });
     } catch (err) {
-      localStorage.removeItem("adminSecret");
+      sessionStorage.removeItem("adminSecret");
       setError("Invalid admin secret");
     } finally {
       setLoading(false);

@@ -1,5 +1,5 @@
 
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING, DESCENDING
 from app.core.config import settings
 
 # MongoDB Setup
@@ -14,14 +14,22 @@ except Exception as e:
 db = mongo_client[settings.DB_NAME]
 users_collection = db.users
 strategies_collection = db.strategies
+ai_usage_logs_collection = db.ai_usage_logs
 
 # Create indexes
 try:
     users_collection.create_index("email", unique=True)
+    users_collection.create_index([("created_at", DESCENDING)])
+
     strategies_collection.create_index("user_id")
     strategies_collection.create_index("cache_key")
-    strategies_collection.create_index("created_at")
-    strategies_collection.create_index([("user_id", 1), ("created_at", -1)])
+    strategies_collection.create_index([("created_at", DESCENDING)])
+    strategies_collection.create_index([("user_id", ASCENDING), ("created_at", DESCENDING)])
+
+    ai_usage_logs_collection.create_index("user_id")
+    ai_usage_logs_collection.create_index([("created_at", DESCENDING)])
+    ai_usage_logs_collection.create_index([("user_id", ASCENDING), ("created_at", DESCENDING)])
+
     print("DEBUG: MongoDB indexes verified.")
 except Exception as e:
     print(f"DEBUG: Failed to create indexes: {e}")

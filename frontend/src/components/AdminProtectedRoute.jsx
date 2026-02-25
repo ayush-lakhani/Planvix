@@ -6,7 +6,7 @@ import { useAdminAuth } from "../context/AdminAuthContext";
  * Uses reactive AdminAuthContext state.
  */
 const AdminProtectedRoute = ({ children }) => {
-  const secret = localStorage.getItem("adminSecret");
+  const secret = sessionStorage.getItem("adminSecret");
 
   if (!secret) {
     return <Navigate to="/admin-login" replace />;

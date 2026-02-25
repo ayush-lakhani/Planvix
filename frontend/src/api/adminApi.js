@@ -5,7 +5,8 @@ export const adminAPI = axios.create({
 });
 
 adminAPI.interceptors.request.use((config) => {
-  const secret = localStorage.getItem("adminSecret");
+  // sessionStorage: cleared automatically when the tab/browser closes
+  const secret = sessionStorage.getItem("adminSecret");
   if (secret) {
     config.headers["x-admin-secret"] = secret;
   }

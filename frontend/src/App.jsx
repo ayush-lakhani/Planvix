@@ -44,7 +44,7 @@ function NavbarWrapper({ darkMode, toggleDarkMode }) {
 function AppContent() {
   const { user, loading } = useAuth();
   const { adminToken } = useAdminAuth();
-  const adminSecret = localStorage.getItem("adminSecret");
+  const adminSecret = sessionStorage.getItem("adminSecret");
   const [isAnimating, setIsAnimating] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("darkMode");

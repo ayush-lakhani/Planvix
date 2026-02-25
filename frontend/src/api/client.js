@@ -57,9 +57,10 @@ export const adminClient = axios.create({
 });
 
 // Interceptor to add admin secret header (header-based auth)
+// Uses sessionStorage — secret is cleared when the tab closes, reducing persistence risk.
 adminClient.interceptors.request.use(
   (config) => {
-    const adminSecret = localStorage.getItem("adminSecret");
+    const adminSecret = sessionStorage.getItem("adminSecret");
     if (adminSecret) {
       config.headers["x-admin-secret"] = adminSecret;
     }
@@ -77,7 +78,7 @@ adminClient.interceptors.response.use(
         "⚠️ Admin token expired or invalid. Redirecting to admin login...",
       );
 
-      localStorage.removeItem("admin_token");
+      sessionStorage.removeItem("adminSecret");
 
       if (!window.location.pathname.includes("/admin-login")) {
         window.location.href = "/admin-login";

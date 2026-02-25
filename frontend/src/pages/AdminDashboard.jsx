@@ -131,7 +131,7 @@ export default function EnterpriseAdminDashboard() {
   const env = import.meta.env.MODE === "production" ? "PROD" : "DEV";
 
   /* ── Auth guard ─────────────────────────────── */
-  const secret = localStorage.getItem("adminSecret");
+  const secret = sessionStorage.getItem("adminSecret");
   useEffect(() => {
     if (!secret) {
       navigate("/admin-login");
@@ -218,7 +218,7 @@ export default function EnterpriseAdminDashboard() {
   }, []);
 
   const logout = () => {
-    localStorage.removeItem("adminSecret");
+    sessionStorage.removeItem("adminSecret");
     WebSocketService.disconnect();
     navigate("/admin-login");
   };

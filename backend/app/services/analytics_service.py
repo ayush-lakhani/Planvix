@@ -214,7 +214,7 @@ class AnalyticsService:
         mode_raw = _safe_list(strategies_collection.aggregate(mode_pipeline))
         most_used_mode = mode_raw[0]["_id"] if mode_raw else "standard"
 
-        return {
+        result = {
             "kpis": {
                 "mrr": mrr,
                 "mrr_growth": mrr_growth,
@@ -244,9 +244,12 @@ class AnalyticsService:
                 "most_used_mode": most_used_mode,
             }
         }
-        
+
         # Cache for 60 seconds
-        redis_client.set(cache_key, json.dumps(result), ex=60)
+        try:
+            redis_client.set(cache_key, json.dumps(result, default=str), ex=60)
+        except Exception:
+            pass
         return result
 
     # ════════════════════════════════════════════════════════
@@ -435,16 +438,19 @@ class AnalyticsService:
         token_sum_raw = _safe_list(strategies_collection.aggregate(token_sum_pipeline))
         total_tokens = token_sum_raw[0]["total"] if token_sum_raw else total_strategies * 800
 
-        return {
+        result = {
             "total_strategies": total_strategies,
             "total_tokens": total_tokens,
             "usage_history": usage_history,
             "top_industries": [{"industry": r["_id"], "count": r["count"]} for r in industries],
             "most_active_industry": industries[0]["_id"] if industries else "N/A"
         }
-        
+
         # Cache user metrics for 60 seconds
-        redis_client.set(cache_key, json.dumps(result), ex=60)
+        try:
+            redis_client.set(cache_key, json.dumps(result, default=str), ex=60)
+        except Exception:
+            pass
         return result
 
 

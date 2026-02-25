@@ -20,7 +20,7 @@ class AnalyticsServiceClass {
   }
 
   getExportUrl() {
-    const secret = localStorage.getItem("adminSecret");
+    const secret = sessionStorage.getItem("adminSecret");
     return `/api/admin/users/export?secret=${secret}`;
   }
 

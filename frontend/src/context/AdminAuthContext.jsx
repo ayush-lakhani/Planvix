@@ -1,6 +1,7 @@
 /**
  * AdminAuthContext — Centralized admin authentication state
- * Stores JWT token, provides login/logout, Axios interceptor attaches Bearer header
+ * Admin secret is stored in sessionStorage (clears on tab close) to reduce persistence risk.
+ * The interceptor attaches the x-admin-secret header automatically.
  */
 import { createContext, useContext, useState, useCallback } from "react";
 import axios from "axios";
@@ -14,8 +15,9 @@ export const adminAxios = axios.create({
 });
 
 // Attach admin secret to every request (header-based auth)
+// Reads from sessionStorage — cleared automatically when the browser tab closes.
 adminAxios.interceptors.request.use((config) => {
-  const adminSecret = localStorage.getItem("adminSecret");
+  const adminSecret = sessionStorage.getItem("adminSecret");
   if (adminSecret) {
     config.headers["x-admin-secret"] = adminSecret;
   }
@@ -24,24 +26,23 @@ adminAxios.interceptors.request.use((config) => {
 
 export function AdminAuthProvider({ children }) {
   const [adminToken, setAdminToken] = useState(() =>
-    localStorage.getItem("admin_token"),
+    sessionStorage.getItem("adminSecret"),
   );
   const [loading, setLoading] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+  // adminLogin: stores the validated secret under "adminSecret" key in sessionStorage.
+  // sessionStorage is cleared when the tab closes, reducing the persistence window.
   const adminLogin = useCallback(async (secret) => {
-    const res = await axios.post("/api/admin/login", { secret });
-    const token = res.data.access_token;
-    localStorage.setItem("admin_token", token);
-    setAdminToken(token);
-    return token;
+    sessionStorage.setItem("adminSecret", secret);
+    setAdminToken(secret);
+    return secret;
   }, []);
 
   const adminLogout = useCallback(() => {
     setIsLoggingOut(true);
-    localStorage.removeItem("admin_token");
+    sessionStorage.removeItem("adminSecret");
     setAdminToken(null);
-    // Removed direct redirect to allow AdminProtectedRoute to handle it reactively
   }, []);
 
   // Auto-logout on 401
