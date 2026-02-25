@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="frontend/public/logo.png" width="120" alt="Planvix Logo"/>
   <h1><b>🚀 Planvix</b></h1>
   <p>
     <strong>Multi-Agent AI Content Strategy OS</strong>
