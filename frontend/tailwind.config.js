@@ -27,7 +27,11 @@ export default {
           600: "#c026d3",
           700: "#a21caf",
           800: "#86198f",
-          900: "#701a75",
+        },
+        surface: {
+          DEFAULT: "#0f172a",
+          soft: "#1e293b",
+          dark: "#020617",
         },
       },
       fontFamily: {
