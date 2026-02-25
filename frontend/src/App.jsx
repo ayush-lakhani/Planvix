@@ -224,15 +224,11 @@ function AppContent() {
 
 function App() {
   return (
-    <ErrorBoundary>
-      <AuthProvider>
-        <AdminAuthProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </AdminAuthProvider>
-      </AuthProvider>
-    </ErrorBoundary>
+    <AuthProvider>
+      <AdminAuthProvider>
+        <AppContent />
+      </AdminAuthProvider>
+    </AuthProvider>
   );
 }
 
