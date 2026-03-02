@@ -63,7 +63,7 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
                   className={`relative flex items-center gap-2 px-4 h-full transition-all duration-200 group overflow-hidden`}
                 >
                   <div
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-300 ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200 ease-in-out ${
                       active
                         ? "bg-white/5 text-white"
                         : "text-slate-400 hover:text-white hover:bg-white/5"
@@ -79,7 +79,7 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
 
                   {/* Subtle Linear Indicator Bar */}
                   <div
-                    className={`absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary-500 to-accent-500 transition-all duration-500 transform ${
+                    className={`absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary-500 to-accent-500 transition-all duration-200 ease-in-out transform ${
                       active
                         ? "translate-y-0 opacity-100"
                         : "translate-y-full opacity-0"
@@ -129,7 +129,7 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
 
             {/* Elite Glass Dropdown */}
             {menuOpen && (
-              <div className="absolute top-[3.75rem] right-0 bg-slate-950/95 backdrop-blur-xl border border-white/10 p-1.5 w-52 shadow-[0_10px_40px_rgba(0,0,0,0.5)] rounded-2xl animate-fade-in-up z-50">
+              <div className="absolute top-[3.75rem] right-0 bg-slate-950/95 backdrop-blur-xl border border-white/10 p-1.5 w-52 shadow-[0_10px_40px_rgba(0,0,0,0.5)] rounded-2xl animate-modal z-50">
                 {/* Mobile Navigation Mirror */}
                 <div className="md:hidden space-y-1 mb-1.5 pb-1.5 border-b border-white/5">
                   {navLinks.map((link) => {

@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
  * Uses reactive AuthContext state to prevent redirect loops and staleness.
  */
 const ProtectedRoute = ({ children }) => {
-  const { token, loading } = useAuth();
+  const { token, user, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -17,7 +17,7 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  if (!token) {
+  if (!token || !user) {
     // Redirect to login but save the current location we were trying to access
     return <Navigate to="/login" state={{ from: location }} replace />;
   }

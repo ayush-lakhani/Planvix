@@ -22,7 +22,7 @@ export default function UsageCharts({ analytics, loading }) {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="glass-card p-6 h-[350px] rounded-3xl animate-pulse bg-slate-100 dark:bg-slate-800/50"
+            className="glass-card p-6 h-[350px] rounded-3xl skeleton bg-slate-100 dark:bg-slate-800/50"
           />
         ))}
       </div>
@@ -133,11 +133,13 @@ export default function UsageCharts({ analytics, loading }) {
                 <Tooltip
                   content={<CustomTooltip />}
                   cursor={{ fill: "#6366f108" }}
+                  isAnimationActive={false}
                 />
                 <Bar
                   dataKey="strategies"
                   name="Strategies"
                   radius={[4, 4, 0, 0]}
+                  animationDuration={800}
                 >
                   {usageHistory.map((_, index) => (
                     <Cell
@@ -196,7 +198,7 @@ export default function UsageCharts({ analytics, loading }) {
                   tickLine={false}
                   tick={{ fontSize: 10, fill: "#64748b" }}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<CustomTooltip />} isAnimationActive={false} />
                 <Area
                   type="monotone"
                   dataKey="tokens"
@@ -205,6 +207,7 @@ export default function UsageCharts({ analytics, loading }) {
                   strokeWidth={3}
                   fillOpacity={1}
                   fill="url(#colorTokens)"
+                  animationDuration={800}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -247,12 +250,14 @@ export default function UsageCharts({ analytics, loading }) {
                 <Tooltip
                   content={<CustomTooltip />}
                   cursor={{ fill: "#10b98108" }}
+                  isAnimationActive={false}
                 />
                 <Bar
                   dataKey="count"
                   name="Strategies"
                   radius={[0, 4, 4, 0]}
                   fill="#10b981"
+                  animationDuration={800}
                 />
               </BarChart>
             </ResponsiveContainer>

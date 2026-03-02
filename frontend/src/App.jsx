@@ -42,13 +42,18 @@ function NavbarWrapper({ darkMode, toggleDarkMode }) {
 
 // Separate component for App content to access context
 function AppContent() {
-  const { user, loading } = useAuth();
+  const { token, user, loading } = useAuth();
   const { adminToken } = useAdminAuth();
   const adminSecret = sessionStorage.getItem("adminSecret");
   const [isAnimating, setIsAnimating] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem("darkMode");
-    return saved ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem("darkMode");
+      return saved ? JSON.parse(saved) : false;
+    } catch {
+      localStorage.removeItem("darkMode");
+      return false;
+    }
   });
 
   useEffect(() => {
@@ -140,11 +145,11 @@ function AppContent() {
         {/* Auth Routes */}
         <Route
           path="/login"
-          element={user ? <Navigate to="/dashboard" /> : <Login />}
+          element={token && user ? <Navigate to="/dashboard" /> : <Login />}
         />
         <Route
           path="/signup"
-          element={user ? <Navigate to="/dashboard" /> : <Signup />}
+          element={token && user ? <Navigate to="/dashboard" /> : <Signup />}
         />
 
         {/* Protected User Routes */}
@@ -216,7 +221,7 @@ function AppContent() {
         <Route path="/strategy" element={<Navigate to="/planner" />} />
         <Route
           path="/"
-          element={<Navigate to={user ? "/dashboard" : "/login"} />}
+          element={<Navigate to={token && user ? "/dashboard" : "/login"} />}
         />
       </Routes>
     </div>

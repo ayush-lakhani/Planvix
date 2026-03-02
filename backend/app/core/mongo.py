@@ -1,20 +1,29 @@
-
+import os
 from pymongo import MongoClient, ASCENDING, DESCENDING
-from app.core.config import settings
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MONGO_URI = os.getenv("MONGO_URI")
 
 # MongoDB Setup
 print("DEBUG: Connecting to MongoDB...")
-mongo_client = MongoClient(settings.MONGODB_URL)
+
+if not MONGO_URI:
+    print("DEBUG: MONGO_URI is missing, reverting to fallback")
+
+mongo_client = MongoClient(MONGO_URI)
 try:
     mongo_client.admin.command('ping')
     print("DEBUG: MongoDB initialized and connected.")
 except Exception as e:
     print(f"DEBUG: MongoDB connection failed: {e}")
 
-db = mongo_client[settings.DB_NAME]
+db = mongo_client["content_planner"]
 users_collection = db.users
 strategies_collection = db.strategies
 ai_usage_logs_collection = db.ai_usage_logs
+refresh_tokens_collection = db.refresh_tokens
 
 # Create indexes
 try:
@@ -29,6 +38,10 @@ try:
     ai_usage_logs_collection.create_index("user_id")
     ai_usage_logs_collection.create_index([("created_at", DESCENDING)])
     ai_usage_logs_collection.create_index([("user_id", ASCENDING), ("created_at", DESCENDING)])
+
+    refresh_tokens_collection.create_index("user_id")
+    refresh_tokens_collection.create_index("token", unique=True)
+    refresh_tokens_collection.create_index("expires_at", expireAfterSeconds=0)
 
     print("DEBUG: MongoDB indexes verified.")
 except Exception as e:

@@ -4,57 +4,78 @@ from jose import JWTError, jwt
 from bson import ObjectId
 from typing import List
 
+from datetime import datetime
+import os
+
 from app.core.config import settings
-from app.core.mongo import users_collection
+from app.core.mongo import db
 
 security = HTTPBearer()
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
-    """
-    Decodes JWT and returns the user document.
-    Ensures user exists and injects 'id' as a string.
-    """
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", settings.SECRET_KEY)
+ALGORITHM = getattr(settings, "ALGORITHM", "HS256")
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication credentials missing"
+        )
+
     token = credentials.credentials
+
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        user_id: str = payload.get("sub")
+        payload = jwt.decode(
+            token, 
+            SECRET_KEY, 
+            algorithms=[ALGORITHM],
+            issuer=settings.JWT_ISSUER,
+            audience=settings.JWT_AUDIENCE
+        )
+
+        user_id: str = payload.get("user_id") or payload.get("sub")
+        role: str = payload.get("role")
+        exp: int = payload.get("exp")
+
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
-                headers={"WWW-Authenticate": "Bearer"},
+                detail="Invalid token payload"
             )
+
+        if exp and datetime.utcfromtimestamp(exp) < datetime.utcnow():
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token expired"
+            )
+
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail="Invalid or expired token"
         )
-    
-    user = users_collection.find_one({"_id": ObjectId(user_id)})
-    if user is None:
+
+    user = db.users.find_one({"_id": ObjectId(user_id)})
+
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
+            detail="User not found"
         )
-    
+
     # Standardize ID for service layer
     user["id"] = str(user["_id"])
     return user
 
-class RoleChecker:
-    """
-    Dependency to check if the current user has the required roles.
-    Example: Depends(RoleChecker(["admin", "superadmin"]))
-    """
-    def __init__(self, allowed_roles: List[str]):
-        self.allowed_roles = allowed_roles
-
-    def __call__(self, user: dict = Depends(get_current_user)):
-        user_role = user.get("role", "client")
-        if user_role not in self.allowed_roles:
+def require_role(required_role: str):
+    async def role_checker(user: dict = Depends(get_current_user)):
+        user_role = user.get("role")
+        if user_role != required_role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Role '{user_role}' does not have sufficient permissions. Required: {self.allowed_roles}"
+                detail="Access forbidden"
             )
         return user
+    return role_checker

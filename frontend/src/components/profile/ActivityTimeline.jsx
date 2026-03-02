@@ -4,7 +4,7 @@ import { safeDate } from "../../utils/dateUtils";
 export default function ActivityTimeline({ activity, loading }) {
   if (loading || !activity) {
     return (
-      <div className="glass-card p-6 rounded-3xl h-[500px] animate-pulse bg-slate-100 dark:bg-slate-800" />
+      <div className="glass-card p-6 rounded-3xl h-[500px] skeleton bg-slate-100 dark:bg-slate-800" />
     );
   }
 

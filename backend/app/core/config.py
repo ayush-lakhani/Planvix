@@ -6,6 +6,7 @@ load_dotenv()
 class Settings:
     PROJECT_NAME: str = "Planvix"
     VERSION: str = "2.0.0-production"
+    ENV: str = os.getenv("ENV", "development")
     
     # Database
     MONGODB_URL: str = os.getenv("MONGODB_URL", "mongodb://localhost:27017/")
@@ -15,9 +16,15 @@ class Settings:
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
     
     # Security
-    SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+    SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
+    if not SECRET_KEY:
+        raise RuntimeError("CRITICAL ERROR: JWT_SECRET_KEY environment variable is missing!")
+        
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_HOURS: int = 24
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    JWT_ISSUER: str = os.getenv("JWT_ISSUER", "planvix.com")
+    JWT_AUDIENCE: str = os.getenv("JWT_AUDIENCE", "planvix-clients")
     
     # Admin
     ADMIN_SECRET: str = os.getenv("ADMIN_SECRET", "planvix-admin-2026-change-now")

@@ -49,7 +49,7 @@ export function RevenueLineChart({ data = [] }) {
           axisLine={false}
           tickFormatter={(v) => `₹${v}`}
         />
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={<CustomTooltip />} isAnimationActive={false} />
         <Area
           type="monotone"
           dataKey="revenue"
@@ -58,6 +58,7 @@ export function RevenueLineChart({ data = [] }) {
           fill="url(#revGrad)"
           dot={false}
           activeDot={{ r: 5, fill: "#10b981" }}
+          animationDuration={800}
         />
       </AreaChart>
     </ResponsiveContainer>
@@ -100,7 +101,7 @@ export function UserGrowthAreaChart({ data = [] }) {
           tickLine={false}
           axisLine={false}
         />
-        <Tooltip content={<UserTooltip />} />
+        <Tooltip content={<UserTooltip />} isAnimationActive={false} />
         <Area
           type="monotone"
           dataKey="users"
@@ -109,6 +110,7 @@ export function UserGrowthAreaChart({ data = [] }) {
           fill="url(#userGrad)"
           dot={false}
           activeDot={{ r: 5, fill: "#3b82f6" }}
+          animationDuration={800}
         />
       </AreaChart>
     </ResponsiveContainer>

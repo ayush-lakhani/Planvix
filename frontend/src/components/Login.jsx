@@ -33,7 +33,7 @@ export default function Login() {
 
   return (
     <AuthLayout backgroundVariant="client">
-      <AuthCard className="animate-fade-in-up">
+      <AuthCard className="animate-stripe-page">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
           <p className="text-gray-400 text-sm">

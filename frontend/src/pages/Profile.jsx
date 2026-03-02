@@ -79,7 +79,7 @@ export default function Profile() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 p-4 sm:p-8 transition-colors duration-500 premium-fade">
+    <div className="animate-stripe-page min-h-screen bg-slate-50 dark:bg-gray-950 p-4 sm:p-8 transition-colors duration-500">
       <div className="max-w-7xl mx-auto space-y-8 mt-12">
         {/* Header with Sync Indicator */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -136,7 +136,7 @@ export default function Profile() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="animate-fade-in transition-all duration-500">
+        <div className="transition-all duration-500">
           {activeTab === "intelligence" && (
             <div className="space-y-8">
               <ErrorBoundary>

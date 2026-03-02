@@ -11,7 +11,7 @@ import { safeDate } from "../../utils/dateUtils";
 export default function ProfileHero({ data, loading }) {
   if (loading || !data) {
     return (
-      <div className="glass-card p-8 rounded-3xl mb-8 animate-pulse">
+      <div className="glass-card p-8 rounded-3xl mb-8 skeleton">
         <div className="flex items-center gap-6">
           <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-800" />
           <div className="flex-1 space-y-3">

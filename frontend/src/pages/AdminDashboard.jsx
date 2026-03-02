@@ -35,6 +35,7 @@ import {
   ArrowDownRight,
   Layers,
   Hash,
+  IndianRupee,
 } from "lucide-react";
 import { KPICard } from "../components/kpi/KPICard";
 import {
@@ -57,7 +58,7 @@ import { safeDate } from "../utils/dateUtils";
 const TABS = [
   { id: "overview", label: "Overview", icon: BarChart3 },
   { id: "users", label: "Users", icon: Users },
-  { id: "revenue", label: "Revenue", icon: DollarSign },
+  { id: "revenue", label: "Revenue", icon: IndianRupee },
   { id: "ai", label: "AI Intelligence", icon: Brain },
   { id: "activity", label: "Live Activity", icon: Activity },
   { id: "health", label: "System Health", icon: Database },
@@ -234,7 +235,7 @@ export default function EnterpriseAdminDashboard() {
   /* ══ RENDER ═══════════════════════════════════════════════ */
   return (
     <div
-      className="min-h-screen text-white font-sans"
+      className="animate-stripe-page min-h-screen text-white font-sans"
       style={{
         background:
           "linear-gradient(135deg, #020817 0%, #0a1628 40%, #040d1a 100%)",
@@ -417,7 +418,7 @@ export default function EnterpriseAdminDashboard() {
       <main className="max-w-[1600px] mx-auto px-6 py-8">
         {/* ═══ OVERVIEW TAB ══════════════════════════════════ */}
         {tab === "overview" && (
-          <div className="space-y-8 animate-fadeIn">
+          <div className="space-y-8">
             {/* KPI Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-4 gap-4">
               <KPICard
@@ -541,7 +542,7 @@ export default function EnterpriseAdminDashboard() {
 
         {/* ═══ USERS TAB ═════════════════════════════════════ */}
         {tab === "users" && (
-          <div className="space-y-6 animate-fadeIn">
+          <div className="space-y-6">
             {/* Controls */}
             <div className="flex flex-wrap gap-3 items-center">
               <div className="relative flex-1 min-w-[220px] max-w-sm">
@@ -615,7 +616,7 @@ export default function EnterpriseAdminDashboard() {
                       Array.from({ length: 8 }).map((_, i) => (
                         <tr key={i}>
                           <td colSpan={7} className="px-5 py-4">
-                            <div className="h-4 bg-slate-800/60 rounded animate-pulse" />
+                            <div className="h-4 bg-slate-800/60 rounded skeleton" />
                           </td>
                         </tr>
                       ))
@@ -715,7 +716,7 @@ export default function EnterpriseAdminDashboard() {
 
         {/* ═══ REVENUE TAB ═══════════════════════════════════ */}
         {tab === "revenue" && (
-          <div className="space-y-6 animate-fadeIn">
+          <div className="space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <KPICard
                 title="MRR"

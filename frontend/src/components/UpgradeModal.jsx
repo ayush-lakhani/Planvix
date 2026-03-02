@@ -47,7 +47,7 @@ export default function UpgradeModal({ usageCount, onClose, onUpgrade }) {
 
   return (
     <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-      <div className="bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50 backdrop-blur-xl border border-white/20 dark:border-gray-700/30 rounded-3xl w-full max-w-lg shadow-2xl animate-float-in relative">
+      <div className="bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50 backdrop-blur-xl border border-white/20 dark:border-gray-700/30 rounded-3xl w-full max-w-lg shadow-2xl animate-modal relative">
         {/* Close Button */}
         <button
           onClick={handleClose}

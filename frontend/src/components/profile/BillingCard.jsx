@@ -3,7 +3,7 @@ import { CreditCard, Rocket, CheckCircle2, ArrowUpRight } from "lucide-react";
 export default function BillingCard({ billing, loading }) {
   if (loading || !billing) {
     return (
-      <div className="glass-card p-6 rounded-3xl h-[500px] animate-pulse bg-slate-100 dark:bg-slate-800" />
+      <div className="glass-card p-6 rounded-3xl h-[500px] skeleton bg-slate-100 dark:bg-slate-800" />
     );
   }
 

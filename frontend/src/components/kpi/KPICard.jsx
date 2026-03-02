@@ -137,6 +137,7 @@ export function KPICard({
                 stroke={c.spark}
                 strokeWidth={1.5}
                 dot={false}
+                animationDuration={800}
               />
             </LineChart>
           </ResponsiveContainer>

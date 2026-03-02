@@ -68,10 +68,10 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen pt-20 pb-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="animate-stripe-page min-h-screen pt-20 pb-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="max-w-7xl mx-auto">
         {/* Hero Section */}
-        <div className="relative text-center mb-16 px-4 animate-fade-in">
+        <div className="relative text-center mb-16 px-4">
           <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight text-gray-900 dark:text-white">
             Watch 5 AI Agents{" "}
             <span className="bg-gradient-to-r from-primary-600 via-accent-600 to-pink-600 bg-clip-text text-transparent">
@@ -87,11 +87,11 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Grid - Modern Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-slide-up">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {/* Total Strategies */}
-          <div className="relative group stagger-fade-in">
+          <div className="relative group transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
-            <div className="relative glass-card glass-card-3d p-6 rounded-2xl">
+            <div className="relative glass-card p-6 rounded-2xl">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-blue-500/10 rounded-xl">
                   <BarChart3 className="w-6 h-6 text-blue-500" />
@@ -118,9 +118,9 @@ export default function Dashboard() {
           </div>
 
           {/* This Month */}
-          <div className="relative group stagger-fade-in">
+          <div className="relative group transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
-            <div className="relative glass-card glass-card-3d p-6 rounded-2xl">
+            <div className="relative glass-card p-6 rounded-2xl">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-purple-500/10 rounded-xl">
                   <Calendar className="w-6 h-6 text-purple-500" />
@@ -152,9 +152,9 @@ export default function Dashboard() {
           </div>
 
           {/* Performance */}
-          <div className="relative group stagger-fade-in">
+          <div className="relative group transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5">
             <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
-            <div className="relative glass-card glass-card-3d p-6 rounded-2xl">
+            <div className="relative glass-card p-6 rounded-2xl">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-green-500/10 rounded-xl">
                   <Zap className="w-6 h-6 text-green-500" />
@@ -181,7 +181,7 @@ export default function Dashboard() {
 
         {/* Warning Banner - Free Tier Limit */}
         {user?.tier !== "pro" && stats.thisMonth >= 3 && (
-          <div className="mb-8 glass-card p-4 border-l-4 border-orange-500 bg-orange-50 dark:bg-orange-900/10 animate-fade-in">
+          <div className="mb-8 glass-card p-4 border-l-4 border-orange-500 bg-orange-50 dark:bg-orange-900/10">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-orange-500 mt-0.5" />
               <div className="flex-1">
@@ -204,15 +204,12 @@ export default function Dashboard() {
         )}
 
         {/* Main Action - Primary CTA */}
-        <div
-          className="mb-8 relative group animate-slide-up"
-          style={{ animationDelay: "100ms" }}
-        >
+        <div className="mb-8 relative group">
           <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-accent-600 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
           <button
             onClick={() => navigate("/planner")}
             disabled={user?.tier !== "pro" && stats.thisMonth >= 3}
-            className="relative w-full glass-card glass-card-3d btn-3d p-8 rounded-3xl text-left transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="relative w-full glass-card p-8 rounded-3xl text-left transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6">
@@ -243,14 +240,11 @@ export default function Dashboard() {
         </div>
 
         {/* Secondary Actions Grid */}
-        <div
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-slide-up"
-          style={{ animationDelay: "200ms" }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* View History */}
           <button
             onClick={() => navigate("/history")}
-            className="glass-card p-6 rounded-2xl text-left transition-all hover:scale-[1.02] hover:shadow-xl group"
+            className="glass-card p-6 rounded-2xl text-left transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5 group"
           >
             <div className="flex items-center gap-4 mb-4">
               <div className="p-3 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl">
@@ -291,10 +285,7 @@ export default function Dashboard() {
 
         {/* Recent Activity - If strategies exist */}
         {strategies.length > 0 && (
-          <div
-            className="mt-12 animate-slide-up"
-            style={{ animationDelay: "300ms" }}
-          >
+          <div className="mt-12">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
               Recent Activity
             </h2>
@@ -303,7 +294,7 @@ export default function Dashboard() {
                 <button
                   key={strategy.id || index}
                   onClick={() => navigate("/history")}
-                  className="w-full glass-card p-4 rounded-xl hover:shadow-lg transition-all group flex items-center justify-between"
+                  className="w-full glass-card p-4 rounded-xl transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5 group flex items-center justify-between"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>

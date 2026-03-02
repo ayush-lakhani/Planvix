@@ -40,14 +40,20 @@ def verify_password(password: str, hashed: str) -> bool:
 
 def create_access_token(data: dict, expires_hours: int = None) -> str:
     """
-    Creates a signed JWT.
-    Standard claims:
-    - sub: user_id
-    - role: user role (admin, client, etc)
-    - exp: expiry time
+    Creates a signed JWT enforcing iat, iss, aud, and exp.
     """
     to_encode = data.copy()
-    hours = expires_hours if expires_hours is not None else settings.ACCESS_TOKEN_EXPIRE_HOURS
-    expire = datetime.now(timezone.utc) + timedelta(hours=hours)
-    to_encode.update({"exp": expire})
+    
+    # Expiry
+    if expires_hours is not None:
+        expire = datetime.utcnow() + timedelta(hours=expires_hours)
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        
+    to_encode.update({
+        "exp": expire,
+        "iat": datetime.utcnow(),
+        "iss": settings.JWT_ISSUER,
+        "aud": settings.JWT_AUDIENCE
+    })
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)

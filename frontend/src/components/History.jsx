@@ -133,7 +133,7 @@ export default function History() {
 
   if (selectedStrategy) {
     return (
-      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="animate-stripe-page min-h-screen py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <button
             onClick={() => setSelectedStrategy(null)}
@@ -155,7 +155,7 @@ export default function History() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div className="animate-stripe-page min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
@@ -198,7 +198,7 @@ export default function History() {
             {strategies.map((strategy) => (
               <div
                 key={strategy.id}
-                className="glass-card p-6 hover:shadow-xl transition-smooth"
+                className="glass-card p-6 hover:shadow-lg transition-all duration-200 ease-in-out hover:-translate-y-0.5"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">

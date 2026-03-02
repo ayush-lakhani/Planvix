@@ -3,12 +3,16 @@ from app.models.schemas import StrategyInput, StrategyResponse, HistoryResponse
 from app.dependencies.auth import get_current_user
 from app.services.strategy_service import strategy_service
 from app.services.usage_service import usage_service
+from app.core.rate_limit import limiter
+from fastapi import Request
 import asyncio
 
 router = APIRouter(prefix="/api", tags=["Strategy"])
 
 @router.post("/strategy")
+@limiter.limit("5/minute")
 async def generate_strategy(
+    request: Request,
     strategy_input: StrategyInput,
     current_user: dict = Depends(get_current_user)
 ):

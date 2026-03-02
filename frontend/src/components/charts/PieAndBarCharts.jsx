@@ -64,9 +64,9 @@ export function TierDistributionPieChart({ data = {} }) {
           cx="50%"
           cy="50%"
           outerRadius={80}
-          innerRadius={45}
           dataKey="value"
           paddingAngle={4}
+          animationDuration={800}
         >
           {chartData.map((entry) => (
             <Cell
@@ -75,7 +75,7 @@ export function TierDistributionPieChart({ data = {} }) {
             />
           ))}
         </Pie>
-        <Tooltip content={<PieTooltip />} />
+        <Tooltip content={<PieTooltip />} isAnimationActive={false} />
         <Legend
           formatter={(v) => (
             <span className="text-slate-300 text-sm capitalize">{v}</span>
@@ -141,6 +141,7 @@ export function IndustryBarChart({ data = [] }) {
           />
           <Tooltip
             content={<BarTooltip />}
+            isAnimationActive={false}
             allowEscapeViewBox={{ x: false, y: false }}
             cursor={{ fill: "rgba(255,255,255,0.04)" }}
           />
@@ -193,6 +194,7 @@ export function AITokenTrendChart({ data = [] }) {
           }}
           labelStyle={{ color: "#94a3b8", fontSize: "11px" }}
           itemStyle={{ color: "#a78bfa" }}
+          isAnimationActive={false}
         />
         <Bar
           dataKey="tokens"
@@ -200,6 +202,7 @@ export function AITokenTrendChart({ data = [] }) {
           radius={[4, 4, 0, 0]}
           maxBarSize={24}
           name="Tokens"
+          animationDuration={800}
         />
       </BarChart>
     </ResponsiveContainer>
