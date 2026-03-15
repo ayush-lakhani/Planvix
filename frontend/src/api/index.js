@@ -3,7 +3,7 @@
  * Import all API modules from this file
  */
 
-export { adminAPI } from "./adminAPI";
+export { adminAPI } from "./adminApi";
 export { authApi, authApi as authAPI } from "./authApi";
 export { strategyApi, strategyApi as strategyAPI } from "./strategyApi";
 export {
