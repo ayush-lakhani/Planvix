@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Shield, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAdminAuth } from "../context/AdminAuthContext";
-import { adminAPI } from "../api/adminAPI";
+import { adminAPI } from "../api/adminApi";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import AnimatedButton from "../components/auth/AnimatedButton";
