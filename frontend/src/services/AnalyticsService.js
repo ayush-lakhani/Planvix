@@ -1,7 +1,7 @@
 /**
  * AnalyticsService — fetches /api/admin/analytics
  */
-import { adminAPI } from "../api/adminAPI";
+import { adminAPI } from "../api/adminApi";
 
 class AnalyticsServiceClass {
   async getAnalytics() {
