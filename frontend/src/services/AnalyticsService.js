@@ -1,21 +1,21 @@
 /**
  * AnalyticsService — fetches /api/admin/analytics
  */
-import { adminApi } from "../api/adminApi";
+import { adminAPI } from "../api/adminAPI";
 
 class AnalyticsServiceClass {
   async getAnalytics() {
-    const res = await adminApi.get("/api/admin/analytics");
+    const res = await adminAPI.get("/api/admin/analytics");
     return res.data;
   }
 
   async getUsers(params = {}) {
-    const res = await adminApi.get("/api/admin/users", { params });
+    const res = await adminAPI.get("/api/admin/users", { params });
     return res.data;
   }
 
   async getAdminLogs(limit = 100) {
-    const res = await adminApi.get("/api/admin/logs", { params: { limit } });
+    const res = await adminAPI.get("/api/admin/logs", { params: { limit } });
     return res.data;
   }
 
@@ -25,7 +25,7 @@ class AnalyticsServiceClass {
   }
 
   async exportCSV() {
-    const res = await adminApi.get("/api/admin/users/export", {
+    const res = await adminAPI.get("/api/admin/users/export", {
       responseType: "blob",
     });
     const url = URL.createObjectURL(res.data);
