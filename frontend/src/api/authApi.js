@@ -28,6 +28,15 @@ export const authApi = {
   },
 
   /**
+   * Google OAuth login/signup
+   * @param {string} accessToken - Google access token from @react-oauth/google implicit flow
+   */
+  googleAuth: async (accessToken) => {
+    const response = await publicClient.post('/api/auth/google', { access_token: accessToken });
+    return response.data;
+  },
+
+  /**
    * Get current user
    */
   getMe: async () => {

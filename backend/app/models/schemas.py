@@ -125,6 +125,10 @@ class Token(BaseModel):
     email: str
 
 
+class GoogleAuthRequest(BaseModel):
+    """Google OAuth access token from implicit flow"""
+    access_token: str
+
 class UserResponse(BaseModel):
     """User data response"""
     id: str  # Changed from int to str for MongoDB ObjectId

@@ -58,6 +58,35 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const loginWithGoogle = useCallback(async (tokenResponse) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await authApi.googleAuth(tokenResponse.access_token);
+
+      const userData = {
+        id: data.user_id,
+        email: data.email,
+        name: data.name || "",
+        tier: data.tier || "free",
+      };
+
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      setToken(data.access_token);
+      setUser(userData);
+
+      return data;
+    } catch (err) {
+      const message = err.response?.data?.detail || "Google sign-in failed";
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const signup = useCallback(async (email, password) => {
     setLoading(true);
     setError(null);
@@ -101,6 +130,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         error,
         login,
+        loginWithGoogle,
         signup,
         logout,
         isAuthenticated: !!token,

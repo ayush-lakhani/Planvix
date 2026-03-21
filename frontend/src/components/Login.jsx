@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
 import AuthLayout from "./auth/AuthLayout";
 import AuthCard from "./auth/AuthCard";
@@ -12,8 +13,9 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,6 +32,26 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (credentialResponse) => {
+      setGoogleLoading(true);
+      setError("");
+      try {
+        await loginWithGoogle(credentialResponse);
+        navigate("/dashboard");
+      } catch (err) {
+        console.error("Google login error:", err);
+        setError(err.message || "Google sign-in failed. Please try again.");
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    onError: () => {
+      setError("Google sign-in was cancelled or failed.");
+    },
+    flow: "implicit",
+  });
 
   return (
     <AuthLayout backgroundVariant="client">
@@ -121,7 +143,12 @@ export default function Login() {
         </div>
 
         <div className="mt-6">
-          <SocialAuthButton>Google Account</SocialAuthButton>
+          <SocialAuthButton
+            onClick={() => handleGoogleLogin()}
+            className={googleLoading ? "opacity-60 cursor-not-allowed" : ""}
+          >
+            {googleLoading ? "Signing in…" : "Google Account"}
+          </SocialAuthButton>
         </div>
 
         <p className="mt-8 text-center text-sm text-gray-400">

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
-from app.models.schemas import UserCreate, UserLogin, Token
+from app.models.schemas import UserCreate, UserLogin, Token, GoogleAuthRequest
 from app.services.auth_service import auth_service
 from app.core.rate_limit import limiter
 import asyncio
@@ -77,3 +77,32 @@ async def logout(request: Request, response: Response):
     
     response.delete_cookie("refresh_token", httponly=True, secure=True, samesite="lax")
     return {"message": "Logged out successfully"}
+
+
+@router.post("/google", response_model=Token)
+@limiter.limit("10/minute")
+async def google_auth(request: Request, response: Response, body: GoogleAuthRequest):
+    """Authenticate via Google OAuth access token (implicit flow)."""
+    result = await auth_service.google_auth(body.access_token)
+
+    refresh_token = result.pop("refresh_token")
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=7 * 24 * 60 * 60,
+    )
+
+    try:
+        from app.websocket.activity_socket import broadcast_event
+        asyncio.create_task(broadcast_event("user_login", {
+            "details": f"Google login: {result.get('email')}",
+            "email": result.get("email"),
+            "user_id": result["user_id"],
+        }))
+    except Exception:
+        pass
+
+    return result

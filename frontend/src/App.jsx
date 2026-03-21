@@ -221,7 +221,7 @@ function AppContent() {
         <Route path="/strategy" element={<Navigate to="/planner" />} />
         <Route
           path="/"
-          element={<Navigate to={token && user ? "/dashboard" : "/login"} />}
+          element={<Navigate to={token && user ? "/dashboard" : "/login"} replace />}
         />
       </Routes>
     </div>

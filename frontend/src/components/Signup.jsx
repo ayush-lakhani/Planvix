@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
 import AuthLayout from "./auth/AuthLayout";
 import AuthCard from "./auth/AuthCard";
@@ -13,9 +14,10 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { signup } = useAuth();
+  const { signup, loginWithGoogle } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,6 +44,26 @@ export default function Signup() {
       setLoading(false);
     }
   };
+
+  const handleGoogleSignup = useGoogleLogin({
+    onSuccess: async (credentialResponse) => {
+      setGoogleLoading(true);
+      setError("");
+      try {
+        await loginWithGoogle(credentialResponse);
+        navigate("/dashboard");
+      } catch (err) {
+        console.error("Google signup error:", err);
+        setError(err.message || "Google sign-in failed. Please try again.");
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    onError: () => {
+      setError("Google sign-in was cancelled or failed.");
+    },
+    flow: "implicit",
+  });
 
   return (
     <AuthLayout backgroundVariant="client">
@@ -131,7 +153,12 @@ export default function Signup() {
         </div>
 
         <div className="mt-6">
-          <SocialAuthButton>Google Account</SocialAuthButton>
+          <SocialAuthButton
+            onClick={() => handleGoogleSignup()}
+            className={googleLoading ? "opacity-60 cursor-not-allowed" : ""}
+          >
+            {googleLoading ? "Signing in…" : "Google Account"}
+          </SocialAuthButton>
         </div>
 
         <p className="mt-8 text-center text-sm text-gray-400">

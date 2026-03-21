@@ -1,5 +1,6 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # type: ignore
+
 
 load_dotenv()
 
@@ -16,7 +17,8 @@ class Settings:
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
     
     # Security
-    SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
+    SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "")
+
     if not SECRET_KEY:
         raise RuntimeError("CRITICAL ERROR: JWT_SECRET_KEY environment variable is missing!")
         
@@ -32,6 +34,7 @@ class Settings:
     # AI & API Keys
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
     SERPAPI_KEY: str = os.getenv("SERPAPI_KEY", "")
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
     
     # Payments
     RAZORPAY_KEY_ID: str = os.getenv("RAZORPAY_KEY_ID", "")

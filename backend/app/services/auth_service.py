@@ -9,6 +9,7 @@ from app.core.config import settings
 import secrets
 import hashlib
 from datetime import timedelta
+import httpx
 
 class AuthService:
     async def signup(self, user_data) -> dict:
@@ -124,5 +125,76 @@ class AuthService:
         if token:
             token_hash = hashlib.sha256(token.encode()).hexdigest()
             refresh_tokens_collection.delete_one({"token": token_hash})
+
+    async def google_auth(self, access_token: str) -> dict:
+        """
+        Verifies a Google access token via userinfo endpoint and creates/logs in the user.
+        """
+        # Call Google's userinfo endpoint to validate the access token
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                "https://www.googleapis.com/oauth2/v3/userinfo",
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid Google access token",
+            )
+
+        id_info = response.json()
+        email = id_info.get("email")
+        google_id = id_info.get("sub")
+        name = id_info.get("name", "")
+        picture = id_info.get("picture", "")
+
+        if not email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Google account did not provide an email address",
+            )
+
+        # Upsert user: find by email OR by google_id
+        existing = users_collection.find_one({"$or": [{"email": email}, {"google_id": google_id}]})
+
+        if existing:
+            user_id = str(existing["_id"])
+            user_role = existing.get("role", "client")
+            users_collection.update_one(
+                {"_id": existing["_id"]},
+                {"$set": {"google_id": google_id, "name": name, "picture": picture, "last_login": datetime.now(timezone.utc)}}
+            )
+        else:
+            current_month = datetime.now(timezone.utc).strftime("%Y-%m")
+            user_doc = {
+                "email": email,
+                "google_id": google_id,
+                "name": name,
+                "picture": picture,
+                "hashed_password": None,
+                "auth_provider": "google",
+                "role": "client",
+                "tier": "free",
+                "usage_count": 0,
+                "usage_month": current_month,
+                "created_at": datetime.now(timezone.utc),
+                "last_login": datetime.now(timezone.utc),
+            }
+            result = users_collection.insert_one(user_doc)
+            user_id = str(result.inserted_id)
+            user_role = "client"
+
+        access_token_jwt = create_access_token(data={"user_id": user_id, "sub": user_id, "role": user_role})
+        refresh_token = await self.create_refresh_token(user_id)
+
+        return {
+            "access_token": access_token_jwt,
+            "refresh_token": refresh_token,
+            "user_id": user_id,
+            "email": email,
+            "name": name,
+            "role": user_role,
+        }
 
 auth_service = AuthService()
