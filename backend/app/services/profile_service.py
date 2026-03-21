@@ -87,10 +87,11 @@ class ProfileService:
                      for r in mongo.strategies_collection.aggregate(token_pipeline)]
         
         # Growth Trend (Dummy calculation for now based on cumulative strategies)
+        total_strategies = mongo.strategies_collection.count_documents({"user_id": user_id})
         growth_data = [
             GrowthTrendPoint(month="Jan", value=10),
             GrowthTrendPoint(month="Feb", value=25),
-            GrowthTrendPoint(month="Mar", value=total_strategies if 'total_strategies' in locals() else 35)
+            GrowthTrendPoint(month="Mar", value=total_strategies if total_strategies > 0 else 35)
         ]
         
         return ProfileAnalyticsResponse(
@@ -125,7 +126,7 @@ class ProfileService:
         
         # Sort combined activity
         activity.sort(key=lambda x: x.timestamp, reverse=True)
-        return activity[:limit]
+        return list(activity)[:limit]
 
     async def get_billing(self, user: dict) -> BillingResponse:
         """Calculate billing and usage limits"""

@@ -4,6 +4,7 @@ from app.core.mongo import strategies_collection
 from app.core.redis import redis_client
 from app.services.versioning_service import versioning_service
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 from bson import ObjectId
 import hashlib
 import json
@@ -111,7 +112,7 @@ class StrategyService:
                 s["created_at"] = s["created_at"].isoformat()
         return strategies or []
 
-    async def get_strategy_by_id(self, strategy_id: str, user_id: str) -> dict:
+    async def get_strategy_by_id(self, strategy_id: str, user_id: str) -> Optional[dict]:
         try:
             strategy_doc = strategies_collection.find_one({
                 "_id": ObjectId(strategy_id),
