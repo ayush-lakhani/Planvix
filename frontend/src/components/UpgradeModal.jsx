@@ -51,7 +51,7 @@ export default function UpgradeModal({ usageCount, onClose, onUpgrade }) {
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 p-2 rounded-xl bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-800 transition-all"
+          className="absolute top-4 right-4 p-2 rounded-xl bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-800 transition-all z-10"
         >
           <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
         </button>

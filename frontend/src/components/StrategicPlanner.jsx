@@ -170,7 +170,7 @@ export default function StrategicPlanner() {
     <div className="animate-stripe-page min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
         {/* Usage Counter Widget */}
-        <div className="mb-6">
+        <div className="mb-6" data-aos="fade-down">
           <ProfileWidget
             usageCount={usageCount}
             totalAllowed={3}
@@ -181,7 +181,7 @@ export default function StrategicPlanner() {
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Left: Form */}
-          <div>
+          <div data-aos="fade-right">
             <StrategyForm
               onGenerate={handleGenerate}
               setLoading={setLoading}

@@ -3,6 +3,7 @@ import React from "react";
 const SocialAuthButton = ({ onClick, icon, children, className = "" }) => {
   return (
     <button
+      type="button"
       onClick={onClick}
       className={`w-full flex items-center justify-center space-x-3 px-4 py-3 bg-white/5 border border-white/10 rounded-xl transition-all duration-300 hover:bg-white/10 hover:border-white/20 text-gray-300 font-medium ${className}`}
     >

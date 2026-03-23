@@ -1,5 +1,6 @@
 import { Terminal, Activity } from "lucide-react";
 import { useEffect, useRef } from "react";
+import Tooltip from "./ui/Tooltip";
 
 export default function AgentTerminal({ logs, loading }) {
   const terminalRef = useRef(null);
@@ -32,19 +33,21 @@ export default function AgentTerminal({ logs, loading }) {
           <div className="space-y-2">
             {logs.map((log, index) => (
               <div key={index} className="animate-fade-in">
-                <span
-                  className={`font-bold ${
-                    log.type === "error"
-                      ? "text-red-400"
-                      : log.type === "success"
-                        ? "text-green-400"
-                        : log.type === "agent"
-                          ? "text-cyan-400"
-                          : "text-yellow-400"
-                  }`}
-                >
-                  [{log.agent}]
-                </span>
+                <Tooltip content={`${log.agent} Node Context`} placement="top">
+                  <span
+                    className={`font-bold cursor-help ${
+                      log.type === "error"
+                        ? "text-red-400"
+                        : log.type === "success"
+                          ? "text-green-400"
+                          : log.type === "agent"
+                            ? "text-cyan-400"
+                            : "text-yellow-400"
+                    }`}
+                  >
+                    [{log.agent}]
+                  </span>
+                </Tooltip>
                 <span className="text-gray-300 ml-2">{log.message}</span>
               </div>
             ))}

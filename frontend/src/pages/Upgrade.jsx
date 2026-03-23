@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { alertUtils } from "../utils/alertUtils";
 
 export default function UpgradePage() {
   const { user } = useAuth();
@@ -48,12 +49,12 @@ export default function UpgradePage() {
         const rzp = new window.Razorpay(options);
         rzp.open();
       } else {
-        alert("Checkout failed. Please try again.");
+        alertUtils.error("Error", "Checkout failed. Please try again.");
         setUpgradeLoading(false);
       }
     } catch (error) {
       console.error("Upgrade error:", error);
-      alert("Upgrade failed. Please try again.");
+      alertUtils.error("Error", "Upgrade failed. Please try again.");
       setUpgradeLoading(false);
     }
   };

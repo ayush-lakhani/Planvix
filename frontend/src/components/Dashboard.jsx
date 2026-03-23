@@ -71,7 +71,7 @@ export default function Dashboard() {
     <div className="animate-stripe-page min-h-screen pt-20 pb-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="max-w-7xl mx-auto">
         {/* Hero Section */}
-        <div className="relative text-center mb-16 px-4">
+        <div className="relative text-center mb-16 px-4" data-aos="fade-down">
           <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight text-gray-900 dark:text-white">
             Watch 5 AI Agents{" "}
             <span className="bg-gradient-to-r from-primary-600 via-accent-600 to-pink-600 bg-clip-text text-transparent">
@@ -89,7 +89,7 @@ export default function Dashboard() {
         {/* Stats Grid - Modern Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {/* Total Strategies */}
-          <div className="relative group transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5">
+          <div className="relative group transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5" data-aos="fade-up" data-aos-delay="100">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
             <div className="relative glass-card p-6 rounded-2xl">
               <div className="flex items-center justify-between mb-4">
@@ -118,7 +118,7 @@ export default function Dashboard() {
           </div>
 
           {/* This Month */}
-          <div className="relative group transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5">
+          <div className="relative group transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5" data-aos="fade-up" data-aos-delay="200">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
             <div className="relative glass-card p-6 rounded-2xl">
               <div className="flex items-center justify-between mb-4">
@@ -152,7 +152,7 @@ export default function Dashboard() {
           </div>
 
           {/* Performance */}
-          <div className="relative group transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5">
+          <div className="relative group transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5" data-aos="fade-up" data-aos-delay="300">
             <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
             <div className="relative glass-card p-6 rounded-2xl">
               <div className="flex items-center justify-between mb-4">
@@ -204,7 +204,7 @@ export default function Dashboard() {
         )}
 
         {/* Main Action - Primary CTA */}
-        <div className="mb-8 relative group">
+        <div className="mb-8 relative group" data-aos="zoom-in" data-aos-delay="400">
           <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-accent-600 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
           <button
             onClick={() => navigate("/planner")}
@@ -245,6 +245,7 @@ export default function Dashboard() {
           <button
             onClick={() => navigate("/history")}
             className="glass-card p-6 rounded-2xl text-left transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5 group"
+            data-aos="fade-right"
           >
             <div className="flex items-center gap-4 mb-4">
               <div className="p-3 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl">
@@ -265,7 +266,7 @@ export default function Dashboard() {
           </button>
 
           {/* Analytics (Coming Soon) */}
-          <div className="glass-card p-6 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 opacity-60">
+          <div className="glass-card p-6 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 opacity-60" data-aos="fade-left">
             <div className="flex items-center gap-4 mb-4">
               <div className="p-3 bg-gray-200 dark:bg-gray-800 rounded-xl">
                 <BarChart3 className="w-6 h-6 text-gray-500" />
@@ -286,7 +287,7 @@ export default function Dashboard() {
         {/* Recent Activity - If strategies exist */}
         {strategies.length > 0 && (
           <div className="mt-12">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6" data-aos="fade-up">
               Recent Activity
             </h2>
             <div className="space-y-3">
@@ -295,6 +296,8 @@ export default function Dashboard() {
                   key={strategy.id || index}
                   onClick={() => navigate("/history")}
                   className="w-full glass-card p-4 rounded-xl transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5 group flex items-center justify-between"
+                  data-aos="fade-up"
+                  data-aos-delay={index * 100}
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>

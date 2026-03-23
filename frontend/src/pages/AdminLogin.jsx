@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Shield, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import { adminAPI } from "../api/adminApi";
+import { alertUtils } from "../utils/alertUtils";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import AnimatedButton from "../components/auth/AnimatedButton";
@@ -18,7 +19,7 @@ export default function AdminLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!secret.trim()) {
-      setError("Please enter admin secret");
+      alertUtils.warning("Validation Error", "Please enter admin secret");
       return;
     }
 
@@ -36,7 +37,7 @@ export default function AdminLogin() {
       navigate("/admin", { replace: true });
     } catch (err) {
       sessionStorage.removeItem("adminSecret");
-      setError("Invalid admin secret");
+      alertUtils.error("Access Denied", "Invalid admin secret");
     } finally {
       setLoading(false);
     }
@@ -73,13 +74,6 @@ export default function AdminLogin() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="flex items-center gap-3 p-3.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm animate-shake">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 ml-1">
                 System Secret Key

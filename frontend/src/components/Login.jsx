@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
+import { alertUtils } from "../utils/alertUtils";
 import AuthLayout from "./auth/AuthLayout";
 import AuthCard from "./auth/AuthCard";
 import AnimatedButton from "./auth/AnimatedButton";
@@ -27,7 +28,8 @@ export default function Login() {
       navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      setError(err.message || "Login failed. Please try again.");
+      // Remove setError
+      alertUtils.error("Login Failed", err.message || "Please try again.");
     } finally {
       setLoading(false);
     }
@@ -42,13 +44,14 @@ export default function Login() {
         navigate("/dashboard");
       } catch (err) {
         console.error("Google login error:", err);
-        setError(err.message || "Google sign-in failed. Please try again.");
+        // Remove setError
+        alertUtils.error("Google Login Failed", err.message || "Please try again.");
       } finally {
         setGoogleLoading(false);
       }
     },
     onError: () => {
-      setError("Google sign-in was cancelled or failed.");
+      alertUtils.warning("Cancelled", "Google sign-in was cancelled or failed.");
     },
     flow: "implicit",
   });
@@ -64,12 +67,6 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-xl text-sm animate-shake">
-              {error}
-            </div>
-          )}
-
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 ml-1">
               Email Address

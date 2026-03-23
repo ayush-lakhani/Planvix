@@ -7,11 +7,13 @@ import {
   Eye,
   ThumbsUp,
   ThumbsDown,
+  MoreVertical,
 } from "lucide-react";
 import { strategyAPI } from "../api";
 import { safeDate } from "../utils/dateUtils";
 import StrategyResults from "./StrategyResults";
-import toast from "react-hot-toast";
+import { alertUtils } from "../utils/alertUtils";
+import Dropdown from "./ui/Dropdown";
 
 export default function History() {
   const [strategies, setStrategies] = useState([]);
@@ -50,11 +52,12 @@ export default function History() {
 
     if (!strategyId) {
       console.error("[DELETE] No valid ID found in strategy:", strategy);
-      toast.error("Invalid strategy ID");
+      alertUtils.error("Invalid ID", "Invalid strategy ID");
       return;
     }
 
-    if (!confirm("Are you sure you want to delete this strategy?")) return;
+    const isConfirmed = await alertUtils.confirmDelete("strategy");
+    if (!isConfirmed) return;
 
     try {
       console.log(
@@ -69,7 +72,7 @@ export default function History() {
       // Reload from server to get fresh data
       await loadHistory();
 
-      toast.success("Strategy deleted successfully!");
+      alertUtils.success("Deleted", "Strategy deleted successfully!");
       console.log("[OK] Strategy deleted and history reloaded");
     } catch (error) {
       console.error("[ERROR] Failed to delete strategy:", error);
@@ -77,8 +80,9 @@ export default function History() {
       console.error("[ERROR] Error status:", error.response?.status);
       console.error("[ERROR] Error data:", error.response?.data);
       console.error("[ERROR] Error message:", error.message);
-      toast.error(
-        `Failed to delete strategy: ${error.response?.data?.detail || error.message}`,
+      alertUtils.error(
+        "Failed to delete",
+        `Reason: ${error.response?.data?.detail || error.message}`,
       );
     }
   };
@@ -92,7 +96,7 @@ export default function History() {
 
     if (!strategyId) {
       console.error("[VIEW] No valid ID found in strategy:", strategy);
-      alert("Invalid strategy ID");
+      alertUtils.error("Invalid ID", "Invalid strategy ID");
       return;
     }
 
@@ -105,7 +109,7 @@ export default function History() {
       console.error("[VIEW] Failed to load strategy:", error);
       console.error("[VIEW] Error response:", error.response);
       console.error("[VIEW] Error data:", error.response?.data);
-      alert("Failed to load strategy details. Please try again.");
+      alertUtils.error("Error", "Failed to load strategy details. Please try again.");
     }
   };
 
@@ -158,7 +162,7 @@ export default function History() {
     <div className="animate-stripe-page min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-8" data-aos="fade-down">
           <button
             onClick={() => navigate("/dashboard")}
             className="p-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-800/50 transition-smooth"
@@ -177,7 +181,7 @@ export default function History() {
 
         {/* Empty State */}
         {strategies.length === 0 ? (
-          <div className="glass-card p-12 text-center">
+          <div className="glass-card p-12 text-center" data-aos="zoom-in">
             <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               No strategies yet
@@ -195,10 +199,12 @@ export default function History() {
         ) : (
           /* Strategies List */
           <div className="space-y-4">
-            {strategies.map((strategy) => (
+            {strategies.map((strategy, index) => (
               <div
                 key={strategy.id}
                 className="glass-card p-6 hover:shadow-lg transition-all duration-200 ease-in-out hover:-translate-y-0.5"
+                data-aos="fade-up"
+                data-aos-delay={Math.min(index * 100, 500)}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
@@ -233,44 +239,58 @@ export default function History() {
                     </p>
                   </div>
 
-                  <div className="flex gap-2">
-                    {/* Feedback Buttons */}
+                  <div className="flex items-center gap-2">
+                    {/* Feedback Buttons inline */}
                     <button
                       onClick={() => handleFeedback(strategy.id, "up")}
                       className={`p-2 rounded-lg transition-colors ${
                         strategy.feedback_rating === "up"
                           ? "bg-green-600 text-white"
-                          : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-green-100 dark:hover:bg-green-900"
+                          : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-green-100 dark:hover:bg-green-900"
                       }`}
                       title="Good strategy"
                     >
-                      <ThumbsUp className="w-5 h-5" />
+                      <ThumbsUp className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleFeedback(strategy.id, "down")}
                       className={`p-2 rounded-lg transition-colors ${
                         strategy.feedback_rating === "down"
                           ? "bg-red-600 text-white"
-                          : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900"
+                          : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900"
                       }`}
                       title="Needs improvement"
                     >
-                      <ThumbsDown className="w-5 h-5" />
+                      <ThumbsDown className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={() => handleView(strategy)}
-                      className="p-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-                      title="View Details"
+
+                    {/* Options Menu Dropdown */}
+                    <Dropdown
+                      placement="bottom-end"
+                      className="p-1 min-w-[140px] mt-2"
+                      trigger={
+                        <button className="p-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                      }
                     >
-                      <Eye className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(strategy)}
-                      className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                      <div className="flex flex-col space-y-1">
+                        <button
+                          onClick={() => handleView(strategy)}
+                          className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-900/40 hover:text-primary-600 dark:hover:text-primary-400 rounded-lg transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View Details
+                        </button>
+                        <button
+                          onClick={() => handleDelete(strategy)}
+                          className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete
+                        </button>
+                      </div>
+                    </Dropdown>
                   </div>
                 </div>
               </div>

@@ -14,6 +14,9 @@ import StrategicPlanner from "./components/StrategicPlanner";
 import History from "./components/History";
 import Navbar from "./components/Navbar";
 import Upgrade from "./pages/Upgrade";
+import ContentCalendar from "./pages/ContentCalendar";
+import AnalyticsDashboard from "./pages/AnalyticsDashboard";
+import Landing from "./pages/Landing";
 import Profile from "./pages/Profile";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -24,16 +27,19 @@ import { AdminAuthProvider, useAdminAuth } from "./context/AdminAuthContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 // Navbar wrapper to exclude admin routes
 function NavbarWrapper({ darkMode, toggleDarkMode }) {
   const location = useLocation();
   const { token, user } = useAuth();
 
-  // Don't show navbar on admin routes
+  // Don't show navbar on admin or auth routes
   const isAdminRoute = location.pathname.startsWith("/admin");
+  const isAuthRoute = location.pathname === "/login" || location.pathname === "/signup";
 
-  if (!token || !user || isAdminRoute) {
+  if (isAdminRoute || isAuthRoute) {
     return null;
   }
 
@@ -65,6 +71,14 @@ function AppContent() {
     }
     localStorage.setItem("darkMode", JSON.stringify(darkMode));
   }, [darkMode]);
+
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      once: true,
+      offset: 50,
+    });
+  }, []);
 
   const toggleDarkMode = () => {
     setIsAnimating(true);
@@ -178,6 +192,22 @@ function AppContent() {
           }
         />
         <Route
+          path="/calendar"
+          element={
+            <ProtectedRoute>
+              <ContentCalendar />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <AnalyticsDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/upgrade"
           element={
             <ProtectedRoute>
@@ -217,11 +247,10 @@ function AppContent() {
         />
 
         {/* Fallbacks */}
-        <Route path="/generate" element={<Navigate to="/planner" />} />
-        <Route path="/strategy" element={<Navigate to="/planner" />} />
+        {/* Landing Page */}
         <Route
           path="/"
-          element={<Navigate to={token && user ? "/dashboard" : "/login"} replace />}
+          element={token && user ? <Navigate to="/dashboard" replace /> : <Landing />}
         />
       </Routes>
     </div>

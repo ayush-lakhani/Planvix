@@ -141,8 +141,83 @@ export function SpinningRingLogo({ size = 'md' }) {
   );
 }
 
+// Style 5: Ethereal Architect (Aether Flux Theme)
+export function EtherealArchitectLogo({ size = 'md' }) {
+  const sizes = {
+    sm: 'w-8 h-8',
+    md: 'w-12 h-12',
+    lg: 'w-16 h-16',
+    xl: 'w-24 h-24',
+  };
+
+  return (
+    <div className={`${sizes[size]} relative group`}>
+      {/* Outer Glow Bloom */}
+      <div className="absolute inset-[-20%] rounded-full bg-gradient-to-br from-[#81ecff]/40 to-[#6200EE]/40 blur-2xl group-hover:blur-3xl transition-all duration-700"></div>
+      
+      {/* Glassmorphic Base */}
+      <div className="absolute inset-0 rounded-2xl bg-[#0d0e12]/80 backdrop-blur-xl border border-white/10 shadow-[0_0_20px_rgba(98,0,238,0.4)] flex items-center justify-center transform group-hover:scale-105 transition-transform duration-500">
+        
+        {/* Inner glowing element */}
+        <div className="absolute inset-[2px] rounded-xl bg-gradient-to-br from-[#9ba8ff]/20 to-transparent"></div>
+        
+        <span className="relative text-transparent bg-clip-text bg-gradient-to-br from-[#81ecff] to-[#a68cff] font-black" style={{ 
+          fontSize: size === 'xl' ? '2.5rem' : size === 'lg' ? '1.75rem' : size === 'md' ? '1.25rem' : '0.875rem',
+          letterSpacing: '-0.05em'
+        }}>
+          P
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// Style 6: Prism Planner Logo (Planvx)
+export function PrismPlannerLogo({ size = 'md' }) {
+  const sizes = {
+    sm: 'w-8 h-8',
+    md: 'w-10 h-10',
+    lg: 'w-16 h-16',
+    xl: 'w-24 h-24',
+  };
+
+  return (
+    <div className={`${sizes[size]} relative group flex items-center justify-center`}>
+      {/* Outer Glow Bloom */}
+      <div className="absolute inset-[-20%] rounded-full bg-gradient-to-br from-[#81ecff]/30 to-[#6200EE]/30 blur-2xl group-hover:blur-3xl transition-all duration-700"></div>
+      
+      {/* Container to prevent overflow for beams */}
+      <div className="relative w-full h-full flex items-center justify-center filter drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+        
+        {/* White Light Beam Entering */}
+        <div className="absolute left-[-20%] top-[40%] w-[140%] h-[2px] bg-gradient-to-r from-transparent via-white to-transparent -translate-x-1/2 -rotate-12 opacity-80 z-0 select-none pointer-events-none group-hover:w-[160%] transition-all duration-700"></div>
+        
+        {/* Main Glass Prism (Hexagonal or Diamond shape) */}
+        <div className="w-[85%] h-[85%] bg-white/5 backdrop-blur-xl border border-white/20 rotate-45 transform flex items-center justify-center overflow-hidden rounded-lg shadow-[inset_0_0_20px_rgba(255,255,255,0.1)] z-10">
+           {/* Inner Refraction */}
+           <div className="absolute inset-0 bg-gradient-to-br from-[#81ecff]/40 to-[#a68cff]/40 mix-blend-screen opacity-50"></div>
+           <div className="absolute inset-0 bg-gradient-to-tl from-[#6200EE]/20 to-transparent"></div>
+        </div>
+
+        {/* Scattered Color Beams Exiting */}
+        <div className="absolute right-[-30%] top-[30%] w-[80%] h-[2px] bg-gradient-to-r from-[#81ecff] to-transparent rotate-[15deg] opacity-90 shadow-[0_0_8px_#81ecff] z-0 pointer-events-none group-hover:right-[-40%] transition-all duration-500"></div>
+        <div className="absolute right-[-30%] top-[50%] w-[80%] h-[2px] bg-gradient-to-r from-[#a68cff] to-transparent rotate-[-5deg] opacity-90 shadow-[0_0_8px_#a68cff] z-0 pointer-events-none group-hover:right-[-40%] transition-all duration-700"></div>
+        <div className="absolute right-[-30%] bottom-[30%] w-[80%] h-[2px] bg-gradient-to-r from-[#6200EE] to-transparent rotate-[25deg] opacity-90 shadow-[0_0_8px_#6200EE] z-0 pointer-events-none group-hover:right-[-40%] transition-all duration-500 delay-75"></div>
+
+        {/* The 'P' */}
+        <span className="absolute text-white font-black drop-shadow-lg z-20" style={{ 
+          fontSize: size === 'xl' ? '2.5rem' : size === 'lg' ? '1.75rem' : size === 'md' ? '1.25rem' : '0.875rem',
+          letterSpacing: '-0.05em'
+        }}>
+          P
+        </span>
+      </div>
+    </div>
+  );
+}
+
 // Main export - you can switch between styles
-export default HexagonLogo; // Rotating Hexagon (GitHub Copilot-like) - Geometric & Modern
+export default PrismPlannerLogo; // Used for Planvx
 
 
 
