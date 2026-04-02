@@ -126,7 +126,7 @@ async def export_users_csv(x_admin_secret: str = Header(None)):
         writer.writerow({k: u.get(k, "") for k in writer.fieldnames})
 
     output.seek(0)
-    filename = f"planvix_users_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.csv"
+    filename = f"planvIx_users_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.csv"
     return StreamingResponse(
         iter([output.getvalue()]),
         media_type="text/csv",

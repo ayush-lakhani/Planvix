@@ -4,10 +4,10 @@
  */
 
 export const BRAND = {
-  name: "Planvix",
+  name: "planvIx",
   tagline: "AI Content Strategy OS",
   description: "Premium AI-Powered Content Strategy Platform",
-  url: "https://planvix.com",
+  url: "https://planvIx.com",
 
   // Social sharing
   shareText: (strategyCount) =>
@@ -17,7 +17,7 @@ export const BRAND = {
   emailSubject: `AI Content Strategy from ${BRAND.name}`,
   // Meta
   meta: {
-    title: "Planvix - AI Content Strategy OS",
+    title: "planvIx - AI Content Strategy OS",
     description:
       "5 Elite AI Agents | ROI Predictions | SEO Keywords | Production SaaS",
   },

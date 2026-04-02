@@ -1,4 +1,4 @@
-# Project Documentation: Multi AI Agent Content Planner (Stratify AI)
+# Project Documentation: Multi AI Agent Content Planner (planvIx)
 
 This document serves as the foundational draft for your MCA semester 4 project report. It expands on the core sections required for your documentation, specifically tailored to your Multi AI Agent Content Planner architecture.
 
@@ -6,7 +6,7 @@ This document serves as the foundational draft for your MCA semester 4 project r
 
 ## 1. Detailed Methodology
 
-This section outlines the comprehensive approach, architectural patterns, and technology stack utilized to research, design, and develop the Stratify AI continuous content planning system. The methodology acts as the blueprint for ensuring the system is scalable, robust, and capable of handling complex AI orchestrations.
+This section outlines the comprehensive approach, architectural patterns, and technology stack utilized to research, design, and develop the planvIx continuous content planning system. The methodology acts as the blueprint for ensuring the system is scalable, robust, and capable of handling complex AI orchestrations.
 
 **1.1 Software Development Life Cycle (SDLC): Agile Scrum Framework**
 The development of this project adheres strictly to the **Agile Software Development Lifecycle**, specifically utilizing a Scrum-based framework. This approach was chosen over traditional waterfall methods due to the experimental and rapidly evolving nature of Large Language Models (LLMs) and Multi-Agent Systems.

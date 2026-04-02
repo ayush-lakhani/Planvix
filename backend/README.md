@@ -1,4 +1,4 @@
-# Backend — Planvix API Server
+# Backend — planvIx API Server
 
 FastAPI backend with CrewAI multi-agent orchestration, MongoDB storage, Redis caching, WebSocket activity feed, and an enterprise admin intelligence API.
 
@@ -140,7 +140,7 @@ GROQ_API_KEY=gsk_...
 JWT_SECRET_KEY=change-this-in-production
 ADMIN_SECRET=your-admin-secret
 REDIS_URL=redis://localhost:6379
-PROJECT_NAME=Planvix
+PROJECT_NAME=planvIx
 VERSION=2.0.0
 RATE_LIMIT_PER_MINUTE=30
 ```

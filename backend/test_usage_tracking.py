@@ -219,6 +219,6 @@ def run_tests():
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("  PLANVIX: Usage Tracking Fix - Validation Test")
+    print("  planvIx: Usage Tracking Fix - Validation Test")
     print("=" * 60)
     run_tests()

@@ -75,10 +75,16 @@ app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RequestIDMiddleware)
 
 # CORS
-origins = ["https://your-frontend.vercel.app"]
-if settings.ENV != "production":
-    origins.append("http://localhost:5173")
-    origins.append("http://localhost:3000")
+origins = [
+    settings.FRONTEND_URL,
+    "http://localhost:5173",
+    "http://localhost:3000",
+]
+
+# Add Vercel dynamic preview URLs in production if needed, or stick to configured FRONTEND_URL
+if settings.ENV == "production":
+    # If using Vercel, the FRONTEND_URL environment variable should be set to the production domain.
+    pass
 
 app.add_middleware(
     CORSMiddleware,

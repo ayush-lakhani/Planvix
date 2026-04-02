@@ -257,7 +257,7 @@ export default function EnterpriseAdminDashboard() {
             </div>
             <div>
               <h1 className="text-lg font-black tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                Planvix Admin
+                planvIx Admin
               </h1>
               <p className="text-[10px] text-slate-500 -mt-0.5">
                 Intelligence System
@@ -858,7 +858,7 @@ export default function EnterpriseAdminDashboard() {
               <KPICard
                 title="Cost Estimate"
                 value={analytics?.ai_usage?.cost_estimate || 0}
-                prefix="$"
+                prefix="₹"
                 changeLbl="Approx."
                 change={0}
                 color="amber"
@@ -913,8 +913,8 @@ export default function EnterpriseAdminDashboard() {
                       label: "Cost per Strategy",
                       value:
                         analytics?.ai_usage?.total_requests > 0
-                          ? `$${((analytics?.ai_usage?.cost_estimate || 0) / analytics?.ai_usage?.total_requests).toFixed(5)}`
-                          : "$0",
+                          ? `₹${((analytics?.ai_usage?.cost_estimate || 0) / analytics?.ai_usage?.total_requests).toFixed(5)}`
+                          : "₹0",
                       icon: "💰",
                     },
                     {

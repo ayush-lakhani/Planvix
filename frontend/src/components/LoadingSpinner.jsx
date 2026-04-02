@@ -12,7 +12,7 @@ export default function LoadingSpinner({ message = "Generating your strategy..."
 
       {/* Brand Text */}
       <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent mb-2">
-        Planvix AI
+        planvIx AI
       </h2>
       
       {/* Loading Message */}

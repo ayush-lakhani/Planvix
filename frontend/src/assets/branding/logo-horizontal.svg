@@ -5,8 +5,8 @@
   <!-- Letter P -->
   <text x="25" y="35" font-family="Arial, sans-serif" font-size="28" font-weight="900" fill="white" text-anchor="middle">P</text>
   
-  <!-- PLANVIX Text -->
-  <text x="55" y="32" font-family="Arial, sans-serif" font-size="24" font-weight="900" fill="url(#gradient2)">PLANVIX</text>
+  <!-- planvIx Text -->
+  <text x="55" y="32" font-family="Arial, sans-serif" font-size="24" font-weight="900" fill="url(#gradient2)">planvIx</text>
   
   <!-- Gradient Definitions -->
   <defs>

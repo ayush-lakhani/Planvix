@@ -1,7 +1,7 @@
 /**
  * AnalyticsService — fetches /api/admin/analytics
  */
-import { adminAPI } from "../api/adminAPI";
+import { adminAPI } from "../api/adminApi";
 
 class AnalyticsServiceClass {
   async getAnalytics() {
@@ -31,7 +31,7 @@ class AnalyticsServiceClass {
     const url = URL.createObjectURL(res.data);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `planvix_users_${Date.now()}.csv`;
+    a.download = `planvIx_users_${Date.now()}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

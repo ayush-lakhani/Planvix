@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import ProPanel from "../pages/ProPanel";
 import {
   Sparkles,
   TrendingUp,
@@ -49,7 +50,7 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
-      const response = await fetch("http://localhost:8000/api/profile", {
+      const response = await fetch("/api/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -66,6 +67,10 @@ export default function Dashboard() {
     thisMonth: monthlyUsage, // Server-authoritative usage count
     limit: user?.tier === "pro" ? "Unlimited" : 3,
   };
+
+  if (user?.tier === "pro") {
+    return <ProPanel />;
+  }
 
   return (
     <div className="animate-stripe-page min-h-screen pt-20 pb-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -160,7 +165,7 @@ export default function Dashboard() {
                   <Zap className="w-6 h-6 text-green-500" />
                 </div>
                 <span className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  {stats.total > 0 ? "97%" : "--"}
+                  {stats.total > 0 ? "90%" : "--"}
                 </span>
               </div>
               <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
@@ -172,7 +177,7 @@ export default function Dashboard() {
               <div className="mt-4 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
-                  style={{ width: "100%" }}
+                  style={{ width: "90%" }}
                 ></div>
               </div>
             </div>

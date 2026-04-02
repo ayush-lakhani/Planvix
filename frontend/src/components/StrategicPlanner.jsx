@@ -11,6 +11,7 @@ import { normalizeStrategy, isValidStrategy } from "../utils/strategyUtils";
 
 export default function StrategicPlanner() {
   const { user, token } = useAuth();
+  const [userTier, setUserTier] = useState(user?.tier || "free");
   const [strategy, setStrategy] = useState(null);
   const [loading, setLoading] = useState(false);
   const [agentLogs, setAgentLogs] = useState([]);
@@ -18,8 +19,6 @@ export default function StrategicPlanner() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const userTier = user?.tier || "free";
 
   // Handle strategy passed via navigation state (from Dashboard/History)
   useEffect(() => {
@@ -41,7 +40,7 @@ export default function StrategicPlanner() {
     try {
       if (!token) return;
 
-      const response = await fetch("http://localhost:8000/api/profile", {
+      const response = await fetch("/api/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

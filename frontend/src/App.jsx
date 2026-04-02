@@ -21,6 +21,7 @@ import Profile from "./pages/Profile";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import TacticalBlueprint from "./pages/TacticalBlueprint";
+import ProPanel from "./pages/ProPanel";
 import { Toaster } from "react-hot-toast";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { AdminAuthProvider, useAdminAuth } from "./context/AdminAuthContext";
@@ -220,6 +221,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pro-panel"
+          element={
+            <ProtectedRoute>
+              <ProPanel />
             </ProtectedRoute>
           }
         />

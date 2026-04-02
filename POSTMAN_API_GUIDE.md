@@ -1,6 +1,6 @@
-# Planvix API Guide — Postman / curl Reference
+# planvIx API Guide — Postman / curl Reference
 
-Complete API reference for the Planvix backend. All endpoints base at `http://localhost:8000`.
+Complete API reference for the planvIx backend. All endpoints base at `http://localhost:8000`.
 
 > [!IMPORTANT]
 > **Signup and Login MUST use the `POST` method.** Using `GET` returns `405 Method Not Allowed`.

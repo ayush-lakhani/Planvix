@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { alertUtils } from "../utils/alertUtils";
 
+const API_BASE = import.meta.env.VITE_API_URL || "";
+
 export default function UpgradePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -12,7 +14,7 @@ export default function UpgradePage() {
     setUpgradeLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:8000/api/pro-checkout", {
+      const response = await fetch(`${API_BASE}/api/pro-checkout`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -27,7 +29,7 @@ export default function UpgradePage() {
         const options = {
           key: data.razorpay_key,
           subscription_id: data.subscription_id,
-          name: "Planvix",
+          name: "planvIx",
           description: "Pro Subscription - ₹2,400/month",
           handler: function (response) {
             // Success - redirect to dashboard
@@ -71,7 +73,7 @@ export default function UpgradePage() {
             <div className="absolute -inset-2 bg-green-500 rounded-3xl opacity-20 animate-ping"></div>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-6 animate-slide-up">
-            Welcome to Planvix Pro!
+            Welcome to planvIx Pro!
           </h1>
           <div
             className="glass-card p-8 rounded-3xl shadow-2xl border border-green-200 dark:border-green-800 animate-slide-up"
@@ -130,10 +132,10 @@ export default function UpgradePage() {
       <div className="max-w-4xl mx-auto">
         {/* HERO SECTION */}
         <div className="text-center mb-20 animate-fade-in">
-          {/* Planvix Pro Branding */}
+          {/* planvIx Pro Branding */}
           <div className="text-center mb-8">
             <h1 className="text-6xl md:text-7xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4 animate-pulse">
-              Planvix Pro
+              planvIx Pro
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-400">
               Unlock Unlimited Growth with AI-powered strategy automation
@@ -158,7 +160,7 @@ export default function UpgradePage() {
             Growth
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed">
-            Creators using Planvix Pro strategies earn{" "}
+            Creators using planvIx Pro strategies earn{" "}
             <strong>₹4L+ monthly</strong>. Get real SEO keywords, unlimited AI
             agents, and priority processing.
           </p>

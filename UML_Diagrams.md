@@ -1,4 +1,4 @@
-# UML Diagrams: Multi AI Agent Content Planner (Stratify AI)
+# UML Diagrams: Multi AI Agent Content Planner (planvIx)
 
 Below are the **UML Class Diagram** (for the database schema representing the ERD), the **UML Activity/Component Diagram** (representing DFD Level 1), and the **UML Deployment Diagram** (representing the System Architecture).
 

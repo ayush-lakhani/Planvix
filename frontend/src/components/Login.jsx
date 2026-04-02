@@ -149,7 +149,7 @@ export default function Login() {
         </div>
 
         <p className="mt-8 text-center text-sm text-gray-400">
-          New to Planvix?{" "}
+          New to planvIx?{" "}
           <Link
             to="/signup"
             className="text-white font-bold hover:text-indigo-400 transition-colors"

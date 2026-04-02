@@ -1,7 +1,7 @@
 /**
  * HealthService — fetches /api/admin/health
  */
-import { adminAPI } from "../api/adminAPI";
+import { adminAPI } from "../api/adminApi";
 
 class HealthServiceClass {
   async getHealth() {

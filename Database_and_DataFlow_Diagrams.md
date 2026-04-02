@@ -1,4 +1,4 @@
-# Database & Data Flow Architecture (Stratify AI)
+# Database & Data Flow Architecture (planvIx)
 
 This document contains the detailed Entity Relationship Diagram (ERD) and Level 1 Data Flow Diagram (DFD) for the Multi AI Agent Content Planner.
 
@@ -8,7 +8,7 @@ These diagrams use Mermaid.js syntax. You can view them by installing a Markdown
 
 ## 1. Entity Relationship Diagram (ERD)
 
-This diagram illustrates the core database tables and their relationships within the Stratify AI system.
+This diagram illustrates the core database tables and their relationships within the planvIx system.
 
 ```mermaid
 erDiagram
@@ -83,56 +83,91 @@ erDiagram
 
 ---
 
-## 2. Level 1 Data Flow Diagram (DFD)
+## 2. Level 0 Context Diagram (DFD)
 
-This diagram shows how data moves between external entities (the User, AI APIs), core processes, and data stores.
+The Context Diagram defines the boundary between the planvIx system and its external environment.
 
 ```mermaid
 flowchart TD
     %% External Entities
     User((User / Browser))
-    LLM_API((External LLM APIs\nOpenAI/Gemini))
+    LLM_API((External LLM APIs\nGroq/OpenAI))
+    OAuth((Google OAuth\nIdentity Provider))
+
+    %% Central Process
+    P[1.0 planvIx Content Strategy Platform]
+
+    %% Data Flows
+    User -- "1. Login credentials, Strategy parameters\n(Industry, Goal, Platform)" --> P
+    P -- "2. Auth Token, Content Strategy JSON,\nAnalytics Data (Charts)" --> User
+    
+    P -- "3. Authentication Request" --> OAuth
+    OAuth -- "4. User Profile, Access Token" --> P
+    
+    P -- "5. Prompt context, Agent task prompts" --> LLM_API
+    LLM_API -- "6. LLM completions\n(Persona info, Trend data, ROI predictions)" --> P
+```
+
+---
+
+## 3. Level 1 Functional Data Flow Diagram (DFD)
+
+This diagram shows how data moves internally across the different planvIx functional components and MongoDB data stores.
+
+```mermaid
+flowchart TD
+    %% External Entities
+    User((User / Browser))
+    LLM_API((External AI APIs))
 
     %% Data Stores
-    DB_Users[(Users DB)]
-    DB_Content[(Content/Tasks DB)]
-    DB_Logs[(System Logs)]
+    D1[(Users DB)]
+    D2[(Strategies DB)]
+    D3[(Tokens/Auth DB)]
+    D4[(Usage Logs)]
+    D5[(Redis Cache)]
 
     %% Processes
-    P1[1.0 Authenticate & Validate]
-    P2[2.0 Agent Orchestration]
-    P3[3.0 AI Processing]
-    P4[4.0 Dashboard Analytics]
+    P1[1.0 User Authentication\n& Security]
+    P2[2.0 Strategy Orchestration\n(CrewAI Engine)]
+    P3[3.0 AI Task Execution\n(Agent Core)]
+    P4[4.0 Usage Tracking\n& Quotas]
+    P5[5.0 Dashboard Analytics\nAggregation]
 
-    %% Flow: User Input & Auth
-    User -- "1. Login Credentials" --> P1
-    P1 -- "2. Validates JWT / Rate Limits" --> DB_Users
-    DB_Users -- "3. Quota Status" --> P1
+    %% Flows: Auth
+    User -- "Login Credentials" --> P1
+    P1 -- "Verify Profile" --> D1
+    P1 -- "Store/Check Tokens" --> D3
+    D3 -- "Session Status" --> P1
+    P1 -- "Set Token Cache" --> D5
 
-    %% Flow: Task Creation
-    User -- "4. Submits Topic & Prompt" --> P2
-    P2 -- "5. Logs Task Start" --> DB_Logs
-    P2 -- "6. Saves Pending Task" --> DB_Content
+    %% Flows: Strategy Generation
+    User -- "Submit Strategy Input" --> P2
+    P2 -- "Check Rate Limits" --> D5
+    P2 -- "Verify Monthly Quota" --> P4
+    P4 -- "Read Usage Counts" --> D1
+    
+    P2 -- "Dispatch Sub-tasks" --> P3
+    P3 -- "API Requests" --> LLM_API
+    LLM_API -- "AI Responses" --> P3
+    P3 -- "Result Payloads" --> P2
+    
+    P2 -- "Save Generated Result" --> D2
+    P2 -- "Log Agent Token Usage" --> D4
+    P2 -- "Update User Count" --> D1
+    P2 -- "Stream Output" --> User
 
-    %% Flow: Multi-Agent Processing
-    P2 -- "7. Dispatches Prompts" --> P3
-    P3 -- "8. API Requests" --> LLM_API
-    LLM_API -- "9. AI Responses\n(Drafts, Research)" --> P3
-    P3 -- "10. Returns Agent Outputs" --> P2
-
-    %% Flow: Output Generation
-    P2 -- "11. Streams Terminal Updates" --> User
-    P2 -- "12. Saves Final Content Plan" --> DB_Content
-
-    %% Flow: Analytics
-    User -- "13. Requests Dashboard View" --> P4
-    P4 -- "14. Fetches Usage & Plans" --> DB_Content
-    P4 -- "15. Returns Chart Data\n(JSON)" --> User
+    %% Flows: Analytics
+    User -- "Request Dashboard Stats" --> P5
+    P5 -- "Aggregate Metrics" --> D2
+    P5 -- "Fetch Usage Trends" --> D4
+    P5 -- "Compute Chart Data" --> User
 ```
 
 ### Process Descriptions:
 
-- **Process 1.0 (Authenticate & Validate):** Handled by `security.py` and `rate_limit.py` and `middleware.py`. Ensures the user has permissions and credits to run agents.
-- **Process 2.0 (Agent Orchestration):** The core backend logic. It breaks down the user's prompt, assigns sub-tasks to different agents, and orchestrates the flow of data.
-- **Process 3.0 (AI Processing):** The specific modules that make network calls to external APIs (OpenAI, Gemini) and parse the JSON responses.
-- **Process 4.0 (Dashboard Analytics):** API endpoints that aggregate data to serve the visual charts in `RevenueAndUserCharts.jsx`.
+- **1.0 (Auth & Security):** Handled by `auth_service.py` and `security.py`. Manages registration, session validation, and JWT refreshes.
+- **2.0 (Strategy Orchestration):** Orchestrated by `StrategyService` and `StrategyOrchestrator` using **CrewAI**. It breaks inputs into multi-agent tasks.
+- **3.0 (AI Task Execution):** Represents the individual agent behaviors (Persona, Trend, Traffic) interacting with Groq/OpenAI.
+- **4.0 (Usage & Quotas):** Managed by `UsageService`. It tracks the standard monthly generation limits (e.g., 3 strategies/mo for free tier).
+- **5.0 (Analytics Aggregation):** Handled by `AnalyticsService`. It computes MRR, ARPU, and user growth using MongoDB aggregations for the Admin and User dashboards.

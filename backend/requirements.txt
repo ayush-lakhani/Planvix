@@ -11,3 +11,9 @@ httpx
 python-multipart
 slowapi
 google-auth
+crewai
+langchain-groq
+litellm
+bcrypt
+cryptography
+motor

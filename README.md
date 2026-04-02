@@ -1,5 +1,5 @@
 <div align="center">
-  <h1><b>🚀 Planvix</b></h1>
+  <h1><b>🚀 planvIx</b></h1>
   <p>
     <strong>Multi-Agent AI Content Strategy OS</strong>
   </p>
@@ -24,11 +24,11 @@
 
 ---
 
-## 🎯 About Planvix
+## 🎯 About planvIx
 
-**Planvix is a Production-Grade, Internship-Ready Multi-Agent AI Content Strategy OS.** It is built using a modern, scalable architecture designed for real-world startup deployment and high-stakes engineering interviews.
+**planvIx is a Production-Grade, Internship-Ready Multi-Agent AI Content Strategy OS.** It is built using a modern, scalable architecture designed for real-world startup deployment and high-stakes engineering interviews.
 
-Unlike generic LLM wrappers, Planvix implements a **Decoupled Layered Architecture** (Router → Service → Data) with strict **Role-Based Access Control (RBAC)**, real-time synchronization, and high-performance data processing.
+Unlike generic LLM wrappers, planvIx implements a **Decoupled Layered Architecture** (Router → Service → Data) with strict **Role-Based Access Control (RBAC)**, real-time synchronization, and high-performance data processing.
 
 ---
 
@@ -50,7 +50,7 @@ Unlike generic LLM wrappers, Planvix implements a **Decoupled Layered Architectu
 
 ## 🏗️ Clean Layered Architecture
 
-Planvix follows a strict **Decoupled Architecture** designed for high availability and ease of testing. This structure is a primary talking point for engineering interviews as it demonstrates a deep understanding of the **SOLID principles**.
+planvIx follows a strict **Decoupled Architecture** designed for high availability and ease of testing. This structure is a primary talking point for engineering interviews as it demonstrates a deep understanding of the **SOLID principles**.
 
 ```mermaid
 graph TD
@@ -115,7 +115,7 @@ graph TD
 
 ## 📊 Analytics Engine (High-Performance)
 
-Planvix doesn't just store data — it analyzes it. Our admin analytics engine is built on **MongoDB Aggregation Pipelines** to provide real-time business intelligence with zero hardcoded values.
+planvIx doesn't just store data — it analyzes it. Our admin analytics engine is built on **MongoDB Aggregation Pipelines** to provide real-time business intelligence with zero hardcoded values.
 
 - **KPI Metrics**: MRR, ARPU, Churn, and user growth — all computed live from the database.
 - **Tier Distribution**: Free/Pro/Enterprise split with real document counts.
@@ -146,13 +146,13 @@ We use **WebSockets** to provide a "live" feel across the platform:
 
 ## ⚡ Quickstart
 
-Get Planvix running in **under 60 seconds**:
+Get planvIx running in **under 60 seconds**:
 
 ### 1️⃣ Clone & Setup
 
 ```bash
-git clone https://github.com/ayush-lakhani/stratify-ai.git
-cd stratify-ai
+git clone https://github.com/ayush-lakhani/planvIx.git
+cd planvIx
 ```
 
 ### 2️⃣ Backend (FastAPI + Redis)
@@ -190,7 +190,7 @@ npm run dev
 ### Frontend
 
 ![React](https://img.shields.io/badge/React%2018-61DAFB?style=flat-square&logo=react&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite& logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![Recharts](https://img.shields.io/badge/Recharts-22d3ee?style=flat-square&logo=chartdotjs&logoColor=white)
 ![Lucide](https://img.shields.io/badge/Lucide%20Icons-f59e0b?style=flat-square)
@@ -222,7 +222,7 @@ GROQ_API_KEY=gsk_...
 JWT_SECRET_KEY=your-super-secret-key-change-in-production
 ADMIN_SECRET=your-admin-secret          # Used to log into /admin-login
 REDIS_URL=redis://localhost:6379
-PROJECT_NAME=Planvix
+PROJECT_NAME=planvIx
 VERSION=2.0.0
 RATE_LIMIT_PER_MINUTE=30
 ```

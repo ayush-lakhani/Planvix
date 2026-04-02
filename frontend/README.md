@@ -1,4 +1,4 @@
-# Frontend — Planvix React Application
+# Frontend — planvIx React Application
 
 Premium React + Vite SPA with glassmorphism design, Recharts analytics, animated KPI cards, WebSocket live feed, and a full Enterprise Admin Intelligence Dashboard.
 

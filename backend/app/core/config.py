@@ -5,7 +5,7 @@ from dotenv import load_dotenv  # type: ignore
 load_dotenv()
 
 class Settings:
-    PROJECT_NAME: str = "Planvix"
+    PROJECT_NAME: str = "planvIx"
     VERSION: str = "2.0.0-production"
     ENV: str = os.getenv("ENV", "development")
     
@@ -44,5 +44,8 @@ class Settings:
     
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = int(os.getenv("RATE_LIMIT_PER_MINUTE", "30"))
+
+    # CORS
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 settings = Settings()

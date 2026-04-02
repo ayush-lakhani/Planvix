@@ -36,7 +36,7 @@ export default function Landing() {
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8"
           >
             <Sparkles className="w-4 h-4 text-[#81ecff]" />
-            <span className="text-sm font-semibold tracking-wide text-slate-300">Introducing Planvx Multi-Agent Architecture</span>
+            <span className="text-sm font-semibold tracking-wide text-slate-300">Introducing planvIx Multi-Agent Architecture</span>
           </div>
 
           <h1 
@@ -53,7 +53,7 @@ export default function Landing() {
             data-aos="fade-up" data-aos-delay="200"
             className="text-lg md:text-xl text-slate-400 max-w-3xl mb-12 leading-relaxed"
           >
-            Empower your strategy with a symphony of autonomous AI agents. Planvx delegates research, 
+            Empower your strategy with a symphony of autonomous AI agents. planvIx delegates research, 
             drafting, and SEO optimization to specialized models, delivering high-converting content at lightspeed.
           </p>
 
@@ -144,7 +144,7 @@ export default function Landing() {
               <div className="w-full md:w-1/2 relative z-10" data-aos="fade-right">
                 <h2 className="text-3xl md:text-5xl font-black mb-6">Unprecedented <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-[#81ecff]">Velocity</span></h2>
                 <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-                  Companies using Planvx experience a paradigm shift in content production. 
+                  Companies using planvIx experience a paradigm shift in content production. 
                   Reduce drafting time from days to minutes without sacrificing quality.
                 </p>
                 <ul className="space-y-4">
@@ -171,7 +171,7 @@ export default function Landing() {
                        +314%
                      </span>
                    </div>
-                   <div className="text-6xl font-black text-white mb-2 tracking-tight">$12.4k</div>
+                   <div className="text-6xl font-black text-white mb-2 tracking-tight">₹12.4k</div>
                    <p className="text-slate-400 text-sm mb-8">Value generated per month on Pro tier.</p>
                    
                    {/* Decorative Chart Line */}
@@ -200,7 +200,7 @@ export default function Landing() {
           
           <div className="relative z-10 max-w-4xl mx-auto px-4" data-aos="zoom-y-out">
             <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-8">Ready to upgrade your workflow?</h2>
-            <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto">Join elite teams scaling their content operations with Planvx's Multi-Agent architecture.</p>
+            <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto">Join elite teams scaling their content operations with planvIx's Multi-Agent architecture.</p>
             <Link 
               to="/signup"
               className="inline-flex items-center justify-center px-10 py-5 bg-white text-black rounded-full font-black text-xl hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all duration-300"
@@ -214,7 +214,7 @@ export default function Landing() {
         <footer className="border-t border-white/5 py-12 text-center text-slate-500 text-sm">
           <div className="flex items-center justify-center gap-2 mb-4 opacity-50">
              <Bot className="w-5 h-5" />
-             <span className="font-bold tracking-widest uppercase">Planvx © 2026</span>
+             <span className="font-bold tracking-widest uppercase">planvIx © 2026</span>
           </div>
           <p>Powered by Advanced Generative AI Models.</p>
         </footer>
