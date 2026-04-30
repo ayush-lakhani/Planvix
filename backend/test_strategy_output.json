@@ -1,0 +1,266 @@
+{
+  "success": true,
+  "strategy": {
+    "persona": {
+      "name": "College Students Aged 18-24 Enthusiast",
+      "age_range": "25-34",
+      "occupation": "Working Professional",
+      "pain_points": [
+        "Limited time",
+        "Struggling with consistency",
+        "Unsure about content",
+        "Algorithm changes",
+        "Difficulty measuring ROI"
+      ],
+      "desires": [
+        "Grow authentically",
+        "Create easily",
+        "Build brand",
+        "Monetize expertise",
+        "Save time"
+      ],
+      "objections": [
+        "Too expensive",
+        "Not sure if it works",
+        "Already tried others",
+        "No time to learn",
+        "Quality concerns"
+      ],
+      "daily_habits": [
+        "Checks Instagram daily",
+        "Consumes content during commute",
+        "Engages in evening",
+        "Plans on weekends",
+        "Follows trends"
+      ],
+      "content_preferences": [
+        "Short video",
+        "Quick tips",
+        "Behind-the-scenes",
+        "UGC",
+        "Data insights"
+      ]
+    },
+    "competitor_gaps": [
+      {
+        "gap": "Lack of personalized strategies",
+        "impact": "High",
+        "implementation": "AI personalization engine"
+      },
+      {
+        "gap": "No real-time trends",
+        "impact": "High",
+        "implementation": "Trend monitoring"
+      },
+      {
+        "gap": "Missing analytics",
+        "impact": "Medium",
+        "implementation": "Performance tracking"
+      },
+      {
+        "gap": "Limited platform insights",
+        "impact": "Medium",
+        "implementation": "Platform optimization"
+      },
+      {
+        "gap": "No collaboration",
+        "impact": "Low",
+        "implementation": "Team tools"
+      }
+    ],
+    "keywords": [
+      {
+        "term": "f&b content ideas",
+        "intent": "Informational",
+        "difficulty": "Easy",
+        "monthly_searches": "5K-10K",
+        "priority": 10,
+        "hashtags": [
+          "#F&BContent",
+          "#ContentIdeas",
+          "#MarketingTips",
+          "#SocialMediaStrategy",
+          "#ContentCreation"
+        ]
+      },
+      {
+        "term": "grow on instagram",
+        "intent": "Informational",
+        "difficulty": "Easy",
+        "monthly_searches": "10K-50K",
+        "priority": 9,
+        "hashtags": [
+          "#InstagramGrowth",
+          "#InstagramTips",
+          "#SocialMediaGrowth",
+          "#DigitalMarketing",
+          "#GrowYourBusiness"
+        ]
+      },
+      {
+        "term": "instagram tips",
+        "intent": "Informational",
+        "difficulty": "Easy",
+        "monthly_searches": "5K-10K",
+        "priority": 8,
+        "hashtags": [
+          "#InstagramTips",
+          "#SocialMediaTips",
+          "#MarketingHacks",
+          "#ContentStrategy",
+          "#DigitalMarketing"
+        ]
+      },
+      {
+        "term": "f&b marketing",
+        "intent": "Transactional",
+        "difficulty": "Medium",
+        "monthly_searches": "5K-10K",
+        "priority": 7,
+        "hashtags": [
+          "#F&BMarketing",
+          "#IndustryTips",
+          "#B2BMarketing",
+          "#MarketingStrategy",
+          "#BusinessGrowth"
+        ]
+      },
+      {
+        "term": "viral instagram content",
+        "intent": "Informational",
+        "difficulty": "Medium",
+        "monthly_searches": "5K-10K",
+        "priority": 6,
+        "hashtags": [
+          "#ViralContent",
+          "#InstagramViral",
+          "#ContentMarketing",
+          "#SocialMedia",
+          "#Trending"
+        ]
+      }
+    ],
+    "strategic_guidance": {
+      "what_to_do": [
+        "Behind-the-scenes content",
+        "User testimonials",
+        "Educational carousels",
+        "Quick tip Reels",
+        "Industry insights"
+      ],
+      "how_to_do_it": [
+        "Hook in first 3 seconds",
+        "Add captions/text overlays",
+        "Use trending audio",
+        "Include clear CTA",
+        "Post consistently"
+      ],
+      "where_to_post": {
+        "primary_platform": "Instagram",
+        "posting_locations": [
+          "Feed",
+          "Reels",
+          "Stories"
+        ],
+        "cross_promotion": [
+          "TikTok (repurpose)",
+          "YouTube Shorts"
+        ]
+      },
+      "when_to_post": {
+        "best_days": [
+          "Tuesday",
+          "Thursday",
+          "Saturday"
+        ],
+        "best_times": [
+          "9-11 AM",
+          "1-3 PM",
+          "7-9 PM"
+        ],
+        "frequency": "3-5 times per week",
+        "consistency_tips": [
+          "Batch create on Sundays",
+          "Schedule in advance"
+        ]
+      },
+      "what_to_focus_on": [
+        "Engagement rate over followers",
+        "Save rate for value",
+        "Comment quality",
+        "Share potential",
+        "Watch time"
+      ],
+      "why_it_works": [
+        "Video captures attention faster",
+        "Consistency trains algorithm",
+        "Value builds trust",
+        "Storytelling creates connection",
+        "Clear CTAs drive action"
+      ],
+      "productivity_boosters": [
+        "Batch create content",
+        "Use templates",
+        "Repurpose across platforms",
+        "Set reminders",
+        "Plan 2 weeks ahead"
+      ],
+      "things_to_avoid": [
+        "Don't post without CTA",
+        "Avoid overly salesy tone",
+        "Don't ignore comments",
+        "Avoid inconsistency",
+        "Don't skip captions"
+      ]
+    },
+    "calendar": [
+      {
+        "week": 1,
+        "day": 1,
+        "topic": "Introduction",
+        "format": "Reel",
+        "caption_hook": "Here's why...",
+        "cta": "Follow for more"
+      },
+      {
+        "week": 1,
+        "day": 3,
+        "topic": "Quick Win",
+        "format": "Carousel",
+        "caption_hook": "Want results?",
+        "cta": "Save this"
+      },
+      {
+        "week": 2,
+        "day": 2,
+        "topic": "Educational",
+        "format": "Post",
+        "caption_hook": "Did you know...",
+        "cta": "Share this"
+      }
+    ],
+    "sample_posts": [
+      {
+        "title": "\ud83d\ude80 Game-Changing Strategy",
+        "caption": "If you're in F&B, listen up.\n\n\u2705 Consistent posting\n\u2705 Authentic storytelling\n\u2705 Value-first\n\nComment 'STRATEGY' \ud83d\udc47",
+        "hashtags": [
+          "#F&B",
+          "#InstagramMarketing",
+          "#ContentStrategy"
+        ],
+        "image_prompt": "Professional workspace with Instagram dashboard, vibrant colors",
+        "best_time": "Weekdays 9-11 AM"
+      }
+    ],
+    "roi_prediction": {
+      "traffic_lift_percentage": "18-25%",
+      "engagement_boost_percentage": "35-45%",
+      "estimated_monthly_reach": "5K-15K",
+      "conversion_rate_estimate": "1.5-2.5%",
+      "time_to_results": "30-60 days"
+    }
+  },
+  "cached": false,
+  "generation_time": 0.00011229515075683594,
+  "message": "\u26a0\ufe0f DEMO MODE: Add GROQ_API_KEY to .env for AI generation"
+}

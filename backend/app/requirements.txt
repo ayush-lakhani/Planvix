@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+pydantic
+python-dotenv
+python-jose
+passlib
+pymongo
+requests
+httpx
+python-multipart
+slowapi
+google-auth
+crewai
+langchain-groq
+litellm
+motor
+bcrypt

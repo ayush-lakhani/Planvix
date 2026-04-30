@@ -1,0 +1,2 @@
+export const PRO_MONTHLY_PRICE = 2399;
+export const ENTERPRISE_MONTHLY_PRICE = 999;

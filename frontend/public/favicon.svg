@@ -1,0 +1,47 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#0F172A" rx="64"/>
+  
+  <!-- Glow Filters -->
+  <defs>
+    <filter id="glow-gold" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glow-soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Neural Connections -->
+  <path d="M 256 256 Q 200 200 156 156" stroke="#06B6D4" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 256 256 Q 312 200 356 156" stroke="#06B6D4" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 256 256 Q 200 312 156 356" stroke="#06B6D4" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 256 256 Q 312 312 356 356" stroke="#06B6D4" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+  
+  <!-- Agent Nodes -->
+  <circle cx="156" cy="156" r="32" fill="#3B82F6" filter="url(#glow-soft)"/>
+  <circle cx="156" cy="156" r="24" fill="#60A5FA"/>
+  
+  <circle cx="356" cy="156" r="32" fill="#8B5CF6" filter="url(#glow-soft)"/>
+  <circle cx="356" cy="156" r="24" fill="#A78BFA"/>
+  
+  <circle cx="156" cy="356" r="32" fill="#10B981" filter="url(#glow-soft)"/>
+  <circle cx="156" cy="356" r="24" fill="#34D399"/>
+  
+  <circle cx="356" cy="356" r="32" fill="#F59E0B" filter="url(#glow-soft)"/>
+  <circle cx="356" cy="356" r="24" fill="#FBBF24"/>
+  
+  <!-- CORE Node (CENTER - Golden) -->
+  <circle cx="256" cy="256" r="70" fill="#FCD34D" opacity="0.4" filter="url(#glow-gold)"/>
+  <circle cx="256" cy="256" r="56" fill="#FCD34D" filter="url(#glow-gold)"/>
+  <circle cx="256" cy="256" r="45" fill="#FDE68A"/>
+  <circle cx="256" cy="256" r="30" fill="#FEF3C7"/>
+</svg>

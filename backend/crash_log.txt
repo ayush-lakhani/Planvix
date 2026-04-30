@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "G:\MCA\sem 4\multi Ai G+Agent content planner\backend\main.py", line 88, in <module>
+    print("\u2705 CrewAI Elite Mode: Enabled")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayush\AppData\Roaming\Python\Python313\site-packages\crewai\llm.py", line 87, in write
+    return self._original_stream.write(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "G:\MCA\sem 4\multi Ai G+Agent content planner\backend\main.py", line 93, in <module>
+    print(f"\u26a0\ufe0f  CrewAI: Not available - Error: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayush\AppData\Roaming\Python\Python313\site-packages\crewai\llm.py", line 87, in write
+    return self._original_stream.write(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
