@@ -118,10 +118,11 @@ graph TD
 planvIx doesn't just store data — it analyzes it. Our admin analytics engine is built on **MongoDB Aggregation Pipelines** to provide real-time business intelligence with zero hardcoded values.
 
 - **KPI Metrics**: MRR, ARPU, Churn, and user growth — all computed live from the database.
-- **Tier Distribution**: Free/Pro/Enterprise split with real document counts.
+- **Tier Distribution**: Free/Pro split with real document counts.
 - **Industry Breakdown**: Top industries extracted from strategy documents.
 - **AI Token Usage**: Total tokens consumed, daily trends, and cost estimates.
-- **Redis Caching**: All heavy admin analytics cached for **60 seconds** (TTL) for sub-100ms response times.
+- **Redis Caching**: All heavy admin analytics cached for **60 seconds** (TTL) using versioned keys (e.g., `v2`) to bypass stale payloads and guarantee real-time sub-100ms response times.
+- **Robust Querying**: Admin filters utilize case-insensitive regex pattern matching to ensure accurate and strict data retrieval regardless of database casing inconsistencies.
 - **MongoDB Indexes**: Compound indexes on `user_id + created_at` for all collections — queries scale with data.
 
 ### Collections
@@ -235,7 +236,7 @@ RATE_LIMIT_PER_MINUTE=30
 | :---------------- | :--------------- | :---------- | :------------------------------------------ |
 | **🆓 Starter**    | 3                | ₹0          | Core Agents, History Access                 |
 | **⭐ Pro**        | Unlimited        | **₹299/mo** | All Agents, Priority Queue, ROI Predictions |
-| **🏢 Enterprise** | Custom           | **₹999/mo** | White-label, API Access, Team Seats         |
+
 
 ---
 

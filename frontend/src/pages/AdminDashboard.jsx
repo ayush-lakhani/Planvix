@@ -1,41 +1,14 @@
 /**
  * Enterprise SaaS Admin Intelligence System
- * Comparable to Stripe / Vercel / Supabase dashboards
- * All data from MongoDB aggregations via /api/admin/analytics
  */
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Shield,
-  LogOut,
-  Bell,
-  Search,
-  Settings,
-  Users,
-  DollarSign,
-  Zap,
-  Activity,
-  Database,
-  Cpu,
-  BarChart3,
-  TrendingUp,
-  TrendingDown,
-  Download,
-  Filter,
-  RefreshCw,
-  ChevronLeft,
-  ChevronRight,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  Clock,
-  Brain,
-  Globe,
-  ArrowUpRight,
-  ArrowDownRight,
-  Layers,
-  Hash,
-  IndianRupee,
+  Shield, LogOut, Bell, Search, Settings, Users, DollarSign,
+  Zap, Activity, Database, Cpu, BarChart3, TrendingUp, TrendingDown,
+  Download, Filter, RefreshCw, ChevronLeft, ChevronRight,
+  CheckCircle2, AlertTriangle, XCircle, Clock, Brain, Globe,
+  ArrowUpRight, ArrowDownRight, Layers, Hash, IndianRupee,
 } from "lucide-react";
 import { KPICard } from "../components/kpi/KPICard";
 import {
@@ -56,9 +29,6 @@ import {
 } from "../constants/pricing";
 import { safeDate } from "../utils/dateUtils";
 
-/* ══════════════════════════════════════════════════════════════
-   CONSTANTS
-══════════════════════════════════════════════════════════════ */
 const TABS = [
   { id: "overview", label: "Overview", icon: BarChart3 },
   { id: "users", label: "Users", icon: Users },
@@ -69,63 +39,20 @@ const TABS = [
 ];
 
 const EVENT_COLORS = {
-  user_signup: {
-    dot: "bg-blue-500",
-    badge: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    icon: "👤",
-    label: "User Signup",
-  },
-  strategy_generated: {
-    dot: "bg-emerald-500",
-    badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    icon: "⚡",
-    label: "Strategy Generated",
-  },
-  strategy_deleted: {
-    dot: "bg-amber-500",
-    badge: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    icon: "🗑️",
-    label: "Strategy Deleted",
-  },
-  payment_received: {
-    dot: "bg-violet-500",
-    badge: "bg-violet-500/10 text-violet-400 border-violet-500/20",
-    icon: "💰",
-    label: "Payment",
-  },
-  tier_upgrade: {
-    dot: "bg-emerald-400",
-    badge: "bg-emerald-400/10 text-emerald-300 border-emerald-400/20",
-    icon: "⭐",
-    label: "Tier Upgrade",
-  },
-  admin_login: {
-    dot: "bg-rose-500",
-    badge: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-    icon: "🔒",
-    label: "Admin Login",
-  },
-  default: {
-    dot: "bg-slate-500",
-    badge: "bg-slate-500/10 text-slate-400 border-slate-500/20",
-    icon: "📌",
-    label: "System Event",
-  },
+  user_signup: { dot: "bg-blue-500", badge: "bg-blue-500/10 text-blue-400 border-blue-500/20", icon: "👤", label: "User Signup" },
+  strategy_generated: { dot: "bg-emerald-500", badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", icon: "⚡", label: "Strategy Generated" },
+  strategy_deleted: { dot: "bg-amber-500", badge: "bg-amber-500/10 text-amber-400 border-amber-500/20", icon: "🗑️", label: "Strategy Deleted" },
+  payment_received: { dot: "bg-violet-500", badge: "bg-violet-500/10 text-violet-400 border-violet-500/20", icon: "💰", label: "Payment" },
+  tier_upgrade: { dot: "bg-emerald-400", badge: "bg-emerald-400/10 text-emerald-300 border-emerald-400/20", icon: "⭐", label: "Tier Upgrade" },
+  admin_login: { dot: "bg-rose-500", badge: "bg-rose-500/10 text-rose-400 border-rose-500/20", icon: "🔒", label: "Admin Login" },
+  default: { dot: "bg-slate-500", badge: "bg-slate-500/10 text-slate-400 border-slate-500/20", icon: "📌", label: "System Event" },
 };
 
-/* ══════════════════════════════════════════════════════════════
-   MAIN COMPONENT
-══════════════════════════════════════════════════════════════ */
 export default function EnterpriseAdminDashboard() {
   const [tab, setTab] = useState("overview");
   const [analytics, setAnalytics] = useState(null);
   const [health, setHealth] = useState(null);
-  const [users, setUsers] = useState({
-    users: [],
-    total: 0,
-    page: 1,
-    pages: 1,
-  });
+  const [users, setUsers] = useState({ users: [], total: 0, page: 1, pages: 1 });
   const [logs, setLogs] = useState([]);
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -141,128 +68,79 @@ export default function EnterpriseAdminDashboard() {
   const navigate = useNavigate();
   const env = import.meta.env.MODE === "production" ? "PROD" : "DEV";
 
-  /* ── Auth guard ─────────────────────────────── */
   const secret = sessionStorage.getItem("adminSecret");
-  useEffect(() => {
-    if (!secret) {
-      navigate("/admin-login");
-      return;
-    }
-    loadAnalytics();
-    loadHealth();
-    loadLogs();
-    // Health auto-refresh 30s
-    const hi = setInterval(loadHealth, 30000);
-    return () => clearInterval(hi);
-  }, []);
 
-  /* ── WebSocket activity feed ────────────────── */
-  useEffect(() => {
-    if (!secret) return;
-    WebSocketService.connect((evt) => {
-      setWsConnected(true);
-      if (evt.type === "pong") return;
-      setActivities((prev) => {
-        const updated = [evt, ...prev].slice(0, 200);
-        return updated;
-      });
-      setNotifications((n) => n + 1);
-      // Auto-refresh KPIs when a payment fires so pro_users & MRR update live
-      if (evt.type === "payment_received") {
-        loadAnalytics();
-      }
-    });
-    return () => WebSocketService.disconnect();
-  }, []);
+  const logout = useCallback(() => {
+    sessionStorage.removeItem("adminSecret");
+    WebSocketService.disconnect();
+    navigate("/admin-login");
+  }, [navigate]);
 
-  /* ── Auto-scroll activity feed ──────────────── */
-  useEffect(() => {
-    if (tab === "activity")
-      activityEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activities, tab]);
-
-  /* ── Load users when tab / filter changes ───── */
-  useEffect(() => {
-    if (tab === "users") loadUsers();
-  }, [tab, page, tierFilter]);
-
-  /* ── Fetch functions ────────────────────────── */
   const loadAnalytics = useCallback(async () => {
     setLoading(true);
-    try {
-      setAnalytics(await AnalyticsService.getAnalytics());
-    } catch (e) {
-      if (e.response?.status === 401) logout();
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    try { setAnalytics(await AnalyticsService.getAnalytics()); }
+    catch (e) { if (e.response?.status === 401) logout(); }
+    finally { setLoading(false); }
+  }, [logout]);
 
   const loadHealth = useCallback(async () => {
     setHealthLoading(true);
-    try {
-      setHealth(await HealthService.getHealth());
-    } catch (_) {
-    } finally {
-      setHealthLoading(false);
-    }
+    try { setHealth(await HealthService.getHealth()); }
+    catch (_) {}
+    finally { setHealthLoading(false); }
   }, []);
 
   const loadUsers = useCallback(async () => {
     setUsersLoading(true);
     try {
-      const data = await AnalyticsService.getUsers({
-        search,
-        tier: tierFilter,
-        page,
-        limit: 15,
-      });
+      const data = await AnalyticsService.getUsers({ search, tier: tierFilter, page, limit: 15 });
       setUsers(data);
-    } catch (e) {
-      if (e.response?.status === 401) logout();
-    } finally {
-      setUsersLoading(false);
-    }
-  }, [search, tierFilter, page]);
+    } catch (e) { if (e.response?.status === 401) logout(); }
+    finally { setUsersLoading(false); }
+  }, [search, tierFilter, page, logout]);
 
   const loadLogs = useCallback(async () => {
-    try {
-      const data = await AnalyticsService.getAdminLogs(100);
-      setLogs(data.logs || []);
-    } catch (_) {}
+    try { const data = await AnalyticsService.getAdminLogs(100); setLogs(data.logs || []); }
+    catch (_) {}
   }, []);
 
-  const logout = () => {
-    sessionStorage.removeItem("adminSecret");
-    WebSocketService.disconnect();
-    navigate("/admin-login");
-  };
+  useEffect(() => {
+    if (!secret) { navigate("/admin-login"); return; }
+    loadAnalytics();
+    loadHealth();
+    loadLogs();
+    const hi = setInterval(loadHealth, 30000);
+    return () => clearInterval(hi);
+  }, [secret, navigate, loadAnalytics, loadHealth, loadLogs]);
+
+  useEffect(() => {
+    if (!secret) return;
+    WebSocketService.connect((evt) => {
+      setWsConnected(true);
+      if (evt.type === "pong") return;
+      setActivities((prev) => [evt, ...prev].slice(0, 200));
+      setNotifications((n) => n + 1);
+      if (evt.type === "payment_received") loadAnalytics();
+    });
+    return () => WebSocketService.disconnect();
+  }, [secret, loadAnalytics]);
+
+  useEffect(() => {
+    if (tab === "activity") activityEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [activities, tab]);
+
+  useEffect(() => {
+    if (tab === "users") loadUsers();
+  }, [tab, page, tierFilter, loadUsers]);
 
   const kpi = analytics?.kpis || {};
-  const sparkRevenue = (analytics?.revenue_trend || [])
-    .slice(-7)
-    .map((r) => ({ v: r.revenue }));
-  const sparkUsers = (analytics?.user_growth || [])
-    .slice(-7)
-    .map((r) => ({ v: r.users }));
+  const sparkRevenue = (analytics?.revenue_trend || []).slice(-7).map((r) => ({ v: r.revenue }));
+  const sparkUsers = (analytics?.user_growth || []).slice(-7).map((r) => ({ v: r.users }));
 
-  /* ══ RENDER ═══════════════════════════════════════════════ */
   return (
-    <div
-      className="animate-stripe-page min-h-screen text-white font-sans"
-      style={{
-        background:
-          "linear-gradient(135deg, #020817 0%, #0a1628 40%, #040d1a 100%)",
-      }}
-    >
+    <div className="animate-stripe-page min-h-screen text-white font-sans" style={{ background: "linear-gradient(135deg, #020817 0%, #0a1628 40%, #040d1a 100%)" }}>
       {/* ── HEADER ─────────────────────────────────────────── */}
-      <header
-        className="sticky top-0 z-50 border-b border-slate-800/60"
-        style={{
-          background: "rgba(2,8,23,0.85)",
-          backdropFilter: "blur(24px)",
-        }}
-      >
+      <header className="sticky top-0 z-50 border-b border-slate-800/60" style={{ background: "rgba(2,8,23,0.85)", backdropFilter: "blur(24px)" }}>
         <div className="max-w-[1600px] mx-auto px-6 py-3.5 flex items-center justify-between gap-4">
           {/* Brand */}
           <div className="flex items-center gap-3 shrink-0">
@@ -270,40 +148,22 @@ export default function EnterpriseAdminDashboard() {
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-black tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                planvIx Admin
-              </h1>
-              <p className="text-[10px] text-slate-500 -mt-0.5">
-                Intelligence System
-              </p>
+              <h1 className="text-lg font-black tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">planvIx Admin</h1>
+              <p className="text-[10px] text-slate-500 -mt-0.5">Intelligence System</p>
             </div>
-            <span
-              className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ml-1 ${
-                env === "PROD"
-                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                  : "bg-amber-500/10 text-amber-400 border-amber-500/30"
-              }`}
-            >
+            <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ml-1 ${env === "PROD" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" : "bg-amber-500/10 text-amber-400 border-amber-500/30"}`}>
               {env}
             </span>
           </div>
-
           {/* Global Search */}
           <div className="relative flex-1 max-w-sm hidden md:block">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               placeholder="Search users, strategies..."
               className="w-full pl-9 pr-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  setSearch(e.target.value);
-                  setTab("users");
-                  loadUsers();
-                }
-              }}
+              onKeyDown={(e) => { if (e.key === "Enter") { setSearch(e.target.value); setTab("users"); loadUsers(); } }}
             />
           </div>
-
           {/* Right cluster */}
           <div className="flex items-center gap-2 shrink-0">
             {/* WS indicator */}
@@ -579,10 +439,9 @@ export default function EnterpriseAdminDashboard() {
                 }}
                 className="px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-slate-300 text-sm focus:outline-none focus:border-emerald-500/50"
               >
-                <option value="all">All Tiers</option>
-                <option value="free">Free</option>
-                <option value="pro">Pro</option>
-                <option value="enterprise">Enterprise</option>
+                <option value="all">All Users</option>
+                <option value="free">Free Users</option>
+                <option value="pro">All Pro Users</option>
               </select>
               <button
                 onClick={loadUsers}

@@ -218,9 +218,12 @@ export default function ProPanel() {
                        <CheckCircle className="w-5 h-5" /> Priority Agent Access
                     </div>
                  </div>
-                 <button className="mt-12 w-full py-4 bg-white text-indigo-600 rounded-2xl font-black shadow-2xl hover:scale-[1.02] transition-all">
-                    Manage Billing
-                 </button>
+                  <button 
+                    onClick={() => navigate('/profile?tab=billing')}
+                    className="mt-12 w-full py-4 bg-white text-indigo-600 rounded-2xl font-black shadow-2xl hover:scale-[1.02] transition-all active:scale-95"
+                  >
+                     Manage Billing
+                  </button>
                </div>
              </div>
 

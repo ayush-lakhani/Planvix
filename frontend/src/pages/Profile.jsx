@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import {
   TrendingUp,
@@ -22,7 +23,10 @@ const API_BASE = import.meta.env.VITE_API_URL || "";
 
 export default function Profile() {
   const { token, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState("intelligence");
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(
+    searchParams.get("tab") || "intelligence"
+  );
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 

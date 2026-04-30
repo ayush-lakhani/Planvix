@@ -26,7 +26,7 @@ class AnalyticsService:
     # MAIN ANALYTICS PAYLOAD
     # ════════════════════════════════════════════════════════
     async def get_analytics(self) -> dict:
-        cache_key = "admin:analytics:overview"
+        cache_key = "admin:analytics:overview:v2"
         cached = redis_client.get(cache_key)
         if cached:
             try:
@@ -272,7 +272,7 @@ class AnalyticsService:
                 {"name": {"$regex": search, "$options": "i"}},
             ]
         if tier and tier != "all":
-            query["tier"] = tier
+            query["tier"] = {"$regex": f"^{tier}$", "$options": "i"}
 
         total = users_collection.count_documents(query)
         skip = (page - 1) * limit
@@ -313,7 +313,7 @@ class AnalyticsService:
                 "tokens_used": tokens_used,
                 "subscription_status": u.get("subscription_status", "active"),
                 "industry": u.get("industry", ""),
-                "revenue_generated": (PRO_PRICE if u.get("tier") == "pro" else ENT_PRICE if u.get("tier") == "enterprise" else 0),
+                "revenue_generated": (PRO_MONTHLY_PRICE if u.get("tier") == "pro" else ENTERPRISE_MONTHLY_PRICE if u.get("tier") == "enterprise" else 0),
             })
 
         return {"users": result, "total": total, "page": page, "limit": limit, "pages": max(1, -(-total // limit))}
@@ -453,4 +453,5 @@ class AnalyticsService:
         except Exception:
             pass
         return result
+
 analytics_service = AnalyticsService()
