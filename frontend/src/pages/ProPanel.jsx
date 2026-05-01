@@ -59,7 +59,7 @@ export default function ProPanel() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#06070a] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
         <div className="relative w-20 h-20">
           <div className="absolute inset-0 border-4 border-indigo-500/20 rounded-full"></div>
           <div className="absolute inset-0 border-4 border-t-indigo-500 rounded-full animate-spin"></div>
@@ -69,7 +69,7 @@ export default function ProPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#06070a] text-slate-900 dark:text-white pt-24 pb-12 px-4 md:px-8 font-sans selection:bg-indigo-500/30 overflow-hidden transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pt-24 pb-12 px-4 md:px-8 font-sans selection:bg-indigo-500/30 overflow-hidden transition-colors duration-300">
       {/* Background Glows */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px]"></div>

@@ -98,15 +98,15 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
           <div data-aos="fade-right">
-            <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-2">
+            <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-2">
               Welcome back, <span className="text-primary-600">{user?.email?.split("@")[0]}</span>
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 text-lg">
+            <p className="text-slate-600 dark:text-slate-400 text-lg">
               Here's what's happening with your content strategies.
             </p>
           </div>
@@ -163,7 +163,7 @@ export default function Dashboard() {
                 <div className={`p-3 rounded-xl ${stat.bg}`}>
                   <stat.icon className={`w-6 h-6 ${stat.color}`} />
                 </div>
-                <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <span className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   {stat.label}
                 </span>
               </div>
@@ -172,11 +172,11 @@ export default function Dashboard() {
                   <Skeleton variant="title" className="w-20" />
                 ) : (
                   <>
-                    <span className="text-3xl font-black text-gray-900 dark:text-white">
+                    <span className="text-3xl font-black text-slate-900 dark:text-white">
                       {stat.value}
                     </span>
                     {stat.limit && (
-                      <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                      <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                         {stat.limit}
                       </span>
                     )}
@@ -192,7 +192,7 @@ export default function Dashboard() {
           {/* Recent Strategies List */}
           <div className="lg:col-span-2 space-y-6" data-aos="fade-right">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                 Recent Strategies
               </h2>
               <button
@@ -220,13 +220,13 @@ export default function Dashboard() {
                   >
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1 group-hover:text-primary-600 transition-colors">
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1 group-hover:text-primary-600 transition-colors">
                           {strategy.title || "Untitled Strategy"}
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-1">
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-1">
                           {strategy.objective || "No objective defined"}
                         </p>
-                        <div className="flex items-center gap-4 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                        <div className="flex items-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
                           <span className="flex items-center gap-1.5">
                             <Calendar className="w-3.5 h-3.5" />
                             {safeDate(strategy.createdAt)}
@@ -239,7 +239,7 @@ export default function Dashboard() {
                       </div>
                       <button
                         onClick={() => navigate("/history")}
-                        className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl group-hover:bg-primary-600 group-hover:text-white transition-all"
+                        className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl group-hover:bg-primary-600 group-hover:text-white transition-all"
                       >
                         <ArrowRight className="w-5 h-5" />
                       </button>
@@ -247,14 +247,14 @@ export default function Dashboard() {
                   </div>
                 ))
               ) : (
-                <div className="glass-card p-12 rounded-2xl text-center border-2 border-dashed border-gray-300 dark:border-gray-800">
-                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <AlertCircle className="w-8 h-8 text-gray-400" />
+                <div className="glass-card p-12 rounded-2xl text-center border-2 border-dashed border-slate-300 dark:border-slate-800">
+                  <div className="w-16 h-16 bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <AlertCircle className="w-8 h-8 text-slate-400" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
                     No strategies yet
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  <p className="text-slate-600 dark:text-slate-400 mb-6">
                     Start by creating your first AI-powered content strategy.
                   </p>
                   <button
@@ -285,19 +285,19 @@ export default function Dashboard() {
             </div>
 
             {/* Analytics (Coming Soon) */}
-            <div className="glass-card p-6 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 opacity-60" data-aos="fade-left">
+            <div className="glass-card p-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 opacity-60" data-aos="fade-left">
               <div className="flex items-center gap-4 mb-4">
-                <div className="p-3 bg-gray-200 dark:bg-gray-800 rounded-xl">
-                  <BarChart3 className="w-6 h-6 text-gray-500" />
+                <div className="p-3 bg-slate-200 dark:bg-slate-800 rounded-xl">
+                  <BarChart3 className="w-6 h-6 text-slate-500" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                   Analytics Dashboard
                 </h3>
               </div>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-slate-600 dark:text-slate-400 mb-4">
                 Track performance metrics and ROI for your content strategies
               </p>
-              <div className="flex items-center gap-2 text-gray-500 font-medium">
+              <div className="flex items-center gap-2 text-slate-500 font-medium">
                 <span>Coming Soon</span>
               </div>
             </div>
@@ -307,7 +307,7 @@ export default function Dashboard() {
         {/* Recent Activity - If strategies exist */}
         {strategies.length > 0 && (
           <div className="mt-12">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6" data-aos="fade-up">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6" data-aos="fade-up">
               Recent Activity
             </h2>
             <div className="space-y-3">
@@ -322,15 +322,15 @@ export default function Dashboard() {
                   <div className="flex items-center gap-4">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <div className="text-left">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">
                         {strategy.title || "Untitled Strategy"}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         {safeDate(strategy.createdAt)}
                       </p>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-transform" />
                 </button>
               ))}
             </div>

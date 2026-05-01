@@ -13,10 +13,10 @@ import {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 shadow-2xl">
-      <p className="text-slate-400 text-xs mb-1">{label}</p>
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 shadow-2xl">
+      <p className="text-slate-500 dark:text-slate-400 text-xs mb-1">{label}</p>
       {payload.map((p, i) => (
-        <p key={i} className="text-white font-bold text-sm">
+        <p key={i} className="text-slate-900 dark:text-white font-bold text-sm">
           ₹{p.value?.toLocaleString()}
         </p>
       ))}
@@ -35,7 +35,7 @@ export function RevenueLineChart({ data = [] }) {
             <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+        <CartesianGrid strokeDasharray="3 3" stroke={document.documentElement.classList.contains('dark') ? "#1e293b" : "#e2e8f0"} />
         <XAxis
           dataKey="date"
           tick={{ fill: "#64748b", fontSize: 11 }}
@@ -68,9 +68,9 @@ export function RevenueLineChart({ data = [] }) {
 const UserTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 shadow-2xl">
-      <p className="text-slate-400 text-xs mb-1">{label}</p>
-      <p className="text-blue-400 font-bold text-sm">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 shadow-2xl">
+      <p className="text-slate-500 dark:text-slate-400 text-xs mb-1">{label}</p>
+      <p className="text-blue-600 dark:text-blue-400 font-bold text-sm">
         {payload[0]?.value} users
       </p>
     </div>
@@ -88,7 +88,7 @@ export function UserGrowthAreaChart({ data = [] }) {
             <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+        <CartesianGrid strokeDasharray="3 3" stroke={document.documentElement.classList.contains('dark') ? "#1e293b" : "#e2e8f0"} />
         <XAxis
           dataKey="date"
           tick={{ fill: "#64748b", fontSize: 11 }}
@@ -119,7 +119,7 @@ export function UserGrowthAreaChart({ data = [] }) {
 
 function EmptyChart({ label }) {
   return (
-    <div className="h-64 flex items-center justify-center text-slate-500 border-2 border-dashed border-slate-800/60 rounded-2xl">
+    <div className="h-64 flex items-center justify-center text-slate-500 border-2 border-dashed border-slate-200 dark:border-slate-800/60 rounded-2xl">
       <div className="text-center">
         <div className="text-3xl mb-2">📊</div>
         <p className="text-sm">{label}</p>

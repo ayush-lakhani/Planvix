@@ -15,16 +15,16 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#06070a] text-slate-900 dark:text-white selection:bg-[#81ecff]/30 overflow-hidden font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white selection:bg-[#81ecff]/30 overflow-hidden font-sans transition-colors duration-300">
       
       {/* Background Ambient Effects (Aether Flux aesthetic) */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         {/* Top Right Prism Glow */}
-        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-gradient-to-br from-[#81ecff]/20 to-[#6200EE]/20 blur-[120px] rounded-full mix-blend-screen opacity-70"></div>
+        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-gradient-to-br from-cyan-400/10 to-indigo-500/10 dark:from-[#81ecff]/20 dark:to-[#6200EE]/20 blur-[120px] rounded-full dark:mix-blend-screen opacity-70"></div>
         {/* Bottom Left Deep Purple */}
-        <div className="absolute -bottom-60 -left-40 w-[800px] h-[800px] bg-gradient-to-tr from-[#3b00a0]/30 to-transparent blur-[150px] rounded-full mix-blend-screen opacity-80"></div>
+        <div className="absolute -bottom-60 -left-40 w-[800px] h-[800px] bg-gradient-to-tr from-indigo-500/10 dark:from-[#3b00a0]/30 to-transparent blur-[150px] rounded-full dark:mix-blend-screen opacity-80"></div>
         {/* Center Grid */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTAgMzloNDBNMzkgMHY0MCIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPC9zdmc+')] [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]"></div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTAgMzloNDBNMzkgMHY0MCIgc3Ryb2tlPSJyZ2JhKDAsMCwwLDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPC9zdmc+')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTAgMzloNDBNMzkgMHY0MCIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPC9zdmc+')] [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]"></div>
       </div>
 
       <div className="relative z-10 w-full">
@@ -92,7 +92,7 @@ export default function Landing() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Agent 1 */}
-              <div data-aos="fade-up" data-aos-delay="100" className="group relative bg-white/60 dark:bg-[#0d0e12]/60 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-3xl p-8 hover:bg-slate-50/80 dark:hover:bg-[#1a1b23]/80 transition-all duration-500 overflow-hidden shadow-xl dark:shadow-none">
+              <div data-aos="fade-up" data-aos-delay="100" className="glass-card group relative">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 dark:bg-[#81ecff]/10 blur-3xl rounded-full group-hover:bg-cyan-500/20 dark:group-hover:bg-[#81ecff]/20 transition-all"></div>
                 <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center mb-6">
                   <Database className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
@@ -105,7 +105,7 @@ export default function Landing() {
               </div>
 
               {/* Agent 2 */}
-              <div data-aos="fade-up" data-aos-delay="200" className="group relative bg-white/60 dark:bg-[#0d0e12]/60 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-3xl p-8 hover:bg-slate-50/80 dark:hover:bg-[#1a1b23]/80 transition-all duration-500 overflow-hidden shadow-xl dark:shadow-[0_0_30px_rgba(98,0,238,0.1)]">
+              <div data-aos="fade-up" data-aos-delay="200" className="glass-card group relative">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 dark:bg-[#a68cff]/10 blur-3xl rounded-full group-hover:bg-purple-500/20 dark:group-hover:bg-[#a68cff]/20 transition-all"></div>
                 <div className="w-14 h-14 bg-indigo-500/10 dark:bg-[#6200EE]/20 border border-indigo-500/20 dark:border-[#6200EE]/30 rounded-2xl flex items-center justify-center mb-6">
                   <Cpu className="w-7 h-7 text-indigo-600 dark:text-[#a68cff]" />
@@ -118,7 +118,7 @@ export default function Landing() {
               </div>
 
               {/* Agent 3 */}
-              <div data-aos="fade-up" data-aos-delay="300" className="group relative bg-white/60 dark:bg-[#0d0e12]/60 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-3xl p-8 hover:bg-slate-50/80 dark:hover:bg-[#1a1b23]/80 transition-all duration-500 overflow-hidden shadow-xl dark:shadow-none">
+              <div data-aos="fade-up" data-aos-delay="300" className="glass-card group relative">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 blur-3xl rounded-full group-hover:bg-amber-500/20 transition-all"></div>
                 <div className="w-14 h-14 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center mb-6">
                   <Activity className="w-7 h-7 text-amber-600 dark:text-amber-400" />
@@ -139,7 +139,7 @@ export default function Landing() {
             <div className="bg-gradient-to-br from-white to-slate-50 dark:from-[#12131a] dark:to-[#0a0b0f] border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden shadow-2xl">
               
               {/* Metric Background flare */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-indigo-500/10 dark:bg-[#6200EE]/20 blur-[100px] rounded-[100%] pointer-events-none mix-blend-screen"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-indigo-500/5 dark:bg-[#6200EE]/20 blur-[100px] rounded-[100%] pointer-events-none mix-blend-screen"></div>
 
               <div className="w-full md:w-1/2 relative z-10" data-aos="fade-right">
                 <h2 className="text-3xl md:text-5xl font-black mb-6 text-slate-900 dark:text-white">Unprecedented <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-500 dark:from-emerald-400 dark:to-[#81ecff]">Velocity</span></h2>
@@ -164,7 +164,7 @@ export default function Landing() {
               </div>
 
               <div className="w-full md:w-1/2 relative z-10" data-aos="fade-left">
-                <div className="bg-white/80 dark:bg-[#0d0e12]/80 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-3xl p-8 shadow-xl dark:shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
+                <div className="glass-card shadow-2xl">
                    <div className="flex items-center justify-between mb-6">
                      <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Average ROI</span>
                      <span className="flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 px-2 py-1 rounded-md">

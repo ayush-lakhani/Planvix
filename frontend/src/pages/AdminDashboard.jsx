@@ -139,9 +139,9 @@ export default function EnterpriseAdminDashboard() {
   const sparkUsers = (analytics?.user_growth || []).slice(-7).map((r) => ({ v: r.users }));
 
   return (
-    <div className="animate-stripe-page min-h-screen text-slate-900 dark:text-white font-sans bg-slate-50 dark:bg-[#020817] transition-colors duration-300">
+    <div className="animate-stripe-page min-h-screen text-slate-900 dark:text-white font-sans bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       {/* ── HEADER ─────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800/60 bg-white/80 dark:bg-[#020817]/85 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800/60 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -161,14 +161,14 @@ export default function EnterpriseAdminDashboard() {
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
             <input
               placeholder="Search users, strategies..."
-              className="w-full pl-9 pr-4 py-2 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl text-sm text-slate-900 dark:text-slate-300 placeholder:text-slate-500 dark:placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all"
+              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-xl text-sm text-slate-900 dark:text-slate-300 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all"
               onKeyDown={(e) => { if (e.key === "Enter") { setSearch(e.target.value); setTab("users"); loadUsers(); } }}
             />
           </div>
           {/* Right cluster */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             {/* WS indicator - hidden on mobile */}
-            <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50">
+            <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50">
               <div
                 className={`w-1.5 h-1.5 rounded-full ${wsConnected ? "bg-emerald-500 animate-pulse" : "bg-slate-600"}`}
               />
@@ -265,7 +265,7 @@ export default function EnterpriseAdminDashboard() {
           backdropFilter: "blur(20px)",
         }}
       >
-        <div className={`max-w-[1600px] mx-auto px-6 ${document.documentElement.classList.contains('dark') ? 'bg-[#020817]/80' : 'bg-white/80'}`}>
+        <div className="max-w-[1600px] mx-auto px-6 bg-white/80 dark:bg-slate-950/80">
           <div className="flex gap-0 overflow-x-auto scrollbar-none">
             {TABS.map((t) => {
               const Icon = t.icon;
@@ -421,31 +421,31 @@ export default function EnterpriseAdminDashboard() {
             <div className="flex flex-wrap gap-3 items-center">
               <div className="relative flex-1 min-w-[220px] max-w-sm">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && (setPage(1), loadUsers())
-                  }
-                  placeholder="Search by email or name…"
-                  className="w-full pl-9 pr-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all"
-                />
-              </div>
-              <select
-                value={tierFilter}
-                onChange={(e) => {
-                  setTierFilter(e.target.value);
-                  setPage(1);
-                }}
-                className="px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-slate-300 text-sm focus:outline-none focus:border-emerald-500/50"
-              >
+                  <input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && (setPage(1), loadUsers())
+                    }
+                    placeholder="Search by email or name…"
+                    className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-xl text-sm text-slate-900 dark:text-slate-300 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all"
+                  />
+                </div>
+                <select
+                  value={tierFilter}
+                  onChange={(e) => {
+                    setTierFilter(e.target.value);
+                    setPage(1);
+                  }}
+                  className="px-4 py-2.5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-xl text-slate-900 dark:text-slate-300 text-sm focus:outline-none focus:border-emerald-500/50"
+                >
                 <option value="all">All Users</option>
                 <option value="free">Free Users</option>
                 <option value="pro">All Pro Users</option>
               </select>
               <button
                 onClick={loadUsers}
-                className="px-4 py-2.5 bg-slate-800/70 hover:bg-slate-700 border border-slate-700/50 text-slate-300 rounded-xl text-sm transition-all flex items-center gap-2"
+                className="px-4 py-2.5 bg-white dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 rounded-xl text-sm transition-all flex items-center gap-2"
               >
                 <Filter className="w-4 h-4" /> Apply
               </button>
@@ -461,11 +461,11 @@ export default function EnterpriseAdminDashboard() {
             </div>
 
             {/* Table */}
-            <div className="bg-slate-900/60 border border-slate-800/50 rounded-2xl overflow-hidden backdrop-blur-xl">
+            <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/50 rounded-2xl overflow-hidden backdrop-blur-xl">
               <div className="overflow-x-auto -mx-4 sm:mx-0">
                 <table className="w-full text-left min-w-[600px]">
                   <thead>
-                    <tr className="border-b border-slate-800/80 bg-slate-900/80">
+                    <tr className="border-b border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/80">
                       {[
                         "User",
                         "Tier",
@@ -506,7 +506,7 @@ export default function EnterpriseAdminDashboard() {
                       users.users.map((u, i) => (
                         <tr
                           key={i}
-                          className="hover:bg-slate-800/30 transition-all group"
+                          className="hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-all group"
                         >
                           <td className="px-3 sm:px-5 py-3 sm:py-4">
                             <div className="flex items-center gap-3">
@@ -514,7 +514,7 @@ export default function EnterpriseAdminDashboard() {
                                 {u.email?.[0]?.toUpperCase()}
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-slate-200">
+                                <p className="text-sm font-medium text-slate-900 dark:text-slate-200">
                                   {u.name || u.email?.split("@")[0]}
                                 </p>
                                 <p className="text-xs text-slate-500 hidden sm:block">
@@ -526,13 +526,13 @@ export default function EnterpriseAdminDashboard() {
                           <td className="px-3 sm:px-5 py-3 sm:py-4">
                             <TierBadge tier={u.tier} />
                           </td>
-                          <td className="px-3 sm:px-5 py-3 sm:py-4 text-slate-300 text-sm font-mono">
+                          <td className="px-3 sm:px-5 py-3 sm:py-4 text-slate-700 dark:text-slate-300 text-sm font-mono">
                             {u.strategies_count}
                           </td>
-                          <td className="px-3 sm:px-5 py-3 sm:py-4 text-slate-300 text-sm font-mono">
+                          <td className="px-3 sm:px-5 py-3 sm:py-4 text-slate-700 dark:text-slate-300 text-sm font-mono">
                             {u.usage_count}
                           </td>
-                          <td className="px-3 sm:px-5 py-3 sm:py-4 text-slate-300 text-sm font-mono">
+                          <td className="px-3 sm:px-5 py-3 sm:py-4 text-slate-700 dark:text-slate-300 text-sm font-mono">
                             {u.tokens_used >= 1000
                               ? `${(u.tokens_used / 1000).toFixed(1)}K`
                               : u.tokens_used}
@@ -682,12 +682,12 @@ export default function EnterpriseAdminDashboard() {
                   ].map((tier) => (
                     <div
                       key={tier.name}
-                      className="flex items-center justify-between p-4 bg-slate-800/40 rounded-2xl border border-slate-700/30"
+                      className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700/30"
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-3 h-3 rounded-full ${tier.color}`} />
                         <div>
-                          <p className="text-sm font-semibold text-white">
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
                             {tier.name}
                           </p>
                           <p className="text-xs text-slate-500">
@@ -1059,11 +1059,11 @@ export default function EnterpriseAdminDashboard() {
 ══════════════════════════════════════════════════════════════ */
 function GlassCard({ title, subtitle, icon, children }) {
   return (
-    <div className="bg-slate-900/60 border border-slate-800/50 rounded-2xl p-6 backdrop-blur-xl">
+    <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/50 rounded-2xl p-6 backdrop-blur-xl">
       <div className="flex items-center gap-2 mb-5">
         {icon && <div className="shrink-0">{icon}</div>}
         <div>
-          <h3 className="text-sm font-semibold text-slate-200">{title}</h3>
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{title}</h3>
           {subtitle && <p className="text-xs text-slate-500">{subtitle}</p>}
         </div>
       </div>
@@ -1074,9 +1074,9 @@ function GlassCard({ title, subtitle, icon, children }) {
 
 function TierBadge({ tier }) {
   const map = {
-    pro: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    enterprise: "bg-violet-500/10  text-violet-400  border-violet-500/20",
-    free: "bg-slate-700/40   text-slate-400   border-slate-600/30",
+    pro: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    enterprise: "bg-violet-500/10  text-violet-600  dark:text-violet-400  border-violet-500/20",
+    free: "bg-slate-200 dark:bg-slate-700/40   text-slate-600 dark:text-slate-400   border-slate-300 dark:border-slate-600/30",
   };
   return (
     <span
@@ -1092,26 +1092,26 @@ function HealthCard({ label, status, latency, metric, loading, icon }) {
     healthy: {
       bg: "bg-emerald-500/10 border-emerald-500/30",
       dot: "bg-emerald-500",
-      text: "text-emerald-400",
-      badge: "text-emerald-400",
+      text: "text-emerald-600 dark:text-emerald-400",
+      badge: "text-emerald-600 dark:text-emerald-400",
     },
     warning: {
       bg: "bg-amber-500/10  border-amber-500/30",
       dot: "bg-amber-500",
-      text: "text-amber-400",
-      badge: "text-amber-400",
+      text: "text-amber-600 dark:text-amber-400",
+      badge: "text-amber-600 dark:text-amber-400",
     },
     error: {
       bg: "bg-red-500/10    border-red-500/30",
       dot: "bg-red-500",
-      text: "text-red-400",
-      badge: "text-red-400",
+      text: "text-red-600 dark:text-red-400",
+      badge: "text-red-600 dark:text-red-400",
     },
     disabled: {
-      bg: "bg-slate-800/40  border-slate-700/30",
-      dot: "bg-slate-600",
-      text: "text-slate-400",
-      badge: "text-slate-400",
+      bg: "bg-slate-200 dark:bg-slate-800/40  border-slate-300 dark:border-slate-700/30",
+      dot: "bg-slate-500 dark:bg-slate-600",
+      text: "text-slate-600 dark:text-slate-400",
+      badge: "text-slate-600 dark:text-slate-400",
     },
   };
   const s =
@@ -1126,7 +1126,7 @@ function HealthCard({ label, status, latency, metric, loading, icon }) {
 
   if (loading)
     return (
-      <div className="p-4 sm:p-5 rounded-2xl border border-slate-800/50 bg-slate-900/60 h-[100px] flex flex-col justify-between">
+      <div className="p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/60 h-[100px] flex flex-col justify-between">
         <div className="flex justify-between items-center">
           <Skeleton variant="avatar" className="w-6 h-6" />
           <Skeleton variant="circle" className="w-2 h-2" />
@@ -1142,7 +1142,7 @@ function HealthCard({ label, status, latency, metric, loading, icon }) {
       <div className="flex items-center justify-between mb-2 sm:mb-3">
         <div className={`flex items-center gap-2 ${c.text}`}>
           {icon}
-          <span className="text-xs sm:text-sm font-semibold text-slate-200">{label}</span>
+          <span className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">{label}</span>
         </div>
         <div className={`w-2 h-2 rounded-full ${c.dot} animate-pulse`} />
       </div>

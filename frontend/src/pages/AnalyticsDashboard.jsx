@@ -169,13 +169,13 @@ export default function AnalyticsDashboard() {
 
   if (!hasAnalyticsAccess) {
     return (
-      <div className="min-h-[calc(100vh-3.5rem)] bg-slate-50 dark:bg-[#0d0e12] flex items-center justify-center p-6 relative overflow-hidden font-sans pt-24 transition-colors duration-300">
+      <div className="min-h-[calc(100vh-3.5rem)] bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden font-sans pt-24 transition-colors duration-300">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-500/10 dark:bg-[#6200EE]/20 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-cyan-500/10 dark:bg-[#81ecff]/20 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="max-w-xl w-full text-center relative z-10 animate-fade-in">
-          <div className="bg-white/60 dark:bg-[#121318]/60 backdrop-blur-2xl border border-indigo-200 dark:border-[#a68cff]/20 rounded-[2rem] p-10 shadow-xl dark:shadow-[0_20px_60px_rgba(98,0,238,0.2)]">
-            <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-[#1e1f25] dark:to-[#0d0e12] rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner border border-slate-200 dark:border-white/5 relative group">
+          <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border border-indigo-200 dark:border-[#a68cff]/20 rounded-[2rem] p-10 shadow-xl dark:shadow-[0_20px_60px_rgba(98,0,238,0.2)]">
+            <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-900 dark:to-slate-950 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner border border-slate-200 dark:border-white/5 relative group">
               <div className="absolute inset-0 bg-[#6200EE]/20 rounded-2xl blur-md group-hover:blur-xl transition-all" />
               <Lock className="w-10 h-10 text-[#81ecff] relative z-10 drop-shadow-[0_0_10px_rgba(129,236,255,0.8)]" />
             </div>
@@ -204,7 +204,7 @@ export default function AnalyticsDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#06070a] text-slate-900 dark:text-white p-6 md:p-12 relative overflow-hidden font-sans pt-24 transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-6 md:p-12 relative overflow-hidden font-sans pt-24 transition-colors duration-300">
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/5 dark:bg-[#6200EE]/10 rounded-full blur-[150px] -translate-y-1/3 translate-x-1/3 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/5 dark:bg-[#81ecff]/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -226,7 +226,7 @@ export default function AnalyticsDashboard() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <div className="bg-white/80 dark:bg-[#18191e]/80 backdrop-blur-md rounded-2xl p-1.5 border border-slate-200 dark:border-white/5 flex text-sm font-bold text-slate-500 dark:text-gray-400 shadow-xl dark:shadow-2xl">
+            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-1.5 border border-slate-200 dark:border-white/5 flex text-sm font-bold text-slate-500 dark:text-gray-400 shadow-xl dark:shadow-2xl">
               {RANGE_OPTIONS.map((days) => (
                 <button
                   key={days}
@@ -330,7 +330,7 @@ export default function AnalyticsDashboard() {
                   <div className="h-[320px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={usageHistory}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#33415533" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={document.documentElement.classList.contains('dark') ? "#33415533" : "#e2e8f0"} />
                         <XAxis
                           dataKey="date"
                           axisLine={false}
@@ -339,7 +339,7 @@ export default function AnalyticsDashboard() {
                           tickFormatter={formatAxisDate}
                         />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} allowDecimals={false} />
-                        <Tooltip content={<CustomTooltip />} cursor={{ fill: "#ffffff08" }} />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: document.documentElement.classList.contains('dark') ? "#ffffff08" : "#00000008" }} />
                         <Bar dataKey="strategies" name="Strategies" radius={[6, 6, 0, 0]}>
                           {usageHistory.map((_, index) => (
                             <Cell key={index} fill={CHART_COLORS[index % CHART_COLORS.length]} />
@@ -368,7 +368,7 @@ export default function AnalyticsDashboard() {
                             <stop offset="95%" stopColor="#ec4899" stopOpacity={0.03} />
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#33415533" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={document.documentElement.classList.contains('dark') ? "#33415533" : "#e2e8f0"} />
                         <XAxis
                           dataKey="date"
                           axisLine={false}
@@ -406,7 +406,7 @@ export default function AnalyticsDashboard() {
                   <div className="h-[320px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart layout="vertical" data={topIndustries}>
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#33415533" />
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={document.documentElement.classList.contains('dark') ? "#33415533" : "#e2e8f0"} />
                         <XAxis type="number" hide />
                         <YAxis
                           dataKey="industry"
@@ -416,7 +416,7 @@ export default function AnalyticsDashboard() {
                           tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }}
                           width={110}
                         />
-                        <Tooltip content={<CustomTooltip />} cursor={{ fill: "#ffffff08" }} />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: document.documentElement.classList.contains('dark') ? "#ffffff08" : "#00000008" }} />
                         <Bar dataKey="count" name="Strategies" radius={[0, 6, 6, 0]}>
                           {topIndustries.map((_, index) => (
                             <Cell key={index} fill={CHART_COLORS[index % CHART_COLORS.length]} />
@@ -485,7 +485,7 @@ function StatCard({ title, value, helper, icon: Icon, tone }) {
   };
 
   return (
-    <div className="rounded-[2rem] border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-[#121318]/40 p-8 shadow-xl backdrop-blur-3xl">
+    <div className="rounded-[2rem] border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-slate-900/40 p-8 shadow-xl backdrop-blur-3xl">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <p className="mb-2 text-sm font-bold uppercase tracking-wider text-slate-500">{title}</p>
@@ -502,7 +502,7 @@ function StatCard({ title, value, helper, icon: Icon, tone }) {
 
 function PanelCard({ title, subtitle, icon, children, className = "" }) {
   return (
-    <div className={`rounded-[2rem] border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-[#121318]/40 p-8 shadow-xl backdrop-blur-3xl ${className}`}>
+    <div className={`rounded-[2rem] border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-slate-900/40 p-8 shadow-xl backdrop-blur-3xl ${className}`}>
       <div className="mb-6 flex items-center gap-3">
         {icon && <div>{icon}</div>}
         <div>

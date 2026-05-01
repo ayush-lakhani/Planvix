@@ -25,7 +25,7 @@ export default function AgentTerminal({ logs, loading }) {
 
       <div
         ref={terminalRef}
-        className="flex-1 bg-slate-900 dark:bg-slate-950 border border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.08)] rounded-xl p-4 overflow-y-auto font-mono text-sm"
+        className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.08)] rounded-xl p-4 overflow-y-auto font-mono text-sm"
       >
         {logs.length === 0 ? (
           <p className="text-gray-500 italic">Waiting for input...</p>
@@ -37,18 +37,18 @@ export default function AgentTerminal({ logs, loading }) {
                   <span
                     className={`font-bold cursor-help ${
                       log.type === "error"
-                        ? "text-red-400"
+                        ? "text-red-600 dark:text-red-400"
                         : log.type === "success"
-                          ? "text-green-400"
+                          ? "text-green-600 dark:text-green-400"
                           : log.type === "agent"
-                            ? "text-cyan-400"
-                            : "text-yellow-400"
+                            ? "text-cyan-600 dark:text-cyan-400"
+                            : "text-amber-600 dark:text-yellow-400"
                     }`}
                   >
                     [{log.agent}]
                   </span>
                 </Tooltip>
-                <span className="text-gray-300 ml-2">{log.message}</span>
+                <span className="text-slate-700 dark:text-gray-300 ml-2">{log.message}</span>
               </div>
             ))}
             {loading && (

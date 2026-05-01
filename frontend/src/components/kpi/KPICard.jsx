@@ -25,43 +25,43 @@ export function KPICard({
     emerald: {
       glow: "from-emerald-500/20 to-emerald-600/10",
       border: "border-emerald-500/20",
-      text: "text-emerald-400",
-      badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+      text: "text-emerald-600 dark:text-emerald-400",
+      badge: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
       spark: "#10b981",
     },
     blue: {
       glow: "from-blue-500/20 to-blue-600/10",
       border: "border-blue-500/20",
-      text: "text-blue-400",
-      badge: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+      text: "text-blue-600 dark:text-blue-400",
+      badge: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
       spark: "#3b82f6",
     },
     violet: {
       glow: "from-violet-500/20 to-violet-600/10",
       border: "border-violet-500/20",
-      text: "text-violet-400",
-      badge: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+      text: "text-violet-600 dark:text-violet-400",
+      badge: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
       spark: "#8b5cf6",
     },
     amber: {
       glow: "from-amber-500/20 to-amber-600/10",
       border: "border-amber-500/20",
-      text: "text-amber-400",
-      badge: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+      text: "text-amber-600 dark:text-amber-400",
+      badge: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
       spark: "#f59e0b",
     },
     rose: {
       glow: "from-rose-500/20 to-rose-600/10",
       border: "border-rose-500/20",
-      text: "text-rose-400",
-      badge: "bg-rose-500/10 text-rose-400 border-rose-500/20",
+      text: "text-rose-600 dark:text-rose-400",
+      badge: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
       spark: "#f43f5e",
     },
     cyan: {
       glow: "from-cyan-500/20 to-cyan-600/10",
       border: "border-cyan-500/20",
-      text: "text-cyan-400",
-      badge: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+      text: "text-cyan-600 dark:text-cyan-400",
+      badge: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
       spark: "#06b6d4",
     },
   };
@@ -69,7 +69,7 @@ export function KPICard({
 
   if (loading) {
     return (
-      <div className="p-6 rounded-3xl border border-slate-800/50 bg-slate-900/60 h-[180px] flex flex-col justify-between">
+      <div className="p-6 rounded-3xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/60 h-[180px] flex flex-col justify-between">
         <div className="flex justify-between items-start">
           <Skeleton variant="avatar" className="w-12 h-12" />
           <Skeleton variant="avatar" className="w-16 h-6" />
@@ -84,8 +84,8 @@ export function KPICard({
 
   return (
     <div
-      className="group relative p-6 rounded-3xl border border-slate-800/50 bg-gradient-to-br from-slate-900/90 to-slate-950/60
-      hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 backdrop-blur-xl overflow-hidden cursor-default"
+      className="group relative p-6 rounded-3xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-gradient-to-br dark:from-slate-900/90 dark:to-slate-950/60
+      shadow-sm hover:shadow-xl dark:shadow-none dark:hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 backdrop-blur-xl overflow-hidden cursor-default"
     >
       {/* Glow */}
       <div
@@ -117,8 +117,8 @@ export function KPICard({
 
       {/* Value */}
       <div className="relative mb-1">
-        <span className="text-slate-400 text-xs font-medium">{prefix}</span>
-        <span className="text-3xl font-black text-white tabular-nums">
+        <span className="text-slate-500 dark:text-slate-400 text-xs font-medium">{prefix}</span>
+        <span className="text-3xl font-black text-slate-900 dark:text-white tabular-nums">
           <CountUp
             end={typeof value === "number" ? value : 0}
             duration={1.5}
@@ -127,10 +127,10 @@ export function KPICard({
           />
         </span>
         {suffix && (
-          <span className="text-slate-400 text-sm ml-1">{suffix}</span>
+          <span className="text-slate-500 dark:text-slate-400 text-sm ml-1">{suffix}</span>
         )}
       </div>
-      <p className="text-slate-400 font-medium text-sm relative">{title}</p>
+      <p className="text-slate-600 dark:text-slate-400 font-medium text-sm relative">{title}</p>
 
       {/* Sparkline */}
       {sparkline.length > 1 && (

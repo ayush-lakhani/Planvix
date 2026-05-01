@@ -37,7 +37,7 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 h-14 bg-slate-950/70 backdrop-blur-md border-b border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all duration-300">
+    <nav className="sticky top-0 z-50 h-14 bg-white/80 dark:bg-slate-950/70 backdrop-blur-md border-b border-slate-200 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full w-full">
           {/* Logo Section - Elite Compact */}
@@ -47,7 +47,7 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
               className="flex items-center gap-3 group transition-opacity hover:opacity-90"
             >
               <PrismPlannerLogo size="md" />
-              <span className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-[#a68cff] tracking-tight hidden sm:block mt-1">
+              <span className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-primary-600 dark:from-white dark:to-[#a68cff] tracking-tight hidden sm:block mt-1">
                 planvIx
               </span>
             </Link>
@@ -70,8 +70,8 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
                   <div
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200 ease-in-out ${
                       active
-                        ? "bg-white/5 text-white"
-                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                        ? "bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white"
+                        : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
                     }`}
                   >
                     <Icon
@@ -99,7 +99,7 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
           <div className="flex items-center gap-4">
             {/* User Credentials - High End Tier Display */}
             <div className="hidden sm:flex flex-col items-end">
-              <span className="text-[11px] font-semibold text-slate-200 leading-none mb-1">
+              <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-200 leading-none mb-1">
                 {user?.email}
               </span>
               {user?.tier === "pro" ? (
@@ -110,8 +110,8 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
                   </span>
                 </div>
               ) : (
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-800 border border-slate-700 rounded-full">
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full">
+                  <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                     Standard Layer
                   </span>
                 </div>
@@ -121,10 +121,10 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
             {/* Tactical Menu Toggle with Dropdown */}
             <Dropdown
               placement="bottom-end"
-              className="bg-slate-950/95 backdrop-blur-xl border border-white/10 p-1.5 w-52 mt-2"
+              className="bg-white dark:bg-slate-950/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 p-1.5 w-52 mt-2"
               trigger={
                 <button
-                  className="w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 border bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800/80"
+                  className="w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 border bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80"
                 >
                   <Menu className="w-4 h-4" />
                 </button>
@@ -141,8 +141,8 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
                       to={link.path}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
                         active
-                          ? "bg-white/5 text-primary-400"
-                          : "text-slate-400 hover:bg-white/5 hover:text-white"
+                          ? "bg-slate-100 dark:bg-white/5 text-primary-600 dark:text-primary-400"
+                          : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -157,7 +157,7 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
               <div className="space-y-0.5">
                 <button
                   onClick={toggleDarkMode}
-                  className="w-full h-10 flex items-center gap-3 px-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white focus:outline-none transition-all text-sm font-bold uppercase tracking-wide"
+                  className="w-full h-10 flex items-center gap-3 px-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white focus:outline-none transition-all text-sm font-bold uppercase tracking-wide"
                 >
                   {darkMode ? (
                     <Sun className="w-4 h-4" />
@@ -168,7 +168,7 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
                 </button>
                 <Link
                   to="/profile"
-                  className="h-10 flex items-center gap-3 px-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white focus:outline-none transition-all text-sm font-bold uppercase tracking-wide"
+                  className="h-10 flex items-center gap-3 px-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white focus:outline-none transition-all text-sm font-bold uppercase tracking-wide"
                 >
                   <User className="w-4 h-4" />
                   <span>User Profile</span>
@@ -187,10 +187,10 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
           </>
         ) : (
             <div className="flex items-center gap-4">
-               <button onClick={toggleDarkMode} className="text-slate-400 hover:text-white transition-colors">
+               <button onClick={toggleDarkMode} className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                   {darkMode ? <Sun className="w-5 h-5"/> : <Moon className="w-5 h-5"/>}
                </button>
-               <Link to="/login" className="text-sm font-bold text-slate-300 hover:text-white transition-colors">Log In</Link>
+               <Link to="/login" className="text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Log In</Link>
                <Link to="/signup" className="bg-gradient-to-r from-[#6200EE] to-[#3b00a0] text-white px-5 py-2 rounded-xl text-sm font-bold hover:shadow-[0_0_15px_rgba(98,0,238,0.5)] transition-all">Get Started</Link>
             </div>
           )}

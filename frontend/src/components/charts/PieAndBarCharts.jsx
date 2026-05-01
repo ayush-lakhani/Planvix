@@ -27,9 +27,9 @@ const BAR_COLORS = [
 const PieTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 shadow-2xl">
-      <p className="text-white font-bold capitalize">{payload[0]?.name}</p>
-      <p className="text-slate-300 text-sm">{payload[0]?.value} users</p>
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 shadow-2xl">
+      <p className="text-slate-900 dark:text-white font-bold capitalize">{payload[0]?.name}</p>
+      <p className="text-slate-600 dark:text-slate-300 text-sm">{payload[0]?.value} users</p>
       <p className="text-slate-400 text-xs">
         {payload[0]?.payload?.percent?.toFixed(1)}%
       </p>
@@ -51,7 +51,7 @@ export function TierDistributionPieChart({ data = {} }) {
 
   if (!total)
     return (
-      <div className="h-56 flex items-center justify-center text-slate-500 border-2 border-dashed border-slate-800/60 rounded-2xl">
+      <div className="h-56 flex items-center justify-center text-slate-500 border-2 border-dashed border-slate-200 dark:border-slate-800/60 rounded-2xl">
         <p className="text-sm">No user tier data</p>
       </div>
     );
@@ -78,7 +78,7 @@ export function TierDistributionPieChart({ data = {} }) {
         <Tooltip content={<PieTooltip />} isAnimationActive={false} />
         <Legend
           formatter={(v) => (
-            <span className="text-slate-300 text-sm capitalize">{v}</span>
+            <span className="text-slate-600 dark:text-slate-300 text-sm capitalize">{v}</span>
           )}
           iconType="circle"
           iconSize={8}
@@ -91,9 +91,9 @@ export function TierDistributionPieChart({ data = {} }) {
 const BarTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 shadow-2xl">
-        <p className="text-slate-400 text-xs mb-1">{label}</p>
-        <p className="text-emerald-400 font-bold text-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 shadow-2xl">
+        <p className="text-slate-500 dark:text-slate-400 text-xs mb-1">{label}</p>
+        <p className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">
           {payload[0].value} users
         </p>
       </div>
@@ -105,7 +105,7 @@ const BarTooltip = ({ active, payload, label }) => {
 export function IndustryBarChart({ data = [] }) {
   if (!data.length)
     return (
-      <div className="h-56 flex items-center justify-center text-slate-500 border-2 border-dashed border-slate-800/60 rounded-2xl">
+      <div className="h-56 flex items-center justify-center text-slate-500 border-2 border-dashed border-slate-200 dark:border-slate-800/60 rounded-2xl">
         <p className="text-sm">No industry data yet</p>
       </div>
     );
@@ -122,7 +122,7 @@ export function IndustryBarChart({ data = [] }) {
         >
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="#1e293b"
+            stroke={document.documentElement.classList.contains('dark') ? "#1e293b" : "#e2e8f0"}
             horizontal={false}
           />
           <XAxis
@@ -164,7 +164,7 @@ export function IndustryBarChart({ data = [] }) {
 export function AITokenTrendChart({ data = [] }) {
   if (!data.length)
     return (
-      <div className="h-56 flex items-center justify-center text-slate-500 border-2 border-dashed border-slate-800/60 rounded-2xl">
+      <div className="h-56 flex items-center justify-center text-slate-500 border-2 border-dashed border-slate-200 dark:border-slate-800/60 rounded-2xl">
         <p className="text-sm">No AI usage data yet</p>
       </div>
     );
@@ -172,7 +172,7 @@ export function AITokenTrendChart({ data = [] }) {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+        <CartesianGrid strokeDasharray="3 3" stroke={document.documentElement.classList.contains('dark') ? "#1e293b" : "#e2e8f0"} />
         <XAxis
           dataKey="date"
           tick={{ fill: "#64748b", fontSize: 11 }}
@@ -188,12 +188,12 @@ export function AITokenTrendChart({ data = [] }) {
         />
         <Tooltip
           contentStyle={{
-            background: "#0f172a",
-            border: "1px solid #334155",
+            background: document.documentElement.classList.contains('dark') ? "#0f172a" : "#ffffff",
+            border: document.documentElement.classList.contains('dark') ? "1px solid #334155" : "1px solid #e2e8f0",
             borderRadius: "12px",
           }}
           labelStyle={{ color: "#94a3b8", fontSize: "11px" }}
-          itemStyle={{ color: "#a78bfa" }}
+          itemStyle={{ color: "#8b5cf6" }}
           isAnimationActive={false}
         />
         <Bar

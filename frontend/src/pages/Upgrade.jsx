@@ -168,7 +168,7 @@ export default function UpgradePage() {
   // PRO USER - Show success dashboard access
   if (user?.tier === "pro") {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120] flex flex-col items-center pt-24 pb-12 px-4 relative overflow-hidden">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center pt-24 pb-12 px-4 relative overflow-hidden">
         {/* Abstract Background for Premium Feel */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-600/10 dark:to-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -232,7 +232,7 @@ export default function UpgradePage() {
 
   // FREE USER - Show upgrade
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120] pb-24 px-4 overflow-x-hidden relative">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-24 px-4 overflow-x-hidden relative">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-indigo-500/10 dark:bg-indigo-600/10 rounded-full blur-[120px]"></div>
@@ -261,7 +261,7 @@ export default function UpgradePage() {
         <div className="grid lg:grid-cols-5 gap-8 max-w-5xl mx-auto items-center">
           
           {/* FREE PLAN */}
-          <div className="lg:col-span-2 rounded-[2.5rem] p-8 md:p-10 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 shadow-xl dark:shadow-none flex flex-col relative transition-all duration-300 h-[90%]">
+          <div className="lg:col-span-2 rounded-[2.5rem] p-8 md:p-10 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 shadow-xl dark:shadow-none flex flex-col relative transition-all duration-300 h-[90%]">
             <div className="mb-8">
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Starter</h3>
               <div className="flex items-baseline gap-1 mb-3">

@@ -14,8 +14,8 @@
     @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl;
   }
 
-  .glass-card {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300;
+  .glass-card-base {
+    @apply backdrop-blur-lg border rounded-3xl p-8 transition-all duration-300;
   }
 
   /* Conversion-Optimized Buttons */
@@ -211,14 +211,16 @@
 
 @layer base {
   body {
-    background: linear-gradient(-45deg, #f0f4ff, #e0e7ff, #f3e8ff, #fce7f3);
+    @apply bg-slate-50 text-slate-900 transition-colors duration-300;
+    background-image: linear-gradient(-45deg, #f0f4ff, #e0e7ff, #f3e8ff, #fce7f3);
     background-size: 400% 400%;
     animation: gradientShift 15s ease infinite;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
   .dark body {
-    background: linear-gradient(-45deg, #0f172a, #1e1b4b, #581c87, #831843);
+    @apply bg-slate-950 text-white;
+    background-image: linear-gradient(-45deg, #020617, #0f172a, #1e1b4b, #312e81);
     background-size: 400% 400%;
     animation: gradientShift 15s ease infinite;
   }
@@ -451,9 +453,9 @@
 
 @layer components {
 
-  /* Premium glassmorphism card */
+  /* Premium glassmorphism card - Consolidated */
   .glass-card {
-    @apply bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-800/50 rounded-2xl shadow-xl;
+    @apply bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 rounded-3xl p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-300;
   }
 
   /* Premium gradient button */
@@ -1499,10 +1501,27 @@
 }
 
 .skeleton {
-  background: linear-gradient(90deg,
-      #1e293b 25%,
-      #334155 50%,
-      #1e293b 75%);
-  background-size: 400px 100%;
+  @apply bg-slate-200 dark:bg-slate-800/60 relative overflow-hidden;
+}
+
+.skeleton::after {
+  content: "";
+  @apply absolute inset-0;
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
 }
+
+.dark .skeleton::after {
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 75%
+  );
+}

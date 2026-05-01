@@ -156,7 +156,7 @@ export function EtherealArchitectLogo({ size = 'md' }) {
       <div className="absolute inset-[-20%] rounded-full bg-gradient-to-br from-[#81ecff]/40 to-[#6200EE]/40 blur-2xl group-hover:blur-3xl transition-all duration-700"></div>
       
       {/* Glassmorphic Base */}
-      <div className="absolute inset-0 rounded-2xl bg-[#0d0e12]/80 backdrop-blur-xl border border-white/10 shadow-[0_0_20px_rgba(98,0,238,0.4)] flex items-center justify-center transform group-hover:scale-105 transition-transform duration-500">
+      <div className="absolute inset-0 rounded-2xl bg-slate-950/80 backdrop-blur-xl border border-white/10 shadow-[0_0_20px_rgba(98,0,238,0.4)] flex items-center justify-center transform group-hover:scale-105 transition-transform duration-500">
         
         {/* Inner glowing element */}
         <div className="absolute inset-[2px] rounded-xl bg-gradient-to-br from-[#9ba8ff]/20 to-transparent"></div>
