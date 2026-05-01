@@ -28,7 +28,7 @@ import {
   ENTERPRISE_MONTHLY_PRICE,
 } from "../constants/pricing";
 import { safeDate } from "../utils/dateUtils";
-import Skeleton from "../components/ui/Skeleton";
+import Skeleton from "../components/ui/skeleton";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: BarChart3 },

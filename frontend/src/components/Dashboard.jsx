@@ -14,7 +14,7 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import { strategyAPI } from "../api";
 import { safeDate } from "../utils/dateUtils";
-import Skeleton from "./ui/Skeleton";
+import Skeleton from "./ui/skeleton";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 

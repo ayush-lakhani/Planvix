@@ -14,7 +14,7 @@ import { safeDate } from "../utils/dateUtils";
 import StrategyResults from "./StrategyResults";
 import { alertUtils } from "../utils/alertUtils";
 import Dropdown from "./ui/Dropdown";
-import Skeleton from "./ui/Skeleton";
+import Skeleton from "./ui/skeleton";
 
 export default function History() {
   const [strategies, setStrategies] = useState([]);

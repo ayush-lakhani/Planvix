@@ -1,6 +1,7 @@
 import CountUp from "react-countup";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import Skeleton from "../ui/skeleton";
 
 /**
  * Enterprise KPI Card — animated counter, growth badge, sparkline
@@ -68,10 +69,15 @@ export function KPICard({
 
   if (loading) {
     return (
-      <div className="p-6 rounded-3xl border border-slate-800/50 bg-slate-900/60 animate-pulse">
-        <div className="h-4 bg-slate-800 rounded mb-4 w-1/2" />
-        <div className="h-8 bg-slate-800 rounded mb-2 w-3/4" />
-        <div className="h-3 bg-slate-800 rounded w-1/3" />
+      <div className="p-6 rounded-3xl border border-slate-800/50 bg-slate-900/60 h-[180px] flex flex-col justify-between">
+        <div className="flex justify-between items-start">
+          <Skeleton variant="avatar" className="w-12 h-12" />
+          <Skeleton variant="avatar" className="w-16 h-6" />
+        </div>
+        <div>
+          <Skeleton variant="title" className="w-1/2 mb-2" />
+          <Skeleton variant="text" className="w-3/4" />
+        </div>
       </div>
     );
   }

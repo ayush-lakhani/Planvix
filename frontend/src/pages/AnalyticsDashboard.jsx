@@ -25,7 +25,7 @@ import {
   Cell,
 } from "recharts";
 import { safeDate } from "../utils/dateUtils";
-import Skeleton from "../components/ui/Skeleton";
+import Skeleton from "../components/ui/skeleton";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 const RANGE_OPTIONS = [7, 30];

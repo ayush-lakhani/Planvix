@@ -7,7 +7,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import { safeDate } from "../../utils/dateUtils";
-import Skeleton from "../ui/Skeleton";
+import Skeleton from "../ui/skeleton";
 
 export default function ProfileHero({ data, loading }) {
   if (loading || !data) {

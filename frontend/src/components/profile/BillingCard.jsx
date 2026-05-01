@@ -1,5 +1,5 @@
 import { CreditCard, Rocket, CheckCircle2, ArrowUpRight } from "lucide-react";
-import Skeleton from "../ui/Skeleton";
+import Skeleton from "../ui/skeleton";
 
 export default function BillingCard({ billing, loading }) {
   if (loading || !billing) {
