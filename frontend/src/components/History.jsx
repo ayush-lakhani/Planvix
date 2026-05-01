@@ -25,22 +25,39 @@ export default function History() {
     loadHistory();
   }, []);
 
-  const loadHistory = async () => {
-    try {
-      const data = await strategyAPI.getHistory(); // Already returns response.data
-      console.log("[HISTORY] API response:", data);
+   const loadHistory = async () => {
+     try {
+       const data = await strategyAPI.getHistory(); // Already returns response.data
+       console.log("[HISTORY] API response:", data);
 
-      // Normalize response - backend may return array or {history: [...]}
-      const strategiesArray = Array.isArray(data) ? data : data?.history || [];
+       // Normalize response - backend may return array or {history: [...]}
+       let strategiesArray = Array.isArray(data) ? data : data?.history || [];
 
-      console.log("[HISTORY] Normalized strategies:", strategiesArray);
-      setStrategies(strategiesArray);
-    } catch (error) {
-      console.error("Failed to load history:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+       // Normalize feedback field: convert feedback.rating (numeric) to feedback_rating (string) for UI
+       strategiesArray = strategiesArray.map(strategy => {
+         // If feedback_rating already exists (legacy), keep it
+         if (strategy.feedback_rating) return strategy;
+
+         // If feedback object exists with rating, convert to feedback_rating string
+         if (strategy.feedback && typeof strategy.feedback.rating === 'number') {
+           const ratingNum = strategy.feedback.rating;
+           return {
+             ...strategy,
+             feedback_rating: ratingNum >= 3 ? 'up' : 'down', // 3+ = up, <3 = down
+             // Keep original feedback for success rate calculation
+           };
+         }
+         return strategy;
+       });
+
+       console.log("[HISTORY] Normalized strategies:", strategiesArray);
+       setStrategies(strategiesArray);
+     } catch (error) {
+       console.error("Failed to load history:", error);
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const handleDelete = async (strategy) => {
     // CRITICAL FIX: Use _id as fallback since backend returns both
@@ -114,16 +131,21 @@ export default function History() {
   };
 
   const handleFeedback = async (id, rating) => {
+    // Convert thumbs up/down to numeric rating (1-5 scale)
+    // thumbs up = 5 (success), thumbs down = 1 (unsuccessful)
+    const numericRating = rating === "up" ? 5 : 1;
+
     try {
-      await strategyAPI.submitFeedback(id, rating);
-      // Update local state
+      await strategyAPI.submitFeedback(id, numericRating);
+      // Update local state with both string and numeric for compatibility
       setStrategies(
         strategies.map((s) =>
-          s.id === id ? { ...s, feedback_rating: rating } : s,
+          s.id === id ? { ...s, feedback_rating: rating, feedback: { rating: numericRating } } : s,
         ),
       );
     } catch (error) {
       console.error("Failed to submit feedback:", error);
+      alertUtils.error("Failed", "Could not submit feedback. Please try again.");
     }
   };
 

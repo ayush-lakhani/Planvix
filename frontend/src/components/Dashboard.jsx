@@ -11,7 +11,7 @@ import {
   Trophy,
   AlertCircle,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { strategyAPI } from "../api";
 import { safeDate } from "../utils/dateUtils";
 
@@ -69,6 +69,29 @@ export default function Dashboard() {
     thisMonth: monthlyUsage, // Server-authoritative usage count
     limit: user?.tier === "pro" ? "Unlimited" : 3,
   };
+
+  // Calculate success rate from feedback data
+  const successRate = useMemo(() => {
+    if (strategies.length === 0) return 0;
+
+    // Count strategies that have positive feedback (rating >= 3, or "up" rating)
+    // The backend stores feedback as { rating: number } or feedback_rating as "up"/"down"
+    const ratedStrategies = strategies.filter(s => s.feedback || s.feedback_rating);
+    if (ratedStrategies.length === 0) return 0;
+
+    // Handle both numeric rating (1-5) and string "up"/"down"
+    const successful = ratedStrategies.filter(s => {
+      if (s.feedback && typeof s.feedback.rating === 'number') {
+        return s.feedback.rating >= 3; // 3+ out of 5 is success
+      }
+      if (s.feedback_rating) {
+        return s.feedback_rating === 'up';
+      }
+      return false;
+    }).length;
+
+    return Math.round((successful / ratedStrategies.length) * 100);
+  }, [strategies]);
 
   if (user?.tier === "pro") {
     return <ProPanel />;
@@ -167,19 +190,22 @@ export default function Dashboard() {
                   <Zap className="w-6 h-6 text-green-500" />
                 </div>
                 <span className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  {stats.total > 0 ? "90%" : "--"}
+                  {stats.total > 0 ? `${successRate}%` : "--"}
                 </span>
               </div>
               <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                 Success Rate
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-500">
-                All strategies delivered
+                {stats.total > 0
+                  ? `${successRate}% of strategies rated positively`
+                  : "No strategies yet"
+                }
               </p>
               <div className="mt-4 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
-                  style={{ width: "90%" }}
+                  className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-500"
+                  style={{ width: `${successRate}%` }}
                 ></div>
               </div>
             </div>
@@ -309,23 +335,4 @@ export default function Dashboard() {
                   <div className="flex items-center gap-4">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <div className="text-left">
-                      <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                        {strategy.goal || "Strategy"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {strategy.audience} • {strategy.platform}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    {safeDate(strategy.created_at)}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
