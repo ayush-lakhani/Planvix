@@ -2,9 +2,9 @@ import React from "react";
 
 const GradientBackground = ({ children, variant = "default" }) => {
   const variants = {
-    default: "bg-slate-950",
-    admin: "bg-slate-950",
-    client: "bg-slate-950",
+    default: "bg-slate-50 dark:bg-slate-950",
+    admin: "bg-emerald-50/30 dark:bg-slate-950",
+    client: "bg-blue-50/30 dark:bg-slate-950",
   };
 
   const accentColors = {

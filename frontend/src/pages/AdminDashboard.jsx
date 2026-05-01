@@ -167,7 +167,7 @@ export default function EnterpriseAdminDashboard() {
           {/* Right cluster */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             {/* WS indicator - hidden on mobile */}
-            <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-800/50 border border-slate-700/50">
+            <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50">
               <div
                 className={`w-1.5 h-1.5 rounded-full ${wsConnected ? "bg-emerald-500 animate-pulse" : "bg-slate-600"}`}
               />
@@ -183,7 +183,7 @@ export default function EnterpriseAdminDashboard() {
                   setShowNotifications(!showNotifications);
                   setNotifications(0);
                 }}
-                className="relative p-1.5 sm:p-2 rounded-xl hover:bg-slate-800/70 transition-all border border-transparent hover:border-slate-700/50"
+                className="relative p-1.5 sm:p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700/50"
               >
                 <Bell className="w-4 h-4 text-slate-400" />
                 {notifications > 0 && (
@@ -193,9 +193,9 @@ export default function EnterpriseAdminDashboard() {
                 )}
               </button>
               {showNotifications && (
-                <div className="absolute right-0 top-10 w-64 sm:w-72 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
-                  <div className="p-3 border-b border-slate-800">
-                    <p className="text-sm font-semibold text-white">
+                <div className="absolute right-0 top-10 w-64 sm:w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                  <div className="p-3 border-b border-slate-100 dark:border-slate-800">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
                       Recent Events
                     </p>
                   </div>
@@ -205,7 +205,7 @@ export default function EnterpriseAdminDashboard() {
                       return (
                         <div
                           key={i}
-                          className="px-4 py-2.5 border-b border-slate-800/50 hover:bg-slate-800/40"
+                          className="px-4 py-2.5 border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/40"
                         >
                           <div className="flex items-center gap-2">
                             <span>{ec.icon}</span>
@@ -233,7 +233,7 @@ export default function EnterpriseAdminDashboard() {
             <button
               onClick={loadAnalytics}
               title="Refresh analytics"
-              className="p-1.5 sm:p-2 rounded-xl hover:bg-slate-800/70 transition-all border border-transparent hover:border-slate-700/50"
+              className="p-1.5 sm:p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700/50"
             >
               <RefreshCw
                 className={`w-4 h-4 text-slate-400 ${loading ? "animate-spin" : ""}`}
@@ -241,13 +241,13 @@ export default function EnterpriseAdminDashboard() {
             </button>
 
             {/* Admin avatar + logout */}
-            <div className="flex items-center gap-1 sm:gap-2 pl-1 sm:pl-2 border-l border-slate-800">
+            <div className="flex items-center gap-1 sm:gap-2 pl-1 sm:pl-2 border-l border-slate-200 dark:border-slate-800">
               <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold shadow-md">
                 A
               </div>
               <button
                 onClick={logout}
-                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-800/70 rounded-xl transition-all text-xs sm:text-sm border border-transparent hover:border-slate-700/50"
+                className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/70 rounded-xl transition-all text-xs sm:text-sm border border-transparent hover:border-slate-200 dark:hover:border-slate-700/50"
               >
                 <LogOut className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span className="hidden sm:inline">Logout</span>
@@ -259,13 +259,12 @@ export default function EnterpriseAdminDashboard() {
 
       {/* ── TAB BAR ────────────────────────────────────────── */}
       <div
-        className="sticky top-[60px] z-40 border-b border-slate-800/60"
+        className="sticky top-[60px] z-40 border-b border-slate-200 dark:border-slate-800/60 transition-colors"
         style={{
-          background: "rgba(2,8,23,0.80)",
           backdropFilter: "blur(20px)",
         }}
       >
-        <div className="max-w-[1600px] mx-auto px-6">
+        <div className={`max-w-[1600px] mx-auto px-6 ${document.documentElement.classList.contains('dark') ? 'bg-[#020817]/80' : 'bg-white/80'}`}>
           <div className="flex gap-0 overflow-x-auto scrollbar-none">
             {TABS.map((t) => {
               const Icon = t.icon;
@@ -275,8 +274,8 @@ export default function EnterpriseAdminDashboard() {
                   onClick={() => setTab(t.id)}
                   className={`flex items-center gap-2 px-5 py-3.5 text-sm font-semibold whitespace-nowrap border-b-2 transition-all ${
                     tab === t.id
-                      ? "border-emerald-500 text-emerald-400"
-                      : "border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-700"
+                      ? "border-emerald-500 text-emerald-600 dark:text-emerald-400"
+                      : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:border-slate-200 dark:hover:border-slate-700"
                   }`}
                 >
                   <Icon className="w-4 h-4" />

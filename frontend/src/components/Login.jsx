@@ -60,7 +60,7 @@ export default function Login() {
     <AuthLayout backgroundVariant="client">
       <AuthCard className="animate-stripe-page">
         <div className="mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Welcome Back</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">Welcome Back</h2>
           <p className="text-gray-400 text-xs sm:text-sm">
             Please enter your details to sign in.
           </p>
@@ -78,7 +78,7 @@ export default function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 sm:pl-12 pr-4 py-3 bg-slate-950/50 border border-white/5 rounded-xl outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 text-white transition-all placeholder:text-gray-700 text-sm sm:text-base"
+                className="w-full pl-10 sm:pl-12 pr-4 py-3 bg-white/50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 rounded-xl outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:placeholder:text-gray-700 text-sm sm:text-base"
                 placeholder="name@company.com"
               />
             </div>
@@ -103,7 +103,7 @@ export default function Login() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 sm:pl-12 pr-4 py-3 bg-slate-950/50 border border-white/5 rounded-xl outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 text-white transition-all placeholder:text-gray-700 text-sm sm:text-base"
+                className="w-full pl-10 sm:pl-12 pr-4 py-3 bg-white/50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 rounded-xl outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:placeholder:text-gray-700 text-sm sm:text-base"
                 placeholder="••••••••"
               />
             </div>
@@ -130,10 +130,10 @@ export default function Login() {
 
         <div className="mt-6 sm:mt-8 relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/10"></div>
+            <div className="w-full border-t border-slate-200 dark:border-white/10"></div>
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-gray-900 px-2 text-gray-500">
+            <span className="bg-slate-50 dark:bg-gray-900 px-2 text-slate-500 dark:text-gray-500">
               Or continue with
             </span>
           </div>
@@ -152,7 +152,7 @@ export default function Login() {
           New to planvIx?{" "}
           <Link
             to="/signup"
-            className="text-white font-bold hover:text-indigo-400 transition-colors"
+            className="text-slate-900 dark:text-white font-bold hover:text-indigo-400 transition-colors"
           >
             Create account
           </Link>

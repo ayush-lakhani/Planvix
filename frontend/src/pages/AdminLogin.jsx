@@ -65,7 +65,7 @@ export default function AdminLogin() {
               <Shield className="w-8 h-8 text-white group-hover:scale-110 transition-transform duration-500 relative z-10" />
               <div className="absolute inset-0 bg-emerald-400 blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
               Admin Gateway
             </h1>
             <p className="text-gray-500 text-xs mt-2 font-medium uppercase tracking-widest opacity-80">
@@ -86,7 +86,7 @@ export default function AdminLogin() {
                   onChange={(e) => setSecret(e.target.value)}
                   placeholder="••••••••••••••••"
                   required
-                  className="w-full pl-11 pr-12 py-3.5 bg-slate-950/50 border border-white/5 rounded-xl text-white placeholder:text-gray-800 focus:outline-none focus:border-emerald-500/40 focus:ring-4 focus:ring-emerald-500/10 transition-all font-mono text-sm"
+                  className="w-full pl-11 pr-12 py-3.5 bg-white/50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-800 focus:outline-none focus:border-emerald-500/40 focus:ring-4 focus:ring-emerald-500/10 transition-all font-mono text-sm"
                 />
                 <button
                   type="button"
@@ -118,7 +118,7 @@ export default function AdminLogin() {
             </div>
           </form>
 
-          <div className="mt-10 pt-6 border-t border-white/5 flex flex-col items-center space-y-4">
+          <div className="mt-10 pt-6 border-t border-slate-200 dark:border-white/5 flex flex-col items-center space-y-4">
             <div className="flex items-center space-x-3 text-[10px] text-gray-600 uppercase tracking-[0.2em] font-black">
               <div className="w-1 h-1 rounded-full bg-emerald-500" />
               <span>Session Encrypted</span>

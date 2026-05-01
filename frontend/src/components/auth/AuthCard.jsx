@@ -4,7 +4,7 @@ const AuthCard = ({ children, className = "" }) => {
   return (
     <div className={`relative group animate-fade-in-up ${className}`}>
       {/* Card Body with Border Gradient */}
-      <div className="relative bg-slate-900/40 backdrop-blur-3xl border-gradient rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl overflow-hidden transition-all duration-500 hover:shadow-indigo-500/10">
+      <div className="relative bg-white/70 dark:bg-slate-900/40 backdrop-blur-3xl border-gradient rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl overflow-hidden transition-all duration-500 hover:shadow-indigo-500/10">
         {/* Subtle inner reflection */}
         <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-transparent pointer-events-none opacity-30" />
 

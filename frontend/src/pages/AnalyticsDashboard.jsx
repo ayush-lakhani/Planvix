@@ -61,14 +61,14 @@ function CustomTooltip({ active, payload, label }) {
   const formattedLabel = safeDate(label);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/95 px-4 py-3 shadow-2xl backdrop-blur-xl">
+    <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white/95 dark:bg-slate-900/95 px-4 py-3 shadow-2xl backdrop-blur-xl transition-colors duration-300">
       <p className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">
         {formattedLabel === "—" ? label || "Data point" : formattedLabel}
       </p>
       {payload.map((entry) => (
         <div key={entry.dataKey} className="flex items-center justify-between gap-4 text-sm">
-          <span className="text-slate-400">{entry.name}</span>
-          <span className="font-semibold text-white">
+          <span className="text-slate-500 dark:text-slate-400">{entry.name}</span>
+          <span className="font-semibold text-slate-900 dark:text-white">
             {entry.value?.toLocaleString?.() ?? entry.value}
           </span>
         </div>

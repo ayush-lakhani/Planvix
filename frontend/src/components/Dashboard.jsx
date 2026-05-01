@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+﻿import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ProPanel from "../pages/ProPanel";
 import {
@@ -259,10 +259,10 @@ export default function Dashboard() {
                   </p>
                   <div className="flex items-center gap-4 mt-3">
                     <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium">
-                      ⚡ 30s Generation
+                      ÔÜí 30s Generation
                     </span>
                     <span className="px-3 py-1 bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-300 rounded-full text-sm font-medium">
-                      📊 ROI Predictions
+                      ­ƒôè ROI Predictions
                     </span>
                   </div>
                 </div>
@@ -335,4 +335,21 @@ export default function Dashboard() {
                   <div className="flex items-center gap-4">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <div className="text-left">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {strategy.title || "Untitled Strategy"}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {safeDate(strategy.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-transform" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

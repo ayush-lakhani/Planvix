@@ -22,7 +22,7 @@ const AuthLayout = ({
     <GradientBackground variant={backgroundVariant}>
       <div className="flex min-h-screen">
         {/* Left Panel - Value Section (Hidden on mobile) */}
-        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-8 sm:p-12 relative overflow-hidden border-r border-white/5">
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-8 sm:p-12 relative overflow-hidden border-r border-slate-200 dark:border-white/5">
           <div className="relative z-10">
             <BrandLogo className="w-32 sm:w-40" />
           </div>
@@ -30,13 +30,13 @@ const AuthLayout = ({
           <div className="relative z-10 max-w-lg">
             {leftPanel || (
               <>
-                <h1 className="text-3xl sm:text-5xl font-bold text-white tracking-tight mb-4 sm:mb-6">
+                <h1 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-4 sm:mb-6">
                   Build Smarter{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
                     AI Strategies
                   </span>
                 </h1>
-                <p className="text-gray-400 text-base sm:text-lg mb-8 sm:mb-12">
+                <p className="text-slate-600 dark:text-gray-400 text-base sm:text-lg mb-8 sm:mb-12">
                   The OS for modern content teams. Plan, execute, and scale with
                   intelligence.
                 </p>
@@ -50,7 +50,7 @@ const AuthLayout = ({
                   ].map((feature, i) => (
                     <div
                       key={i}
-                      className="flex items-center space-x-4 text-gray-300 text-sm sm:text-base"
+                      className="flex items-center space-x-4 text-slate-700 dark:text-gray-300 text-sm sm:text-base"
                     >
                       <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center">
                         <svg
@@ -80,12 +80,12 @@ const AuthLayout = ({
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-gray-950 bg-gray-800"
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white dark:border-gray-950 bg-slate-200 dark:bg-gray-800"
                 />
               ))}
             </div>
             <p className="text-xs sm:text-sm text-gray-400">
-              Joined by <span className="text-white font-bold">2,500+</span>{" "}
+              Joined by <span className="text-slate-900 dark:text-white font-bold">2,500+</span>{" "}
               strategies
             </p>
           </div>

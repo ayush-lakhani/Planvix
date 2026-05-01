@@ -25,50 +25,38 @@ export default function History() {
     loadHistory();
   }, []);
 
-   const loadHistory = async () => {
-     try {
-       const data = await strategyAPI.getHistory(); // Already returns response.data
-       console.log("[HISTORY] API response:", data);
+  const loadHistory = async () => {
+    try {
+      const data = await strategyAPI.getHistory();
+      console.log("[HISTORY] API response:", data);
 
-       // Normalize response - backend may return array or {history: [...]}
-       let strategiesArray = Array.isArray(data) ? data : data?.history || [];
+      // Normalize response - backend may return array or {history: [...]}
+      let strategiesArray = Array.isArray(data) ? data : data?.history || [];
 
-       // Normalize feedback field: convert feedback.rating (numeric) to feedback_rating (string) for UI
-       strategiesArray = strategiesArray.map(strategy => {
-         // If feedback_rating already exists (legacy), keep it
-         if (strategy.feedback_rating) return strategy;
+      // Normalize feedback field
+      strategiesArray = strategiesArray.map(strategy => {
+        if (strategy.feedback_rating) return strategy;
+        if (strategy.feedback && typeof strategy.feedback.rating === 'number') {
+          const ratingNum = strategy.feedback.rating;
+          return {
+            ...strategy,
+            feedback_rating: ratingNum >= 3 ? 'up' : 'down',
+          };
+        }
+        return strategy;
+      });
 
-         // If feedback object exists with rating, convert to feedback_rating string
-         if (strategy.feedback && typeof strategy.feedback.rating === 'number') {
-           const ratingNum = strategy.feedback.rating;
-           return {
-             ...strategy,
-             feedback_rating: ratingNum >= 3 ? 'up' : 'down', // 3+ = up, <3 = down
-             // Keep original feedback for success rate calculation
-           };
-         }
-         return strategy;
-       });
-
-       console.log("[HISTORY] Normalized strategies:", strategiesArray);
-       setStrategies(strategiesArray);
-     } catch (error) {
-       console.error("Failed to load history:", error);
-     } finally {
-       setLoading(false);
-     }
-   };
+      setStrategies(strategiesArray);
+    } catch (error) {
+      console.error("Failed to load history:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (strategy) => {
-    // CRITICAL FIX: Use _id as fallback since backend returns both
     const strategyId = strategy.id || strategy._id;
-
-    console.log("[DELETE] Strategy object:", strategy);
-    console.log("[DELETE] Extracted ID:", strategyId);
-    console.log("[DELETE] ID type:", typeof strategyId);
-
     if (!strategyId) {
-      console.error("[DELETE] No valid ID found in strategy:", strategy);
       alertUtils.error("Invalid ID", "Invalid strategy ID");
       return;
     }
@@ -77,26 +65,11 @@ export default function History() {
     if (!isConfirmed) return;
 
     try {
-      console.log(
-        "[DELETE] Attempting to delete strategy with ID:",
-        strategyId,
-      );
-
-      const response = await strategyAPI.delete(strategyId);
-      console.log("[DELETE] Delete response:", response);
-      console.log("[DELETE] Delete request successful, reloading history...");
-
-      // Reload from server to get fresh data
+      await strategyAPI.delete(strategyId);
       await loadHistory();
-
       alertUtils.success("Deleted", "Strategy deleted successfully!");
-      console.log("[OK] Strategy deleted and history reloaded");
     } catch (error) {
-      console.error("[ERROR] Failed to delete strategy:", error);
-      console.error("[ERROR] Error response:", error.response);
-      console.error("[ERROR] Error status:", error.response?.status);
-      console.error("[ERROR] Error data:", error.response?.data);
-      console.error("[ERROR] Error message:", error.message);
+      console.error("Failed to delete strategy:", error);
       alertUtils.error(
         "Failed to delete",
         `Reason: ${error.response?.data?.detail || error.message}`,
@@ -105,47 +78,32 @@ export default function History() {
   };
 
   const handleView = async (strategy) => {
-    // CRITICAL FIX: Use _id as fallback (same as handleDelete)
     const strategyId = strategy.id || strategy._id;
-
-    console.log("[VIEW] Strategy object:", strategy);
-    console.log("[VIEW] Extracted ID:", strategyId);
-
     if (!strategyId) {
-      console.error("[VIEW] No valid ID found in strategy:", strategy);
       alertUtils.error("Invalid ID", "Invalid strategy ID");
       return;
     }
 
     try {
-      console.log("[VIEW] Fetching strategy with ID:", strategyId);
       const response = await strategyAPI.getById(strategyId);
-      console.log("[VIEW] Strategy loaded:", response);
-      setSelectedStrategy(response); // response is already the data
+      setSelectedStrategy(response);
     } catch (error) {
-      console.error("[VIEW] Failed to load strategy:", error);
-      console.error("[VIEW] Error response:", error.response);
-      console.error("[VIEW] Error data:", error.response?.data);
-      alertUtils.error("Error", "Failed to load strategy details. Please try again.");
+      console.error("Failed to load strategy:", error);
+      alertUtils.error("Error", "Failed to load strategy details.");
     }
   };
 
   const handleFeedback = async (id, rating) => {
-    // Convert thumbs up/down to numeric rating (1-5 scale)
-    // thumbs up = 5 (success), thumbs down = 1 (unsuccessful)
     const numericRating = rating === "up" ? 5 : 1;
-
     try {
       await strategyAPI.submitFeedback(id, numericRating);
-      // Update local state with both string and numeric for compatibility
       setStrategies(
         strategies.map((s) =>
-          s.id === id ? { ...s, feedback_rating: rating, feedback: { rating: numericRating } } : s,
+          (s.id === id || s._id === id) ? { ...s, feedback_rating: rating, feedback: { rating: numericRating } } : s,
         ),
       );
     } catch (error) {
       console.error("Failed to submit feedback:", error);
-      alertUtils.error("Failed", "Could not submit feedback. Please try again.");
     }
   };
 
@@ -168,8 +126,6 @@ export default function History() {
             <ArrowLeft className="w-5 h-5" />
             Back to History
           </button>
-
-          {/* Use the beautiful StrategyResults component */}
           <StrategyResults
             key={selectedStrategy.id || selectedStrategy._id}
             strategy={selectedStrategy}
@@ -183,7 +139,6 @@ export default function History() {
   return (
     <div className="animate-stripe-page min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="flex items-center gap-4 mb-8" data-aos="fade-down">
           <button
             onClick={() => navigate("/dashboard")}
@@ -201,7 +156,6 @@ export default function History() {
           </div>
         </div>
 
-        {/* Empty State */}
         {strategies.length === 0 ? (
           <div className="glass-card p-12 text-center" data-aos="zoom-in">
             <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -211,150 +165,61 @@ export default function History() {
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               Generate your first content strategy to see it here
             </p>
-            <button
-              onClick={() => navigate("/generate")}
-              className="btn-gradient"
-            >
+            <button onClick={() => navigate("/generate")} className="btn-gradient">
               Create Strategy
             </button>
           </div>
         ) : (
-        {/* Strategies List */}
-        <div className="space-y-4">
-          {strategies.map((strategy, index) => (
-            <div
-              key={strategy.id}
-              className="glass-card p-4 sm:p-6 hover:shadow-lg transition-all duration-200 ease-in-out hover:-translate-y-0.5"
-              data-aos="fade-up"
-              data-aos-delay={Math.min(index * 100, 500)}
-            >
-              <div className="flex flex-col gap-4">
-                {/* Main Content Row */}
-                <div className="flex-1">
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    {strategy.industry && strategy.platform
-                      ? `${strategy.industry} - ${strategy.platform} Strategy`
-                      : strategy.industry ||
-                        strategy.platform ||
-                        "Content Strategy"}
-                  </h3>
-                  <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    {strategy.audience && (
-                      <span className="flex items-center gap-1">
-                        👥 {strategy.audience}
-                      </span>
-                    )}
-                    {strategy.industry && (
-                      <span className="flex items-center gap-1">
-                        🏢 {strategy.industry}
-                      </span>
-                    )}
-                    {strategy.platform && (
-                      <span className="flex items-center gap-1">
-                        📱 {strategy.platform}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-500">
-                    Generated {safeDate(strategy.created_at, "datetime")}
-                    {strategy.generation_time &&
-                      ` • ${strategy.generation_time}s`}
-                  </p>
-                </div>
-
-                {/* Actions Row */}
-                <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
-                  {/* Feedback Buttons */}
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleFeedback(strategy.id, "up")}
-                      className={`p-2 rounded-lg transition-colors ${
-                        strategy.feedback_rating === "up"
-                          ? "bg-green-600 text-white"
-                          : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-green-100 dark:hover:bg-green-900"
-                      }`}
-                      title="Good strategy"
-                    >
-                      <ThumbsUp className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleFeedback(strategy.id, "down")}
-                      className={`p-2 rounded-lg transition-colors ${
-                        strategy.feedback_rating === "down"
-                          ? "bg-red-600 text-white"
-                          : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900"
-                      }`}
-                      title="Needs improvement"
-                    >
-                      <ThumbsDown className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Options Menu Dropdown */}
-                  <Dropdown
-                    placement="bottom-end"
-                    className="p-1 min-w-[140px] mt-2"
-                    trigger={
-                      <button className="p-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    }
-                  >
-                    <div className="flex flex-col space-y-1">
-                      <button
-                        onClick={() => handleView(strategy)}
-                        className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-900/40 hover:text-primary-600 dark:hover:text-primary-400 rounded-lg transition-colors"
-                      >
-                        <Eye className="w-4 h-4" />
-                        View Details
-                      </button>
-                      <button
-                        onClick={() => handleDelete(strategy)}
-                        className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Delete
-                      </button>
+          <div className="space-y-4">
+            {strategies.map((strategy, index) => (
+              <div
+                key={strategy.id || strategy._id}
+                className="glass-card p-4 sm:p-6 hover:shadow-lg transition-all duration-200 ease-in-out hover:-translate-y-0.5"
+                data-aos="fade-up"
+                data-aos-delay={Math.min(index * 100, 500)}
+              >
+                <div className="flex flex-col gap-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      {strategy.industry && strategy.platform
+                        ? `${strategy.industry} - ${strategy.platform} Strategy`
+                        : strategy.industry || strategy.platform || "Content Strategy"}
+                    </h3>
+                    <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      {strategy.audience && <span className="flex items-center gap-1">👥 {strategy.audience}</span>}
+                      {strategy.industry && <span className="flex items-center gap-1">🏢 {strategy.industry}</span>}
+                      {strategy.platform && <span className="flex items-center gap-1">📱 {strategy.platform}</span>}
                     </div>
-                  </Dropdown>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
                     <p className="text-xs text-gray-500 dark:text-gray-500">
                       Generated {safeDate(strategy.created_at, "datetime")}
-                      {strategy.generation_time &&
-                        ` • ${strategy.generation_time}s`}
+                      {strategy.generation_time && ` • ${strategy.generation_time}s`}
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {/* Feedback Buttons inline */}
-                    <button
-                      onClick={() => handleFeedback(strategy.id, "up")}
-                      className={`p-2 rounded-lg transition-colors ${
-                        strategy.feedback_rating === "up"
-                          ? "bg-green-600 text-white"
-                          : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-green-100 dark:hover:bg-green-900"
-                      }`}
-                      title="Good strategy"
-                    >
-                      <ThumbsUp className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleFeedback(strategy.id, "down")}
-                      className={`p-2 rounded-lg transition-colors ${
-                        strategy.feedback_rating === "down"
-                          ? "bg-red-600 text-white"
-                          : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900"
-                      }`}
-                      title="Needs improvement"
-                    >
-                      <ThumbsDown className="w-4 h-4" />
-                    </button>
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleFeedback(strategy.id || strategy._id, "up")}
+                        className={`p-2 rounded-lg transition-colors ${
+                          strategy.feedback_rating === "up"
+                            ? "bg-green-600 text-white"
+                            : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-green-100 dark:hover:bg-green-900"
+                        }`}
+                      >
+                        <ThumbsUp className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleFeedback(strategy.id || strategy._id, "down")}
+                        className={`p-2 rounded-lg transition-colors ${
+                          strategy.feedback_rating === "down"
+                            ? "bg-red-600 text-white"
+                            : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900"
+                        }`}
+                      >
+                        <ThumbsDown className="w-4 h-4" />
+                      </button>
+                    </div>
 
-                    {/* Options Menu Dropdown */}
                     <Dropdown
                       placement="bottom-end"
                       className="p-1 min-w-[140px] mt-2"
@@ -369,15 +234,13 @@ export default function History() {
                           onClick={() => handleView(strategy)}
                           className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-900/40 hover:text-primary-600 dark:hover:text-primary-400 rounded-lg transition-colors"
                         >
-                          <Eye className="w-4 h-4" />
-                          View Details
+                          <Eye className="w-4 h-4" /> View Details
                         </button>
                         <button
                           onClick={() => handleDelete(strategy)}
                           className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors"
                         >
-                          <Trash2 className="w-4 h-4" />
-                          Delete
+                          <Trash2 className="w-4 h-4" /> Delete
                         </button>
                       </div>
                     </Dropdown>
