@@ -14,6 +14,7 @@ import { safeDate } from "../utils/dateUtils";
 import StrategyResults from "./StrategyResults";
 import { alertUtils } from "../utils/alertUtils";
 import Dropdown from "./ui/Dropdown";
+import Skeleton from "./ui/Skeleton";
 
 export default function History() {
   const [strategies, setStrategies] = useState([]);
@@ -109,8 +110,29 @@ export default function History() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary-600"></div>
+      <div className="animate-stripe-page min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-4 mb-8">
+            <Skeleton variant="avatar" className="w-10 h-10" />
+            <div>
+              <Skeleton variant="title" className="w-48 mb-2" />
+              <Skeleton variant="text" className="w-32" />
+            </div>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="glass-card p-6 rounded-2xl h-48">
+                <Skeleton variant="title" className="mb-4" />
+                <Skeleton variant="text" className="mb-2" />
+                <Skeleton variant="text" className="w-2/3 mb-6" />
+                <div className="flex justify-between items-center">
+                  <Skeleton variant="avatar" className="w-20 h-8" />
+                  <Skeleton variant="avatar" className="w-8 h-8" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

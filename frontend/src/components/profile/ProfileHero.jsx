@@ -7,16 +7,17 @@ import {
   CreditCard,
 } from "lucide-react";
 import { safeDate } from "../../utils/dateUtils";
+import Skeleton from "../ui/Skeleton";
 
 export default function ProfileHero({ data, loading }) {
   if (loading || !data) {
     return (
-      <div className="glass-card p-8 rounded-3xl mb-8 skeleton">
+      <div className="glass-card p-8 rounded-3xl mb-8">
         <div className="flex items-center gap-6">
-          <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-800" />
+          <Skeleton variant="avatar" className="w-24 h-24" />
           <div className="flex-1 space-y-3">
-            <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-lg w-1/3" />
-            <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-lg w-1/2" />
+            <Skeleton variant="title" className="w-1/3" />
+            <Skeleton variant="text" className="w-1/2" />
           </div>
         </div>
       </div>

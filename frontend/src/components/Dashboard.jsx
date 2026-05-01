@@ -14,6 +14,7 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import { strategyAPI } from "../api";
 import { safeDate } from "../utils/dateUtils";
+import Skeleton from "./ui/Skeleton";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
@@ -167,13 +168,19 @@ export default function Dashboard() {
                 </span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-black text-gray-900 dark:text-white">
-                  {stat.value}
-                </span>
-                {stat.limit && (
-                  <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                    {stat.limit}
-                  </span>
+                {loading ? (
+                  <Skeleton variant="title" className="w-20" />
+                ) : (
+                  <>
+                    <span className="text-3xl font-black text-gray-900 dark:text-white">
+                      {stat.value}
+                    </span>
+                    {stat.limit && (
+                      <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                        {stat.limit}
+                      </span>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -200,9 +207,9 @@ export default function Dashboard() {
             <div className="space-y-4">
               {loading ? (
                 Array(3).fill(0).map((_, i) => (
-                  <div key={i} className="glass-card p-6 rounded-2xl animate-pulse">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/4 mb-4"></div>
-                    <div className="h-3 bg-gray-100 dark:bg-gray-900 rounded w-1/2"></div>
+                  <div key={i} className="glass-card p-6 rounded-2xl">
+                    <Skeleton variant="title" className="mb-4" />
+                    <Skeleton variant="text" className="w-1/2" />
                   </div>
                 ))
               ) : strategies.length > 0 ? (

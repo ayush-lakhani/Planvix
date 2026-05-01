@@ -25,6 +25,7 @@ import {
   Cell,
 } from "recharts";
 import { safeDate } from "../utils/dateUtils";
+import Skeleton from "../components/ui/Skeleton";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 const RANGE_OPTIONS = [7, 30];
@@ -258,21 +259,29 @@ export default function AnalyticsDashboard() {
         )}
 
         {loading ? (
-          <div className="space-y-6">
+          <div className="space-y-8 animate-fade-in">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
               {Array.from({ length: 4 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="h-36 rounded-[2rem] border border-white/5 bg-white/[0.04] animate-pulse"
-                />
+                <div key={index} className="glass-card p-8 rounded-[2rem]">
+                  <Skeleton variant="avatar" className="mb-4 w-12 h-12" />
+                  <Skeleton variant="text" className="w-1/2 mb-4" />
+                  <Skeleton variant="title" className="w-2/3" />
+                </div>
               ))}
             </div>
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               {Array.from({ length: 2 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="h-[380px] rounded-[2rem] border border-white/5 bg-white/[0.04] animate-pulse"
-                />
+                <div key={index} className="glass-card p-8 rounded-[2rem] h-[380px]">
+                  <div className="flex items-center gap-4 mb-8">
+                    <Skeleton variant="avatar" className="w-8 h-8" />
+                    <Skeleton variant="title" className="w-48" />
+                  </div>
+                  <Skeleton variant="rect" className="w-full h-48 mb-6" />
+                  <div className="space-y-3">
+                    <Skeleton variant="text" />
+                    <Skeleton variant="text" className="w-5/6" />
+                  </div>
+                </div>
               ))}
             </div>
           </div>

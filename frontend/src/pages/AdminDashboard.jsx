@@ -28,6 +28,7 @@ import {
   ENTERPRISE_MONTHLY_PRICE,
 } from "../constants/pricing";
 import { safeDate } from "../utils/dateUtils";
+import Skeleton from "../components/ui/Skeleton";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: BarChart3 },
@@ -1125,9 +1126,12 @@ function HealthCard({ label, status, latency, metric, loading, icon }) {
 
   if (loading)
     return (
-      <div className="p-4 sm:p-5 rounded-2xl border border-slate-800/50 bg-slate-900/60 animate-pulse">
-        <div className="h-4 bg-slate-800 rounded mb-2 w-1/2" />
-        <div className="h-6 bg-slate-800 rounded w-3/4" />
+      <div className="p-4 sm:p-5 rounded-2xl border border-slate-800/50 bg-slate-900/60 h-[100px] flex flex-col justify-between">
+        <div className="flex justify-between items-center">
+          <Skeleton variant="avatar" className="w-6 h-6" />
+          <Skeleton variant="circle" className="w-2 h-2" />
+        </div>
+        <Skeleton variant="text" className="w-3/4 h-6" />
       </div>
     );
 

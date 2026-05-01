@@ -1,9 +1,26 @@
 import { CreditCard, Rocket, CheckCircle2, ArrowUpRight } from "lucide-react";
+import Skeleton from "../ui/Skeleton";
 
 export default function BillingCard({ billing, loading }) {
   if (loading || !billing) {
     return (
-      <div className="glass-card p-6 rounded-3xl h-[500px] skeleton bg-slate-100 dark:bg-slate-800" />
+      <div className="glass-card p-6 rounded-3xl h-[500px] flex flex-col justify-between">
+        <div>
+          <div className="flex justify-between items-center mb-8">
+            <Skeleton variant="title" className="w-48" />
+            <Skeleton variant="avatar" className="w-20 h-6" />
+          </div>
+          <Skeleton variant="text" className="w-1/3 mb-2" />
+          <Skeleton variant="title" className="w-1/2 mb-6" />
+          <Skeleton variant="rect" className="w-full h-4 rounded-full mb-12" />
+          <div className="space-y-4">
+            <Skeleton variant="text" />
+            <Skeleton variant="text" />
+            <Skeleton variant="text" />
+          </div>
+        </div>
+        <Skeleton variant="rect" className="w-full h-12 rounded-2xl" />
+      </div>
     );
   }
 

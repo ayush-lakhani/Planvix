@@ -1,10 +1,27 @@
 import { Zap, CreditCard, UserPlus, Sparkles, Clock } from "lucide-react";
 import { safeDate } from "../../utils/dateUtils";
+import Skeleton from "../ui/Skeleton";
 
 export default function ActivityTimeline({ activity, loading }) {
   if (loading || !activity) {
     return (
-      <div className="glass-card p-6 rounded-3xl h-[500px] skeleton bg-slate-100 dark:bg-slate-800" />
+      <div className="glass-card p-6 rounded-3xl h-[500px] flex flex-col">
+        <div className="flex justify-between items-center mb-6">
+          <Skeleton variant="title" className="w-48" />
+          <Skeleton variant="text" className="w-24" />
+        </div>
+        <div className="space-y-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex gap-4">
+              <Skeleton variant="avatar" className="w-8 h-8" />
+              <div className="flex-1 space-y-2">
+                <Skeleton variant="text" className="w-1/4" />
+                <Skeleton variant="rect" className="w-full h-12 rounded-xl" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     );
   }
 

@@ -14,17 +14,31 @@ import {
 } from "recharts";
 import { TrendingUp, Zap, BarChart3 } from "lucide-react";
 import { safeDate } from "../../utils/dateUtils";
+import Skeleton from "../ui/Skeleton";
 
 export default function UsageCharts({ analytics, loading }) {
   if (loading || !analytics) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="glass-card p-6 h-[350px] rounded-3xl skeleton bg-slate-100 dark:bg-slate-800/50"
-          />
-        ))}
+      <div className="space-y-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="glass-card p-4 rounded-2xl">
+              <Skeleton variant="text" className="w-1/2 mb-2" />
+              <Skeleton variant="title" className="w-3/4" />
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {[1, 2].map((i) => (
+            <div key={i} className="glass-card p-6 h-[350px] rounded-3xl">
+              <div className="flex items-center gap-3 mb-6">
+                <Skeleton variant="avatar" className="w-8 h-8" />
+                <Skeleton variant="title" className="w-48" />
+              </div>
+              <Skeleton variant="rect" className="w-full h-48" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
