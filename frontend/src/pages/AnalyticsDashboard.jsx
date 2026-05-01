@@ -168,21 +168,21 @@ export default function AnalyticsDashboard() {
 
   if (!hasAnalyticsAccess) {
     return (
-      <div className="min-h-[calc(100vh-3.5rem)] bg-[#0d0e12] flex items-center justify-center p-6 relative overflow-hidden font-sans pt-24">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#6200EE]/20 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-[#81ecff]/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="min-h-[calc(100vh-3.5rem)] bg-slate-50 dark:bg-[#0d0e12] flex items-center justify-center p-6 relative overflow-hidden font-sans pt-24 transition-colors duration-300">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-500/10 dark:bg-[#6200EE]/20 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-cyan-500/10 dark:bg-[#81ecff]/20 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="max-w-xl w-full text-center relative z-10 animate-fade-in">
-          <div className="bg-[#121318]/60 backdrop-blur-2xl border border-[#a68cff]/20 rounded-[2rem] p-10 shadow-[0_20px_60px_rgba(98,0,238,0.2)]">
-            <div className="w-20 h-20 bg-gradient-to-br from-[#1e1f25] to-[#0d0e12] rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner border border-white/5 relative group">
+          <div className="bg-white/60 dark:bg-[#121318]/60 backdrop-blur-2xl border border-indigo-200 dark:border-[#a68cff]/20 rounded-[2rem] p-10 shadow-xl dark:shadow-[0_20px_60px_rgba(98,0,238,0.2)]">
+            <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-[#1e1f25] dark:to-[#0d0e12] rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner border border-slate-200 dark:border-white/5 relative group">
               <div className="absolute inset-0 bg-[#6200EE]/20 rounded-2xl blur-md group-hover:blur-xl transition-all" />
               <Lock className="w-10 h-10 text-[#81ecff] relative z-10 drop-shadow-[0_0_10px_rgba(129,236,255,0.8)]" />
             </div>
 
-            <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-[#a68cff] mb-4 font-['Manrope'] tracking-tight">
+            <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-indigo-600 dark:from-white dark:to-[#a68cff] mb-4 font-['Manrope'] tracking-tight">
               Pro Analytics Locked
             </h1>
-            <p className="text-gray-400 text-lg mb-8">
+            <p className="text-slate-600 dark:text-gray-400 text-lg mb-8">
               Upgrade to Pro to unlock your live strategy activity, token usage, and account analytics.
             </p>
 
@@ -203,37 +203,37 @@ export default function AnalyticsDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#06070a] text-white p-6 md:p-12 relative overflow-hidden font-sans pt-24">
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#6200EE]/10 rounded-full blur-[150px] -translate-y-1/3 translate-x-1/3 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#81ecff]/10 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-slate-50 dark:bg-[#06070a] text-slate-900 dark:text-white p-6 md:p-12 relative overflow-hidden font-sans pt-24 transition-colors duration-300">
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/5 dark:bg-[#6200EE]/10 rounded-full blur-[150px] -translate-y-1/3 translate-x-1/3 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/5 dark:bg-[#81ecff]/10 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-[1600px] mx-auto relative z-10 space-y-8 animate-fade-in">
         <header className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-4">
               <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">
+              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                 Live Pro Analytics
               </span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-white via-gray-200 to-gray-500 bg-clip-text text-transparent font-['Manrope'] tracking-tight mb-2">
+            <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-gray-200 dark:to-gray-500 bg-clip-text text-transparent font-['Manrope'] tracking-tight mb-2">
               Analytics Command Center
             </h1>
-            <p className="text-gray-400 font-medium text-lg">
+            <p className="text-slate-600 dark:text-gray-400 font-medium text-lg">
               Real account activity from your strategies, token usage, and billing profile.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <div className="bg-[#18191e]/80 backdrop-blur-md rounded-2xl p-1.5 border border-white/5 flex text-sm font-bold text-gray-400 shadow-2xl">
+            <div className="bg-white/80 dark:bg-[#18191e]/80 backdrop-blur-md rounded-2xl p-1.5 border border-slate-200 dark:border-white/5 flex text-sm font-bold text-slate-500 dark:text-gray-400 shadow-xl dark:shadow-2xl">
               {RANGE_OPTIONS.map((days) => (
                 <button
                   key={days}
                   onClick={() => setSelectedRange(days)}
                   className={`px-5 py-2.5 rounded-xl transition-all ${
                     selectedRange === days
-                      ? "bg-white/10 text-white shadow-lg"
-                      : "hover:text-white hover:bg-white/5"
+                      ? "bg-indigo-50 dark:bg-white/10 text-indigo-600 dark:text-white shadow-sm dark:shadow-lg"
+                      : "hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
                   }`}
                 >
                   {days} Days
@@ -243,7 +243,7 @@ export default function AnalyticsDashboard() {
 
             <button
               onClick={() => fetchAnalytics(true)}
-              className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-200 transition-all hover:bg-white/10"
+              className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all hover:bg-slate-50 dark:hover:bg-white/10 shadow-sm"
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
               Refresh
@@ -469,35 +469,35 @@ export default function AnalyticsDashboard() {
 
 function StatCard({ title, value, helper, icon: Icon, tone }) {
   const toneClasses = {
-    emerald: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-    indigo: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
-    purple: "text-purple-400 bg-purple-500/10 border-purple-500/20",
-    amber: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+    emerald: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+    indigo: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
+    purple: "text-purple-600 dark:text-purple-400 bg-purple-500/10 border-purple-500/20",
+    amber: "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20",
   };
 
   return (
-    <div className="rounded-[2rem] border border-white/10 bg-[#121318]/40 p-8 shadow-xl backdrop-blur-3xl">
+    <div className="rounded-[2rem] border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-[#121318]/40 p-8 shadow-xl backdrop-blur-3xl">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <p className="mb-2 text-sm font-bold uppercase tracking-wider text-slate-500">{title}</p>
-          <p className="text-4xl font-black tracking-tight text-white break-words">{value}</p>
+          <p className="text-4xl font-black tracking-tight text-slate-900 dark:text-white break-words">{value}</p>
         </div>
         <div className={`rounded-2xl border p-3 ${toneClasses[tone] || toneClasses.indigo}`}>
           <Icon className="h-6 w-6" />
         </div>
       </div>
-      <p className="text-sm text-slate-400">{helper}</p>
+      <p className="text-sm text-slate-600 dark:text-slate-400">{helper}</p>
     </div>
   );
 }
 
 function PanelCard({ title, subtitle, icon, children, className = "" }) {
   return (
-    <div className={`rounded-[2rem] border border-white/10 bg-[#121318]/40 p-8 shadow-xl backdrop-blur-3xl ${className}`}>
+    <div className={`rounded-[2rem] border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-[#121318]/40 p-8 shadow-xl backdrop-blur-3xl ${className}`}>
       <div className="mb-6 flex items-center gap-3">
         {icon && <div>{icon}</div>}
         <div>
-          <h2 className="text-xl font-black text-white">{title}</h2>
+          <h2 className="text-xl font-black text-slate-900 dark:text-white">{title}</h2>
           {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
         </div>
       </div>
@@ -508,16 +508,16 @@ function PanelCard({ title, subtitle, icon, children, className = "" }) {
 
 function InfoRow({ label, value }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/5 bg-white/[0.03] px-4 py-3">
-      <span className="text-sm text-slate-400">{label}</span>
-      <span className="text-sm font-semibold text-white text-right">{value}</span>
+    <div className="flex items-center justify-between gap-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/[0.03] px-4 py-3">
+      <span className="text-sm text-slate-600 dark:text-slate-400">{label}</span>
+      <span className="text-sm font-semibold text-slate-900 dark:text-white text-right">{value}</span>
     </div>
   );
 }
 
 function EmptyState({ message }) {
   return (
-    <div className="flex h-[320px] items-center justify-center rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.02] px-6 text-center text-sm text-slate-500">
+    <div className="flex h-[320px] items-center justify-center rounded-[1.5rem] border border-dashed border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.02] px-6 text-center text-sm text-slate-500">
       {message}
     </div>
   );

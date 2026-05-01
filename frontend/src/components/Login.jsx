@@ -59,26 +59,26 @@ export default function Login() {
   return (
     <AuthLayout backgroundVariant="client">
       <AuthCard className="animate-stripe-page">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
-          <p className="text-gray-400 text-sm">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Welcome Back</h2>
+          <p className="text-gray-400 text-xs sm:text-sm">
             Please enter your details to sign in.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 ml-1">
               Email Address
             </label>
             <div className="relative group">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-indigo-400 group-focus-within:scale-110 transition-all" />
+              <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500 group-focus-within:text-indigo-400 group-focus-within:scale-110 transition-all" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-12 pr-4 py-3.5 bg-slate-950/50 border border-white/5 rounded-xl outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 text-white transition-all placeholder:text-gray-700"
+                className="w-full pl-10 sm:pl-12 pr-4 py-3 bg-slate-950/50 border border-white/5 rounded-xl outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 text-white transition-all placeholder:text-gray-700 text-sm sm:text-base"
                 placeholder="name@company.com"
               />
             </div>
@@ -97,13 +97,13 @@ export default function Login() {
               </Link>
             </div>
             <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-indigo-400 group-focus-within:scale-110 transition-all" />
+              <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500 group-focus-within:text-indigo-400 group-focus-within:scale-110 transition-all" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-12 pr-4 py-3.5 bg-slate-950/50 border border-white/5 rounded-xl outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 text-white transition-all placeholder:text-gray-700"
+                className="w-full pl-10 sm:pl-12 pr-4 py-3 bg-slate-950/50 border border-white/5 rounded-xl outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 text-white transition-all placeholder:text-gray-700 text-sm sm:text-base"
                 placeholder="••••••••"
               />
             </div>
@@ -128,7 +128,7 @@ export default function Login() {
           </AnimatedButton>
         </form>
 
-        <div className="mt-8 relative">
+        <div className="mt-6 sm:mt-8 relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-white/10"></div>
           </div>
@@ -139,7 +139,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-4 sm:mt-6">
           <SocialAuthButton
             onClick={() => handleGoogleLogin()}
             className={googleLoading ? "opacity-60 cursor-not-allowed" : ""}
@@ -148,7 +148,7 @@ export default function Login() {
           </SocialAuthButton>
         </div>
 
-        <p className="mt-8 text-center text-sm text-gray-400">
+        <p className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-gray-400">
           New to planvIx?{" "}
           <Link
             to="/signup"

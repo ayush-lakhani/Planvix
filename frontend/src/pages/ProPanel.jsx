@@ -59,7 +59,7 @@ export default function ProPanel() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#06070a] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#06070a] flex items-center justify-center">
         <div className="relative w-20 h-20">
           <div className="absolute inset-0 border-4 border-indigo-500/20 rounded-full"></div>
           <div className="absolute inset-0 border-4 border-t-indigo-500 rounded-full animate-spin"></div>
@@ -69,7 +69,7 @@ export default function ProPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-[#06070a] text-white pt-24 pb-12 px-4 md:px-8 font-sans selection:bg-indigo-500/30 overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#06070a] text-slate-900 dark:text-white pt-24 pb-12 px-4 md:px-8 font-sans selection:bg-indigo-500/30 overflow-hidden transition-colors duration-300">
       {/* Background Glows */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px]"></div>
@@ -81,14 +81,14 @@ export default function ProPanel() {
         {/* Pro Header */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div data-aos="fade-right">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 mb-4">
-              <ShieldCheck className="w-4 h-4 text-indigo-400" />
-              <span className="text-xs font-bold uppercase tracking-widest text-indigo-300">Exclusive Pro Vault</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500/10 dark:from-indigo-500/20 to-purple-500/10 dark:to-purple-500/20 border border-indigo-500/20 dark:border-indigo-500/30 mb-4">
+              <ShieldCheck className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+              <span className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-300">Exclusive Pro Vault</span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-white via-indigo-100 to-indigo-400 bg-clip-text text-transparent tracking-tight">
+            <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-slate-900 via-indigo-800 to-indigo-500 dark:from-white dark:via-indigo-100 dark:to-indigo-400 bg-clip-text text-transparent tracking-tight">
               Welcome back, {user?.email?.split('@')[0]}
             </h1>
-            <p className="text-slate-400 text-lg mt-2">Your premium multi-agent workspace is ready.</p>
+            <p className="text-slate-600 dark:text-slate-400 text-lg mt-2">Your premium multi-agent workspace is ready.</p>
           </div>
           
           <div className="flex gap-4" data-aos="fade-left">
@@ -144,10 +144,10 @@ export default function ProPanel() {
           {/* Main Action Card */}
           <div className="lg:col-span-2 space-y-8">
              {/* Strategy History Quick Access */}
-             <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group">
+             <div className="bg-white/60 dark:bg-white/5 backdrop-blur-3xl border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl dark:shadow-2xl relative overflow-hidden group">
                <div className="flex justify-between items-center mb-8">
-                 <h2 className="text-2xl font-black">Recent Deployments</h2>
-                 <button onClick={() => navigate('/history')} className="text-indigo-400 font-bold flex items-center gap-1 hover:text-white transition-colors">
+                 <h2 className="text-2xl font-black text-slate-900 dark:text-white">Recent Deployments</h2>
+                 <button onClick={() => navigate('/history')} className="text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1 hover:text-indigo-800 dark:hover:text-white transition-colors">
                    Full History <ArrowUpRight className="w-4 h-4" />
                  </button>
                </div>
@@ -155,17 +155,17 @@ export default function ProPanel() {
                <div className="space-y-4">
                  {strategies.slice(0, 4).length > 0 ? (
                    strategies.slice(0, 4).map((s, i) => (
-                     <div key={i} className="flex items-center justify-between p-5 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-pointer group/item" onClick={() => navigate(`/blueprint/${s.id}`)}>
+                     <div key={i} className="flex items-center justify-between p-5 bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/10 shadow-sm dark:shadow-none transition-all cursor-pointer group/item" onClick={() => navigate(`/blueprint/${s.id}`)}>
                         <div className="flex items-center gap-4">
-                           <div className="w-12 h-12 bg-indigo-600/20 rounded-xl flex items-center justify-center border border-indigo-500/20">
-                             <Lock className="w-5 h-5 text-indigo-400 group-hover/item:scale-110 transition-transform" />
+                           <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-600/20 rounded-xl flex items-center justify-center border border-indigo-100 dark:border-indigo-500/20">
+                             <Lock className="w-5 h-5 text-indigo-500 dark:text-indigo-400 group-hover/item:scale-110 transition-transform" />
                            </div>
                            <div>
-                             <h4 className="font-bold text-white group-hover/item:text-indigo-300 transition-colors">{s.goal || "Strategy Preview"}</h4>
+                             <h4 className="font-bold text-slate-900 dark:text-white group-hover/item:text-indigo-600 dark:group-hover/item:text-indigo-300 transition-colors">{s.goal || "Strategy Preview"}</h4>
                              <p className="text-xs text-slate-500">{s.platform} • {new Date(s.created_at).toLocaleDateString()}</p>
                            </div>
                         </div>
-                        <ArrowUpRight className="w-5 h-5 opacity-0 group-hover/item:opacity-100 transition-all text-indigo-400" />
+                        <ArrowUpRight className="w-5 h-5 opacity-0 group-hover/item:opacity-100 transition-all text-indigo-500 dark:text-indigo-400" />
                      </div>
                    ))
                  ) : (
@@ -178,20 +178,20 @@ export default function ProPanel() {
              </div>
 
              {/* Analytics Preview Card */}
-             <div className="bg-gradient-to-br from-indigo-600/20 to-transparent border border-white/10 rounded-[2.5rem] p-8 relative group cursor-pointer" onClick={() => navigate('/analytics')}>
+             <div className="bg-gradient-to-br from-indigo-50 dark:from-indigo-600/20 to-transparent border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 relative group cursor-pointer" onClick={() => navigate('/analytics')}>
                 <div className="absolute top-0 right-0 p-8">
-                  <BarChart3 className="w-20 h-20 text-indigo-500/20" />
+                  <BarChart3 className="w-20 h-20 text-indigo-500/10 dark:text-indigo-500/20" />
                 </div>
-                <h2 className="text-3xl font-black mb-2">Live Analytics View</h2>
-                <p className="text-slate-400 max-w-sm mb-8">Access real-time engagement data and AI agent performance metrics for all strategies.</p>
+                <h2 className="text-3xl font-black mb-2 text-slate-900 dark:text-white">Live Analytics View</h2>
+                <p className="text-slate-600 dark:text-slate-400 max-w-sm mb-8">Access real-time engagement data and AI agent performance metrics for all strategies.</p>
                 <div className="flex gap-12">
                    <div>
-                     <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Total Reach</p>
-                     <p className="text-2xl font-black">1.2M+</p>
+                     <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1">Total Reach</p>
+                     <p className="text-2xl font-black text-slate-900 dark:text-white">1.2M+</p>
                    </div>
                    <div>
-                     <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Engagement</p>
-                     <p className="text-2xl font-black">84.2K</p>
+                     <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1">Engagement</p>
+                     <p className="text-2xl font-black text-slate-900 dark:text-white">84.2K</p>
                    </div>
                 </div>
              </div>
@@ -228,9 +228,9 @@ export default function ProPanel() {
              </div>
 
              {/* SEO Insights Panel */}
-             <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-8">
-                <h3 className="text-xl font-bold flex items-center gap-2 mb-6">
-                  <Search className="w-5 h-5 text-indigo-400" /> SEO Trending
+             <div className="bg-white/60 dark:bg-white/5 backdrop-blur-3xl border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl dark:shadow-none">
+                <h3 className="text-xl font-bold flex items-center gap-2 mb-6 text-slate-900 dark:text-white">
+                  <Search className="w-5 h-5 text-indigo-500 dark:text-indigo-400" /> SEO Trending
                 </h3>
                 <div className="space-y-4">
                    <TrendingTopic label="AI Content Automation" surge="+412%" />
@@ -238,7 +238,7 @@ export default function ProPanel() {
                    <TrendingTopic label="SAAS Marketing 2026" surge="+185%" />
                    <TrendingTopic label="Content Orchestration" surge="+98%" />
                 </div>
-                <button className="w-full mt-6 py-3 border border-white/10 rounded-xl text-xs font-bold text-slate-400 hover:bg-white/5 transition-all">
+                <button className="w-full mt-6 py-3 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-all">
                   Load More Trends
                 </button>
              </div>
@@ -263,16 +263,16 @@ function StatCard({ label, value, sub, icon: Icon, color, delay }) {
   return (
     <div 
       data-aos="fade-up" data-aos-delay={delay}
-      className={`bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-3xl relative overflow-hidden group hover:bg-white/[0.08] transition-all`}
+      className={`bg-white dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 p-6 rounded-3xl relative overflow-hidden group hover:bg-slate-50 dark:hover:bg-white/[0.08] shadow-sm dark:shadow-none transition-all`}
     >
-      <div className={`absolute -bottom-4 -right-4 w-20 h-20 bg-gradient-to-br ${colorMap[color].split(' ')[0]} blur-2xl opacity-20 group-hover:opacity-40 transition-all`}></div>
+      <div className={`absolute -bottom-4 -right-4 w-20 h-20 bg-gradient-to-br ${colorMap[color].split(' ')[0]} blur-2xl opacity-10 dark:opacity-20 group-hover:opacity-30 dark:group-hover:opacity-40 transition-all`}></div>
       <div className="relative z-10">
-        <div className={`w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 ${colorMap[color].split(' ')[2]}`}>
+        <div className={`w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 flex items-center justify-center mb-4 ${colorMap[color].split(' ')[2]}`}>
           <Icon className="w-5 h-5" />
         </div>
-        <p className="text-slate-400 text-sm font-bold">{label}</p>
+        <p className="text-slate-500 dark:text-slate-400 text-sm font-bold">{label}</p>
         <div className="flex items-baseline gap-2 mt-1">
-          <span className="text-3xl font-black text-white">{value}</span>
+          <span className="text-3xl font-black text-slate-900 dark:text-white">{value}</span>
           <span className="text-xs text-slate-500 font-medium">{sub}</span>
         </div>
       </div>
@@ -282,9 +282,9 @@ function StatCard({ label, value, sub, icon: Icon, color, delay }) {
 
 function TrendingTopic({ label, surge }) {
   return (
-    <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
-      <span className="text-sm font-medium text-slate-300">{label}</span>
-      <span className="text-xs font-black text-emerald-400">{surge}</span>
+    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5">
+      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
+      <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">{surge}</span>
     </div>
   );
 }

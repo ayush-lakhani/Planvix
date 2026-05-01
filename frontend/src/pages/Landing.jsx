@@ -15,7 +15,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#06070a] text-white selection:bg-[#81ecff]/30 overflow-hidden font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#06070a] text-slate-900 dark:text-white selection:bg-[#81ecff]/30 overflow-hidden font-sans transition-colors duration-300">
       
       {/* Background Ambient Effects (Aether Flux aesthetic) */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -33,10 +33,10 @@ export default function Landing() {
           
           <div 
             data-aos="fade-down"
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 backdrop-blur-md mb-8"
           >
-            <Sparkles className="w-4 h-4 text-[#81ecff]" />
-            <span className="text-sm font-semibold tracking-wide text-slate-300">Introducing planvIx Multi-Agent Architecture</span>
+            <Sparkles className="w-4 h-4 text-cyan-600 dark:text-[#81ecff]" />
+            <span className="text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-300">Introducing planvIx Multi-Agent Architecture</span>
           </div>
 
           <h1 
@@ -44,14 +44,14 @@ export default function Landing() {
             className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1] mb-8"
           >
             The Orchestrator of <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#81ecff] via-white to-[#a68cff] drop-shadow-[0_0_30px_rgba(129,236,255,0.3)]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-slate-900 to-purple-600 dark:from-[#81ecff] dark:via-white dark:to-[#a68cff] drop-shadow-[0_0_30px_rgba(129,236,255,0.3)]">
               Premium Content
             </span>
           </h1>
 
           <p 
             data-aos="fade-up" data-aos-delay="200"
-            className="text-lg md:text-xl text-slate-400 max-w-3xl mb-12 leading-relaxed"
+            className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mb-12 leading-relaxed"
           >
             Empower your strategy with a symphony of autonomous AI agents. planvIx delegates research, 
             drafting, and SEO optimization to specialized models, delivering high-converting content at lightspeed.
@@ -72,9 +72,9 @@ export default function Landing() {
             
             <Link 
               to="/login"
-              className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 backdrop-blur-md rounded-xl text-white font-bold text-lg transition-all"
+              className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 backdrop-blur-md rounded-xl text-slate-900 dark:text-white font-bold text-lg transition-all"
             >
-              <Globe className="w-5 h-5 mr-2 text-slate-400" />
+              <Globe className="w-5 h-5 mr-2 text-slate-500 dark:text-slate-400" />
               <span>View Live Demo</span>
             </Link>
           </div>
@@ -86,46 +86,46 @@ export default function Landing() {
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16" data-aos="fade-up">
-              <h2 className="text-3xl md:text-5xl font-black mb-6">A Network of <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#a68cff] to-[#81ecff]">Specialized Minds</span></h2>
-              <p className="text-slate-400 max-w-2xl mx-auto text-lg">Why rely on one model when you can deploy an entire agency? Our specialized agents work in tandem to execute complex content strategies.</p>
+              <h2 className="text-3xl md:text-5xl font-black mb-6 text-slate-900 dark:text-white">A Network of <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-[#a68cff] dark:to-[#81ecff]">Specialized Minds</span></h2>
+              <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-lg">Why rely on one model when you can deploy an entire agency? Our specialized agents work in tandem to execute complex content strategies.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Agent 1 */}
-              <div data-aos="fade-up" data-aos-delay="100" className="group relative bg-[#0d0e12]/60 backdrop-blur-xl border border-white/5 rounded-3xl p-8 hover:bg-[#1a1b23]/80 transition-all duration-500 overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#81ecff]/10 blur-3xl rounded-full group-hover:bg-[#81ecff]/20 transition-all"></div>
+              <div data-aos="fade-up" data-aos-delay="100" className="group relative bg-white/60 dark:bg-[#0d0e12]/60 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-3xl p-8 hover:bg-slate-50/80 dark:hover:bg-[#1a1b23]/80 transition-all duration-500 overflow-hidden shadow-xl dark:shadow-none">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 dark:bg-[#81ecff]/10 blur-3xl rounded-full group-hover:bg-cyan-500/20 dark:group-hover:bg-[#81ecff]/20 transition-all"></div>
                 <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center mb-6">
-                  <Database className="w-7 h-7 text-emerald-400" />
+                  <Database className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-3">Tech Researcher</h3>
-                <p className="text-slate-400 leading-relaxed mb-6">Scours the web for the latest data, API changes, and technical literature to ensure your content is factually flawless.</p>
-                <div className="flex items-center text-sm font-semibold text-emerald-400 bg-emerald-500/10 w-max px-3 py-1 rounded-full">
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Tech Researcher</h3>
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">Scours the web for the latest data, API changes, and technical literature to ensure your content is factually flawless.</p>
+                <div className="flex items-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 w-max px-3 py-1 rounded-full">
                   <CheckCircle2 className="w-4 h-4 mr-1.5" /> Data Validated
                 </div>
               </div>
 
               {/* Agent 2 */}
-              <div data-aos="fade-up" data-aos-delay="200" className="group relative bg-[#0d0e12]/60 backdrop-blur-xl border border-white/5 rounded-3xl p-8 hover:bg-[#1a1b23]/80 transition-all duration-500 overflow-hidden shadow-[0_0_30px_rgba(98,0,238,0.1)]">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#a68cff]/10 blur-3xl rounded-full group-hover:bg-[#a68cff]/20 transition-all"></div>
-                <div className="w-14 h-14 bg-[#6200EE]/20 border border-[#6200EE]/30 rounded-2xl flex items-center justify-center mb-6">
-                  <Cpu className="w-7 h-7 text-[#a68cff]" />
+              <div data-aos="fade-up" data-aos-delay="200" className="group relative bg-white/60 dark:bg-[#0d0e12]/60 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-3xl p-8 hover:bg-slate-50/80 dark:hover:bg-[#1a1b23]/80 transition-all duration-500 overflow-hidden shadow-xl dark:shadow-[0_0_30px_rgba(98,0,238,0.1)]">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 dark:bg-[#a68cff]/10 blur-3xl rounded-full group-hover:bg-purple-500/20 dark:group-hover:bg-[#a68cff]/20 transition-all"></div>
+                <div className="w-14 h-14 bg-indigo-500/10 dark:bg-[#6200EE]/20 border border-indigo-500/20 dark:border-[#6200EE]/30 rounded-2xl flex items-center justify-center mb-6">
+                  <Cpu className="w-7 h-7 text-indigo-600 dark:text-[#a68cff]" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-3">Master Copywriter</h3>
-                <p className="text-slate-400 leading-relaxed mb-6">Synthesizes research into engaging, human-sounding prose tailored perfectly to your brand's unique tone of voice.</p>
-                <div className="flex items-center text-sm font-semibold text-[#a68cff] bg-[#6200EE]/20 w-max px-3 py-1 rounded-full">
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Master Copywriter</h3>
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">Synthesizes research into engaging, human-sounding prose tailored perfectly to your brand's unique tone of voice.</p>
+                <div className="flex items-center text-sm font-semibold text-indigo-700 dark:text-[#a68cff] bg-indigo-100 dark:bg-[#6200EE]/20 w-max px-3 py-1 rounded-full">
                   <Zap className="w-4 h-4 mr-1.5" /> High Conversion
                 </div>
               </div>
 
               {/* Agent 3 */}
-              <div data-aos="fade-up" data-aos-delay="300" className="group relative bg-[#0d0e12]/60 backdrop-blur-xl border border-white/5 rounded-3xl p-8 hover:bg-[#1a1b23]/80 transition-all duration-500 overflow-hidden">
+              <div data-aos="fade-up" data-aos-delay="300" className="group relative bg-white/60 dark:bg-[#0d0e12]/60 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-3xl p-8 hover:bg-slate-50/80 dark:hover:bg-[#1a1b23]/80 transition-all duration-500 overflow-hidden shadow-xl dark:shadow-none">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 blur-3xl rounded-full group-hover:bg-amber-500/20 transition-all"></div>
                 <div className="w-14 h-14 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center mb-6">
-                  <Activity className="w-7 h-7 text-amber-400" />
+                  <Activity className="w-7 h-7 text-amber-600 dark:text-amber-400" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-3">SEO Analyst</h3>
-                <p className="text-slate-400 leading-relaxed mb-6">Injects semantic keywords, optimizes headers, and structures the final output to dominate search engine rankings.</p>
-                <div className="flex items-center text-sm font-semibold text-amber-400 bg-amber-500/10 w-max px-3 py-1 rounded-full">
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">SEO Analyst</h3>
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">Injects semantic keywords, optimizes headers, and structures the final output to dominate search engine rankings.</p>
+                <div className="flex items-center text-sm font-semibold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/10 w-max px-3 py-1 rounded-full">
                   <Shield className="w-4 h-4 mr-1.5" /> Rank Optimized
                 </div>
               </div>
@@ -136,14 +136,14 @@ export default function Landing() {
         {/* PERFORMANCE / METRICS SECTION */}
         <section className="py-24 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-gradient-to-br from-[#12131a] to-[#0a0b0f] border border-white/5 rounded-[2.5rem] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-white to-slate-50 dark:from-[#12131a] dark:to-[#0a0b0f] border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden shadow-2xl">
               
               {/* Metric Background flare */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-[#6200EE]/20 blur-[100px] rounded-[100%] pointer-events-none mix-blend-screen"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-indigo-500/10 dark:bg-[#6200EE]/20 blur-[100px] rounded-[100%] pointer-events-none mix-blend-screen"></div>
 
               <div className="w-full md:w-1/2 relative z-10" data-aos="fade-right">
-                <h2 className="text-3xl md:text-5xl font-black mb-6">Unprecedented <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-[#81ecff]">Velocity</span></h2>
-                <p className="text-slate-400 text-lg mb-8 leading-relaxed">
+                <h2 className="text-3xl md:text-5xl font-black mb-6 text-slate-900 dark:text-white">Unprecedented <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-500 dark:from-emerald-400 dark:to-[#81ecff]">Velocity</span></h2>
+                <p className="text-slate-600 dark:text-slate-400 text-lg mb-8 leading-relaxed">
                   Companies using planvIx experience a paradigm shift in content production. 
                   Reduce drafting time from days to minutes without sacrificing quality.
                 </p>
@@ -153,9 +153,9 @@ export default function Landing() {
                     "Maintain 100% brand voice consistency",
                     "Automated SEO optimization pre-publish"
                   ].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-slate-300 font-medium">
-                      <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <li key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-300 font-medium">
+                      <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                       </div>
                       {item}
                     </li>
@@ -164,20 +164,20 @@ export default function Landing() {
               </div>
 
               <div className="w-full md:w-1/2 relative z-10" data-aos="fade-left">
-                <div className="bg-[#0d0e12]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
+                <div className="bg-white/80 dark:bg-[#0d0e12]/80 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-3xl p-8 shadow-xl dark:shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
                    <div className="flex items-center justify-between mb-6">
-                     <span className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Average ROI</span>
-                     <span className="flex items-center text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md">
+                     <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Average ROI</span>
+                     <span className="flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 px-2 py-1 rounded-md">
                        +314%
                      </span>
                    </div>
-                   <div className="text-6xl font-black text-white mb-2 tracking-tight">₹12.4k</div>
-                   <p className="text-slate-400 text-sm mb-8">Value generated per month on Pro tier.</p>
+                   <div className="text-6xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">₹12.4k</div>
+                   <p className="text-slate-600 dark:text-slate-400 text-sm mb-8">Value generated per month on Pro tier.</p>
                    
                    {/* Decorative Chart Line */}
                    <div className="h-24 w-full flex items-end gap-2">
                      {[30, 45, 25, 60, 40, 75, 55, 90, 80, 100].map((h, i) => (
-                       <div key={i} className="relative w-full bg-white/5 rounded-t-sm overflow-hidden" style={{ height: '100%' }}>
+                       <div key={i} className="relative w-full bg-slate-200 dark:bg-white/5 rounded-t-sm overflow-hidden" style={{ height: '100%' }}>
                          <div 
                            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#6200EE] to-[#81ecff] rounded-t-sm" 
                            style={{ height: `${h}%` }}
@@ -196,14 +196,14 @@ export default function Landing() {
 
         {/* CTA SECTION */}
         <section className="py-32 relative text-center">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-3xl bg-[radial-gradient(ellipse_at_center,rgba(98,0,238,0.2),transparent_70%)] pointer-events-none"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-3xl bg-[radial-gradient(ellipse_at_center,rgba(98,0,238,0.1),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(98,0,238,0.2),transparent_70%)] pointer-events-none"></div>
           
           <div className="relative z-10 max-w-4xl mx-auto px-4" data-aos="zoom-y-out">
-            <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-8">Ready to upgrade your workflow?</h2>
-            <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto">Join elite teams scaling their content operations with planvIx's Multi-Agent architecture.</p>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-8 text-slate-900 dark:text-white">Ready to upgrade your workflow?</h2>
+            <p className="text-xl text-slate-600 dark:text-slate-400 mb-12 max-w-2xl mx-auto">Join elite teams scaling their content operations with planvIx's Multi-Agent architecture.</p>
             <Link 
               to="/signup"
-              className="inline-flex items-center justify-center px-10 py-5 bg-white text-black rounded-full font-black text-xl hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all duration-300"
+              className="inline-flex items-center justify-center px-10 py-5 bg-slate-900 dark:bg-white text-white dark:text-black rounded-full font-black text-xl hover:scale-105 hover:shadow-xl dark:hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all duration-300"
             >
               Start Free Trial
             </Link>
@@ -211,7 +211,7 @@ export default function Landing() {
         </section>
 
         {/* FOOTER */}
-        <footer className="border-t border-white/5 py-12 text-center text-slate-500 text-sm">
+        <footer className="border-t border-slate-200 dark:border-white/5 py-12 text-center text-slate-500 text-sm">
           <div className="flex items-center justify-center gap-2 mb-4 opacity-50">
              <Bot className="w-5 h-5" />
              <span className="font-bold tracking-widest uppercase">planvIx © 2026</span>

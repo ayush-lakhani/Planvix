@@ -50,7 +50,7 @@ class AnalyticsService:
 
         # ── tier distribution ──────────────────────────────
         tier_pipeline = [
-            {"$group": {"_id": "$tier", "count": {"$sum": 1}}}
+            {"$group": {"_id": {"$toLower": "$tier"}, "count": {"$sum": 1}}}
         ]
         tier_results = {r["_id"]: r["count"] for r in _safe_list(users_collection.aggregate(tier_pipeline))}
         free_count = tier_results.get("free", 0) + tier_results.get(None, 0)

@@ -197,41 +197,109 @@ export default function History() {
             </button>
           </div>
         ) : (
-          /* Strategies List */
-          <div className="space-y-4">
-            {strategies.map((strategy, index) => (
-              <div
-                key={strategy.id}
-                className="glass-card p-6 hover:shadow-lg transition-all duration-200 ease-in-out hover:-translate-y-0.5"
-                data-aos="fade-up"
-                data-aos-delay={Math.min(index * 100, 500)}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                      {strategy.industry && strategy.platform
-                        ? `${strategy.industry} - ${strategy.platform} Strategy`
-                        : strategy.industry ||
-                          strategy.platform ||
-                          "Content Strategy"}
-                    </h3>
-                    <div className="flex flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      {strategy.audience && (
-                        <span className="flex items-center gap-1">
-                          👥 {strategy.audience}
-                        </span>
-                      )}
-                      {strategy.industry && (
-                        <span className="flex items-center gap-1">
-                          🏢 {strategy.industry}
-                        </span>
-                      )}
-                      {strategy.platform && (
-                        <span className="flex items-center gap-1">
-                          📱 {strategy.platform}
-                        </span>
-                      )}
+        {/* Strategies List */}
+        <div className="space-y-4">
+          {strategies.map((strategy, index) => (
+            <div
+              key={strategy.id}
+              className="glass-card p-4 sm:p-6 hover:shadow-lg transition-all duration-200 ease-in-out hover:-translate-y-0.5"
+              data-aos="fade-up"
+              data-aos-delay={Math.min(index * 100, 500)}
+            >
+              <div className="flex flex-col gap-4">
+                {/* Main Content Row */}
+                <div className="flex-1">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    {strategy.industry && strategy.platform
+                      ? `${strategy.industry} - ${strategy.platform} Strategy`
+                      : strategy.industry ||
+                        strategy.platform ||
+                        "Content Strategy"}
+                  </h3>
+                  <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    {strategy.audience && (
+                      <span className="flex items-center gap-1">
+                        👥 {strategy.audience}
+                      </span>
+                    )}
+                    {strategy.industry && (
+                      <span className="flex items-center gap-1">
+                        🏢 {strategy.industry}
+                      </span>
+                    )}
+                    {strategy.platform && (
+                      <span className="flex items-center gap-1">
+                        📱 {strategy.platform}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-500">
+                    Generated {safeDate(strategy.created_at, "datetime")}
+                    {strategy.generation_time &&
+                      ` • ${strategy.generation_time}s`}
+                  </p>
+                </div>
+
+                {/* Actions Row */}
+                <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                  {/* Feedback Buttons */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleFeedback(strategy.id, "up")}
+                      className={`p-2 rounded-lg transition-colors ${
+                        strategy.feedback_rating === "up"
+                          ? "bg-green-600 text-white"
+                          : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-green-100 dark:hover:bg-green-900"
+                      }`}
+                      title="Good strategy"
+                    >
+                      <ThumbsUp className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleFeedback(strategy.id, "down")}
+                      className={`p-2 rounded-lg transition-colors ${
+                        strategy.feedback_rating === "down"
+                          ? "bg-red-600 text-white"
+                          : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900"
+                      }`}
+                      title="Needs improvement"
+                    >
+                      <ThumbsDown className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Options Menu Dropdown */}
+                  <Dropdown
+                    placement="bottom-end"
+                    className="p-1 min-w-[140px] mt-2"
+                    trigger={
+                      <button className="p-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    }
+                  >
+                    <div className="flex flex-col space-y-1">
+                      <button
+                        onClick={() => handleView(strategy)}
+                        className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-900/40 hover:text-primary-600 dark:hover:text-primary-400 rounded-lg transition-colors"
+                      >
+                        <Eye className="w-4 h-4" />
+                        View Details
+                      </button>
+                      <button
+                        onClick={() => handleDelete(strategy)}
+                        className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete
+                      </button>
                     </div>
+                  </Dropdown>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
                     <p className="text-xs text-gray-500 dark:text-gray-500">
                       Generated {safeDate(strategy.created_at, "datetime")}
                       {strategy.generation_time &&
