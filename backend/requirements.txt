@@ -19,3 +19,4 @@ cryptography
 motor
 razorpay
 psutil
+argon2-cffi
