@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import { TrendingUp, Zap, BarChart3 } from "lucide-react";
 import { safeDate } from "../../utils/dateUtils";
-import Skeleton from "../ui/skeleton";
+import Skeleton from "./ui/skeleton";
 
 export default function UsageCharts({ analytics, loading }) {
   if (loading || !analytics) {
@@ -212,7 +212,10 @@ export default function UsageCharts({ analytics, loading }) {
                   tickLine={false}
                   tick={{ fontSize: 10, fill: "#64748b" }}
                 />
-                <Tooltip content={<CustomTooltip />} isAnimationActive={false} />
+                <Tooltip
+                  content={<CustomTooltip />}
+                  isAnimationActive={false}
+                />
                 <Area
                   type="monotone"
                   dataKey="tokens"
