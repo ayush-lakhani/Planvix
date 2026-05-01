@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import { TrendingUp, Zap, BarChart3 } from "lucide-react";
 import { safeDate } from "../../utils/dateUtils";
-import Skeleton from "./ui/skeleton";
+import Skeleton from "../ui/skeleton";
 
 export default function UsageCharts({ analytics, loading }) {
   if (loading || !analytics) {
