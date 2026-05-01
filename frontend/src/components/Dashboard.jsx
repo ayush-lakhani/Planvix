@@ -1,4 +1,4 @@
-﻿import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ProPanel from "../pages/ProPanel";
 import {
@@ -75,7 +75,6 @@ export default function Dashboard() {
     if (strategies.length === 0) return 0;
 
     // Count strategies that have positive feedback (rating >= 3, or "up" rating)
-    // The backend stores feedback as { rating: number } or feedback_rating as "up"/"down"
     const ratedStrategies = strategies.filter(s => s.feedback || s.feedback_rating);
     if (ratedStrategies.length === 0) return 0;
 
@@ -98,221 +97,202 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="animate-stripe-page min-h-screen pt-20 pb-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      <div className="max-w-7xl mx-auto">
-        {/* Hero Section */}
-        <div className="relative text-center mb-16 px-4" data-aos="fade-down">
-          <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight text-gray-900 dark:text-white">
-            Watch 5 AI Agents{" "}
-            <span className="bg-gradient-to-r from-primary-600 via-accent-600 to-pink-600 bg-clip-text text-transparent">
-              Build Your Strategy
-            </span>
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4">
-            Live multi-agent collaboration for professional content planning
-          </p>
-          <p className="text-lg font-black text-primary-600 dark:text-primary-400 tracking-wider uppercase">
-            AGENTS BUILD STRATEGY
-          </p>
-        </div>
-
-        {/* Stats Grid - Modern Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {/* Total Strategies */}
-          <div className="relative group transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5" data-aos="fade-up" data-aos-delay="100">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
-            <div className="relative glass-card p-6 rounded-2xl">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-blue-500/10 rounded-xl">
-                  <BarChart3 className="w-6 h-6 text-blue-500" />
-                </div>
-                <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                  {stats.total}
-                </span>
-              </div>
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                Total Strategies
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-500">
-                All time generated
-              </p>
-              <div className="mt-4 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"
-                  style={{
-                    width: `${Math.min((stats.total / 10) * 100, 100)}%`,
-                  }}
-                ></div>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+          <div data-aos="fade-right">
+            <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-2">
+              Welcome back, <span className="text-primary-600">{user?.email?.split("@")[0]}</span>
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 text-lg">
+              Here's what's happening with your content strategies.
+            </p>
           </div>
-
-          {/* This Month */}
-          <div className="relative group transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5" data-aos="fade-up" data-aos-delay="200">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
-            <div className="relative glass-card p-6 rounded-2xl">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-purple-500/10 rounded-xl">
-                  <Calendar className="w-6 h-6 text-purple-500" />
-                </div>
-                <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  {stats.thisMonth}/{stats.limit}
-                </span>
-              </div>
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                This Month
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-500">
-                {user?.tier === "pro"
-                  ? "Unlimited usage"
-                  : `${3 - stats.thisMonth} remaining`}
-              </p>
-              <div className="mt-4 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
-                  style={{
-                    width:
-                      user?.tier === "pro"
-                        ? "100%"
-                        : `${(stats.thisMonth / 3) * 100}%`,
-                  }}
-                ></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Performance */}
-          <div className="relative group transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5" data-aos="fade-up" data-aos-delay="300">
-            <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
-            <div className="relative glass-card p-6 rounded-2xl">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-green-500/10 rounded-xl">
-                  <Zap className="w-6 h-6 text-green-500" />
-                </div>
-                <span className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  {stats.total > 0 ? `${successRate}%` : "--"}
-                </span>
-              </div>
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                Success Rate
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-500">
-                {stats.total > 0
-                  ? `${successRate}% of strategies rated positively`
-                  : "No strategies yet"
-                }
-              </p>
-              <div className="mt-4 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-500"
-                  style={{ width: `${successRate}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Warning Banner - Free Tier Limit */}
-        {user?.tier !== "pro" && stats.thisMonth >= 3 && (
-          <div className="mb-8 glass-card p-4 border-l-4 border-orange-500 bg-orange-50 dark:bg-orange-900/10">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-orange-500 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="font-semibold text-orange-900 dark:text-orange-300 mb-1">
-                  Monthly Limit Reached
-                </h3>
-                <p className="text-sm text-orange-700 dark:text-orange-400">
-                  You've used all 3 free strategies this month. Upgrade to Pro
-                  for unlimited access!
-                </p>
-              </div>
-              <button
-                onClick={() => navigate("/upgrade")}
-                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium text-sm hover:shadow-lg transition-all"
-              >
-                Upgrade Now
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Main Action - Primary CTA */}
-        <div className="mb-8 relative group" data-aos="zoom-in" data-aos-delay="400">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-accent-600 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
           <button
             onClick={() => navigate("/planner")}
-            disabled={user?.tier !== "pro" && stats.thisMonth >= 3}
-            className="relative w-full glass-card p-8 rounded-3xl text-left transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="flex items-center justify-center gap-2 px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary-600/20 hover:shadow-primary-600/40 hover:-translate-y-1 active:scale-95"
+            data-aos="fade-left"
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                <div className="p-5 bg-gradient-to-br from-primary-600 to-accent-600 rounded-2xl shadow-2xl">
-                  <Sparkles className="w-10 h-10 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                    Generate New Strategy
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400 text-lg">
-                    Create AI-powered content strategies in 30 seconds with our
-                    5 elite agents
-                  </p>
-                  <div className="flex items-center gap-4 mt-3">
-                    <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium">
-                      ÔÜí 30s Generation
-                    </span>
-                    <span className="px-3 py-1 bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-300 rounded-full text-sm font-medium">
-                      ­ƒôè ROI Predictions
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <ArrowRight className="w-8 h-8 text-gray-400 group-hover:text-primary-600 group-hover:translate-x-2 transition-all" />
-            </div>
+            <Sparkles className="w-5 h-5" />
+            Create New Strategy
           </button>
         </div>
 
-        {/* Secondary Actions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* View History */}
-          <button
-            onClick={() => navigate("/history")}
-            className="glass-card p-6 rounded-2xl text-left transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5 group"
-            data-aos="fade-right"
-          >
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl">
-                <TrendingUp className="w-6 h-6 text-white" />
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {[
+            {
+              label: "Total Strategies",
+              value: stats.total,
+              icon: Zap,
+              color: "text-blue-600",
+              bg: "bg-blue-100 dark:bg-blue-900/30",
+            },
+            {
+              label: "Usage This Month",
+              value: stats.thisMonth,
+              limit: `/${stats.limit}`,
+              icon: Calendar,
+              color: "text-emerald-600",
+              bg: "bg-emerald-100 dark:bg-emerald-900/30",
+            },
+            {
+              label: "Success Rate",
+              value: `${successRate}%`,
+              icon: Trophy,
+              color: "text-amber-600",
+              bg: "bg-amber-100 dark:bg-amber-900/30",
+            },
+            {
+              label: "Active Plan",
+              value: user?.tier?.toUpperCase() || "FREE",
+              icon: TrendingUp,
+              color: "text-purple-600",
+              bg: "bg-purple-100 dark:bg-purple-900/30",
+            },
+          ].map((stat, i) => (
+            <div
+              key={i}
+              className="glass-card p-6 rounded-2xl border border-white/10 dark:border-white/5"
+              data-aos="fade-up"
+              data-aos-delay={i * 100}
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className={`p-3 rounded-xl ${stat.bg}`}>
+                  <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                </div>
+                <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  {stat.label}
+                </span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                View Past Strategies
-              </h3>
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-black text-gray-900 dark:text-white">
+                  {stat.value}
+                </span>
+                {stat.limit && (
+                  <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                    {stat.limit}
+                  </span>
+                )}
+              </div>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Access all {stats.total} previously generated strategies and
-              insights
-            </p>
-            <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-semibold">
-              <span>Browse History</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </button>
+          ))}
+        </div>
 
-          {/* Analytics (Coming Soon) */}
-          <div className="glass-card p-6 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 opacity-60" data-aos="fade-left">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-gray-200 dark:bg-gray-800 rounded-xl">
-                <BarChart3 className="w-6 h-6 text-gray-500" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                Analytics Dashboard
-              </h3>
+        {/* Main Content Sections */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Recent Strategies List */}
+          <div className="lg:col-span-2 space-y-6" data-aos="fade-right">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Recent Strategies
+              </h2>
+              <button
+                onClick={() => navigate("/history")}
+                className="text-primary-600 font-bold hover:text-primary-700 flex items-center gap-1 group"
+              >
+                View All
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Track performance metrics and ROI for your content strategies
-            </p>
-            <div className="flex items-center gap-2 text-gray-500 font-medium">
-              <span>Coming Soon</span>
+
+            <div className="space-y-4">
+              {loading ? (
+                Array(3).fill(0).map((_, i) => (
+                  <div key={i} className="glass-card p-6 rounded-2xl animate-pulse">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/4 mb-4"></div>
+                    <div className="h-3 bg-gray-100 dark:bg-gray-900 rounded w-1/2"></div>
+                  </div>
+                ))
+              ) : strategies.length > 0 ? (
+                strategies.slice(0, 3).map((strategy, i) => (
+                  <div
+                    key={strategy.id || i}
+                    className="glass-card p-6 rounded-2xl border border-white/10 dark:border-white/5 hover:border-primary-500/50 transition-all group"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1 group-hover:text-primary-600 transition-colors">
+                          {strategy.title || "Untitled Strategy"}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-1">
+                          {strategy.objective || "No objective defined"}
+                        </p>
+                        <div className="flex items-center gap-4 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                          <span className="flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {safeDate(strategy.createdAt)}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Zap className="w-3.5 h-3.5" />
+                            {strategy.platform || "Multi-Platform"}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => navigate("/history")}
+                        className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl group-hover:bg-primary-600 group-hover:text-white transition-all"
+                      >
+                        <ArrowRight className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="glass-card p-12 rounded-2xl text-center border-2 border-dashed border-gray-300 dark:border-gray-800">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <AlertCircle className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    No strategies yet
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Start by creating your first AI-powered content strategy.
+                  </p>
+                  <button
+                    onClick={() => navigate("/planner")}
+                    className="text-primary-600 font-bold hover:underline"
+                  >
+                    Create your first strategy →
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Actions / Tips */}
+          <div className="space-y-6">
+            <div className="glass-card p-8 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 text-white shadow-xl shadow-primary-600/20" data-aos="fade-left">
+              <Sparkles className="w-10 h-10 mb-6 opacity-50" />
+              <h3 className="text-2xl font-black mb-2">Pro Tip</h3>
+              <p className="text-primary-100 mb-6 font-medium leading-relaxed">
+                Try using the "Deep Research" mode for more comprehensive strategy insights and detailed content blueprints.
+              </p>
+              <button
+                onClick={() => navigate("/planner")}
+                className="w-full py-3 bg-white text-primary-700 rounded-xl font-bold hover:bg-primary-50 transition-colors"
+              >
+                Try it now
+              </button>
+            </div>
+
+            {/* Analytics (Coming Soon) */}
+            <div className="glass-card p-6 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 opacity-60" data-aos="fade-left">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="p-3 bg-gray-200 dark:bg-gray-800 rounded-xl">
+                  <BarChart3 className="w-6 h-6 text-gray-500" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Analytics Dashboard
+                </h3>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Track performance metrics and ROI for your content strategies
+              </p>
+              <div className="flex items-center gap-2 text-gray-500 font-medium">
+                <span>Coming Soon</span>
+              </div>
             </div>
           </div>
         </div>
