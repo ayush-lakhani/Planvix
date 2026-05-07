@@ -6,7 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from app.core.logger import logger, request_id_var
-from app.core.middleware import RequestIDMiddleware, SecurityHeadersMiddleware
+from app.core.middleware import RequestIDMiddleware, SecurityHeadersMiddleware, UserStateMiddleware
+from slowapi.middleware import SlowAPIMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from app.core.rate_limit import limiter
@@ -71,6 +72,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 # Middlewares
+app.add_middleware(UserStateMiddleware)
+app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RequestIDMiddleware)
 

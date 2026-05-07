@@ -1,4 +1,5 @@
 import axios from "axios";
+import { alertUtils } from "../utils/alertUtils";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -9,6 +10,20 @@ export const publicClient = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// Response interceptor for publicClient
+publicClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 429) {
+      alertUtils.warning(
+        "Too Many Requests",
+        "You're sending requests too fast. Please wait a moment."
+      );
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Authenticated Client (JWT — User Auth)
 export const apiClient = axios.create({
@@ -30,13 +45,19 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// Response interceptor for 401 handling (user auth)
+// Response interceptor for status handling
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       window.location.href = "/login";
+    } else if (error.response?.status === 429) {
+      const retryAfter = error.response.headers["retry-after"];
+      alertUtils.warning(
+        "Too Many Requests",
+        `You've reached your ${localStorage.getItem("tier") || "free"} tier limit. Please wait ${retryAfter || "a few seconds"} before trying again.`
+      );
     }
     return Promise.reject(error);
   },
