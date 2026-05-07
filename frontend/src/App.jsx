@@ -31,6 +31,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import DashboardSkeleton from "./components/DashboardSkeleton";
 
 // Navbar wrapper to exclude admin routes
 function NavbarWrapper({ darkMode, toggleDarkMode }) {
@@ -91,11 +92,7 @@ function AppContent() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-950">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-emerald-600"></div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (

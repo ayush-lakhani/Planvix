@@ -15,6 +15,7 @@ import { useState, useEffect, useMemo } from "react";
 import { strategyAPI } from "../api";
 import { safeDate } from "../utils/dateUtils";
 import Skeleton from "./ui/skeleton";
+import DashboardSkeleton from "./DashboardSkeleton";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
@@ -92,6 +93,10 @@ export default function Dashboard() {
 
     return Math.round((successful / ratedStrategies.length) * 100);
   }, [strategies]);
+
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
 
   if (user?.tier === "pro") {
     return <ProPanel />;

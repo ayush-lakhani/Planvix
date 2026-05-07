@@ -4,7 +4,14 @@ from app.services.auth_service import auth_service
 from app.core.rate_limit import limiter
 import asyncio
 
+from app.dependencies.auth import get_current_user
+
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+
+@router.delete("/delete")
+async def delete_account(current_user: dict = Depends(get_current_user)):
+    """Permanently delete account and all data"""
+    return await auth_service.delete_account(str(current_user["_id"]))
 
 @router.post("/signup", response_model=Token)
 @limiter.limit("5/minute")

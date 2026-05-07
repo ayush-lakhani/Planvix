@@ -12,42 +12,28 @@ import SocialAuthButton from "./auth/SocialAuthButton";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, loading: authLoading } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
     try {
       await login(email, password);
       navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      // Remove setError
       alertUtils.error("Login Failed", err.message || "Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (credentialResponse) => {
-      setGoogleLoading(true);
-      setError("");
       try {
         await loginWithGoogle(credentialResponse);
         navigate("/dashboard");
       } catch (err) {
         console.error("Google login error:", err);
-        // Remove setError
         alertUtils.error("Google Login Failed", err.message || "Please try again.");
-      } finally {
-        setGoogleLoading(false);
       }
     },
     onError: () => {
@@ -123,7 +109,7 @@ export default function Login() {
             </label>
           </div>
 
-          <AnimatedButton type="submit" loading={loading}>
+          <AnimatedButton type="submit" loading={authLoading}>
             Sign In
           </AnimatedButton>
         </form>
@@ -142,9 +128,9 @@ export default function Login() {
         <div className="mt-4 sm:mt-6">
           <SocialAuthButton
             onClick={() => handleGoogleLogin()}
-            className={googleLoading ? "opacity-60 cursor-not-allowed" : ""}
+            className={authLoading ? "opacity-60 cursor-not-allowed" : ""}
           >
-            {googleLoading ? "Signing in…" : "Google Account"}
+            {authLoading ? "Signing in…" : "Google Account"}
           </SocialAuthButton>
         </div>
 

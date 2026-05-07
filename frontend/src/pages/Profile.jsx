@@ -172,7 +172,7 @@ export default function Profile() {
           )}
 
           {activeTab === "settings" && (
-            <SettingsPanel user={heroData} logout={logout} />
+            <SettingsPanel user={heroData} logout={logout} token={token} />
           )}
         </div>
       </div>
@@ -181,8 +181,9 @@ export default function Profile() {
 }
 
 // Sub-component for Settings (Modular & Clean)
-function SettingsPanel({ user, logout }) {
+function SettingsPanel({ user, logout, token }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   return (
     <div className="max-w-3xl space-y-8">
@@ -248,13 +249,38 @@ function SettingsPanel({ user, logout }) {
         ) : (
           <div className="flex flex-col sm:flex-row items-center gap-3 animate-slide-up">
             <button
-              onClick={() => {
-                toast.success("Demo: Account deletion is simulated.");
-                logout();
+              onClick={async () => {
+                if (deleting) return;
+                setDeleting(true);
+                try {
+                  const headers = { Authorization: `Bearer ${token}` };
+                  await axios.delete(`${API_BASE}/api/auth/delete`, { headers });
+                  toast.success("Account permanently deleted.");
+                  logout();
+                } catch (error) {
+                  console.error("Full Deletion Error Object:", error);
+                  console.error("Error Response Data:", error.response?.data);
+                  const msg = error.response?.data?.detail || 
+                              error.response?.data?.error || 
+                              "Failed to delete account. Please try again.";
+                  toast.error(msg);
+                } finally {
+                  setDeleting(false);
+                }
               }}
-              className="w-full sm:w-auto px-6 py-3 bg-rose-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-rose-700 shadow-xl shadow-rose-900/20"
+              disabled={deleting}
+              className={`w-full sm:w-auto px-6 py-3 bg-rose-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-rose-700 shadow-xl shadow-rose-900/20 flex items-center justify-center gap-2 ${
+                deleting ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
-              Confirm Permanent Deletion
+              {deleting ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  Wiping Data...
+                </>
+              ) : (
+                "Confirm Permanent Deletion"
+              )}
             </button>
             <button
               onClick={() => setConfirmDelete(false)}

@@ -14,15 +14,11 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { signup, loginWithGoogle } = useAuth();
+  const { signup, loginWithGoogle, loading: authLoading } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (password.length < 8) {
       alertUtils.warning("Invalid Password", "Password must be at least 8 characters long");
@@ -34,30 +30,22 @@ export default function Signup() {
       return;
     }
 
-    setLoading(true);
-
     try {
       await signup(email, password);
       navigate("/dashboard");
     } catch (err) {
       alertUtils.error("Signup Failed", err.message || "Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleGoogleSignup = useGoogleLogin({
     onSuccess: async (credentialResponse) => {
-      setGoogleLoading(true);
-      setError("");
       try {
         await loginWithGoogle(credentialResponse);
         navigate("/dashboard");
       } catch (err) {
         console.error("Google signup error:", err);
         alertUtils.error("Google Sign-In Failed", err.message || "Please try again.");
-      } finally {
-        setGoogleLoading(false);
       }
     },
     onError: () => {
@@ -130,7 +118,7 @@ export default function Signup() {
           </div>
 
           <div className="pt-2">
-            <AnimatedButton type="submit" loading={loading}>
+            <AnimatedButton type="submit" loading={authLoading}>
               Create Account
             </AnimatedButton>
           </div>
@@ -150,9 +138,9 @@ export default function Signup() {
         <div className="mt-4 sm:mt-6">
           <SocialAuthButton
             onClick={() => handleGoogleSignup()}
-            className={googleLoading ? "opacity-60 cursor-not-allowed" : ""}
+            className={authLoading ? "opacity-60 cursor-not-allowed" : ""}
           >
-            {googleLoading ? "Signing in…" : "Google Account"}
+            {authLoading ? "Signing in…" : "Google Account"}
           </SocialAuthButton>
         </div>
 

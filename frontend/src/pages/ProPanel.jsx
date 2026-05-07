@@ -16,6 +16,7 @@ import {
   Globe
 } from 'lucide-react';
 import { alertUtils } from '../utils/alertUtils';
+import DashboardSkeleton from '../components/DashboardSkeleton';
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
@@ -58,14 +59,7 @@ export default function ProPanel() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <div className="relative w-20 h-20">
-          <div className="absolute inset-0 border-4 border-indigo-500/20 rounded-full"></div>
-          <div className="absolute inset-0 border-4 border-t-indigo-500 rounded-full animate-spin"></div>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
