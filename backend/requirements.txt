@@ -5,11 +5,12 @@ python-dotenv
 python-jose[cryptography]
 passlib[bcrypt]
 pymongo
-redis
+redis>=4.0.0
 requests
 httpx
 python-multipart
 slowapi[redis]
+limits[redis]
 google-auth
 crewai
 langchain-groq
