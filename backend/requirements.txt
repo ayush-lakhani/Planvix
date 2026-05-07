@@ -9,7 +9,7 @@ redis
 requests
 httpx
 python-multipart
-slowapi
+slowapi[redis]
 google-auth
 crewai
 langchain-groq

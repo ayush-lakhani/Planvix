@@ -1,6 +1,5 @@
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-from slowapi.storage import RedisStorage
 from fastapi import Request
 from app.core.config import settings
 from app.core.logger import logger
@@ -28,18 +27,12 @@ def get_tiered_limit(request: Request) -> str:
         return "20/minute"
     return "10/minute"
 
-# Initialize Redis Storage for SlowAPI
-# This allows rate limits to be shared across multiple backend workers
-try:
-    storage = RedisStorage(settings.REDIS_URL)
-    logger.info(f"✅ SlowAPI Redis Storage initialized: {settings.REDIS_URL}")
-except Exception as e:
-    logger.error(f"❌ Failed to initialize Redis storage for SlowAPI: {e}")
-    # Fallback to default in-memory storage (not recommended for production)
-    storage = None
-
+# Initialize Limiter with Redis storage via storage_uri
+# SlowAPI internally handles the Redis connection using the 'limits' library.
 limiter = Limiter(
     key_func=get_user_rate_key,
-    storage=storage,
-    default_limits=[get_tiered_limit] # Use dynamic tiered limits as default
+    storage_uri=settings.REDIS_URL,
+    default_limits=[get_tiered_limit]
 )
+
+logger.info(f"✅ SlowAPI initialized with storage: {settings.REDIS_URL}")
