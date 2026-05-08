@@ -161,7 +161,7 @@ export default function History() {
   return (
     <div className="animate-stripe-page min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center gap-4 mb-8" data-aos="fade-down">
+        <div className="flex items-center gap-4 mb-8">
           <button
             onClick={() => navigate("/dashboard")}
             className="p-2 rounded-xl hover:bg-white/50 dark:hover:bg-slate-800/50 transition-smooth"
@@ -179,7 +179,7 @@ export default function History() {
         </div>
 
         {strategies.length === 0 ? (
-          <div className="glass-card p-12 text-center" data-aos="zoom-in">
+          <div className="glass-card p-12 text-center">
             <Clock className="w-16 h-16 text-slate-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
               No strategies yet
@@ -197,8 +197,6 @@ export default function History() {
               <div
                 key={strategy.id || strategy._id}
                 className="glass-card p-4 sm:p-6 hover:shadow-lg transition-all duration-200 ease-in-out hover:-translate-y-0.5"
-                data-aos="fade-up"
-                data-aos-delay={Math.min(index * 100, 500)}
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex-1">
