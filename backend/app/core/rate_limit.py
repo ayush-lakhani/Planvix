@@ -16,13 +16,20 @@ def get_user_rate_key(request: Request) -> str:
     # Fallback to IP address
     return get_remote_address(request)
 
-def get_tiered_limit(request: Request) -> str:
+def get_tiered_limit(*args, **kwargs) -> str:
     """
     Dynamic limit string based on user tier.
     Free: 10/minute
     Pro: 20/minute
     """
-    tier = getattr(request.state, "user_tier", "free")
+    request = kwargs.get('request')
+    if not request and args:
+        request = args[0]
+        
+    tier = "free"
+    if request and hasattr(request, "state"):
+        tier = getattr(request.state, "user_tier", "free")
+        
     if tier == "pro":
         return "20/minute"
     return "10/minute"

@@ -72,8 +72,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 # Middlewares
-app.add_middleware(UserStateMiddleware)
 app.add_middleware(SlowAPIMiddleware)
+app.add_middleware(UserStateMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RequestIDMiddleware)
 

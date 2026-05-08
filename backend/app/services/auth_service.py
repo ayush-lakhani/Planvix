@@ -61,7 +61,24 @@ class AuthService:
         Handles user login logic.
         """
         user = users_collection.find_one({"email": user_data.email})
-        if not user or not verify_password(user_data.password, user["password"]):
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+            
+        if user.get("auth_provider") == "google":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="This account uses Google Sign-In. Please sign in with Google.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        hashed_password = user.get("password")
+        
+        if not hashed_password or not verify_password(user_data.password, hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
