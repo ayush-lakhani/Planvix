@@ -1,6 +1,6 @@
 fastapi
 uvicorn[standard]
-setuptools
+setuptools<70.0.0
 pydantic[email]
 python-dotenv
 python-jose[cryptography]
