@@ -56,8 +56,10 @@ razorpay_test_api_keys_*.csv
 .swarm/
 get-shit-done-for-antigravity/
 
-# GSD Workflow (Requested to ignore)
+# GSD Workflow & Agent Tools (Requested to ignore)
 .gsd/
+scripts/
+adapters/
 
 # Documentation Folders (Requested to ignore)
 docs/
