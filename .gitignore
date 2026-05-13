@@ -64,7 +64,7 @@ adapters/
 # Documentation Folders (Requested to ignore)
 docs/
 documentation/
-"final doc/"
+final\ doc/
 
 # IDE & Config
 .idea/
@@ -126,6 +126,14 @@ backend/build/
 *.jpeg
 *.jpg
 *.png
+
+# Image & Diagram Artifacts in root
+DFD.png
+DFD_planvx.png
+ERD_planvx.png
+ER_UPDATED.jpeg
+System Architecture_planvx.png
+"WhatsApp Image*"
 
 # One-off Utility/Debug Scripts
 debug_fetchers.py
