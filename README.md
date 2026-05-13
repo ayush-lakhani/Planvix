@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="System Architecture_planvx.png" width="200" alt="planvIx Logo" />
+  <!-- <img src="System Architecture_planvx.png" width="200" alt="planvIx Logo" /> -->
   <h1><b>🚀 planvIx</b></h1>
   <p>
     <strong>Multi-Agent AI Content Strategy OS</strong>
@@ -36,15 +36,15 @@ Unlike generic LLM wrappers, planvIx implements a **Decoupled Layered Architectu
 
 ## ✨ Key Features (Startup-Grade)
 
-| Feature                       | Industrial Application                                                                                           |
-| :---------------------------- | :--------------------------------------------------------------------------------------------------------------- |
-| **🏗️ Layered Architecture**   | Full separation of concerns using the **Service Pattern**. Clean, testable, and scalable code.                   |
-| **🔒 Tiered Auth & RBAC**      | JWT-based User Auth + Google OAuth + `x-admin-secret` for Admin. Tiers: Free (10 req/min), Pro (20 req/min).     |
-| **📊 Analytics Intelligence** | Complex MongoDB Aggregation Pipelines for MRR, Churn, and KPIs. Cached via **Redis** for sub-100ms response.     |
-| **⚡ Real-time WebSockets**   | Live agent activity feeds and generation status updates using a centralized WebSocket manager.                   |
-| **🛡️ Stability Layer**        | React Error Boundaries + Defensive Rendering + Axios Interceptors. **Zero blank screens.**                       |
-| **🤖 Multi-Agent Engine**     | 5 specialized CrewAI agents (Persona, Trend, Traffic, Synthesis, ROI) for tactical depth.                        |
-| **📈 Intelligence Profiles**  | Per-user billing, token usage tracking, and trend analysis—fully database-driven.                                |
+| Feature                       | Industrial Application                                                                                       |
+| :---------------------------- | :----------------------------------------------------------------------------------------------------------- |
+| **🏗️ Layered Architecture**   | Full separation of concerns using the **Service Pattern**. Clean, testable, and scalable code.               |
+| **🔒 Tiered Auth & RBAC**     | JWT-based User Auth + Google OAuth + `x-admin-secret` for Admin. Tiers: Free (10 req/min), Pro (20 req/min). |
+| **📊 Analytics Intelligence** | Complex MongoDB Aggregation Pipelines for MRR, Churn, and KPIs. Cached via **Redis** for sub-100ms response. |
+| **⚡ Real-time WebSockets**   | Live agent activity feeds and generation status updates using a centralized WebSocket manager.               |
+| **🛡️ Stability Layer**        | React Error Boundaries + Defensive Rendering + Axios Interceptors. **Zero blank screens.**                   |
+| **🤖 Multi-Agent Engine**     | 5 specialized CrewAI agents (Persona, Trend, Traffic, Synthesis, ROI) for tactical depth.                    |
+| **📈 Intelligence Profiles**  | Per-user billing, token usage tracking, and trend analysis—fully database-driven.                            |
 
 ---
 
@@ -107,14 +107,14 @@ The core of planvIx is a sophisticated **CrewAI** pipeline that sequences five a
 
 ## 🛡️ Security & Stability
 
-| Security Layer                   | Implementation                                                                                                                     |
-| :------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
-| **🔐 Role-Based Access**         | Strict RBAC with `client`, `admin`, and `superadmin` tiers.                                                                        |
-| **🎟️ Dual-Mode Auth**            | Stateless JWT sessions + Google OAuth integration for seamless onboarding.                                                         |
-| **🛑 Tiered Rate Limiting**      | Redis-backed limiting: **10/min (Free)** vs **20/min (Pro)**. Prevents brute-force and resource abuse.                             |
-| **🔑 Admin Shield**              | Custom `x-admin-secret` header validation for administrative endpoints.                                                            |
-| **🔒 Secure Storage**            | Bcrypt password hashing + `sessionStorage` for sensitive keys (cleared on tab close).                                               |
-| **🚫 Zero-Trust Backend**        | Every request validates the `user_id` from the JWT `sub` claim — never trusting frontend input.                                     |
+| Security Layer              | Implementation                                                                                         |
+| :-------------------------- | :----------------------------------------------------------------------------------------------------- |
+| **🔐 Role-Based Access**    | Strict RBAC with `client`, `admin`, and `superadmin` tiers.                                            |
+| **🎟️ Dual-Mode Auth**       | Stateless JWT sessions + Google OAuth integration for seamless onboarding.                             |
+| **🛑 Tiered Rate Limiting** | Redis-backed limiting: **10/min (Free)** vs **20/min (Pro)**. Prevents brute-force and resource abuse. |
+| **🔑 Admin Shield**         | Custom `x-admin-secret` header validation for administrative endpoints.                                |
+| **🔒 Secure Storage**       | Bcrypt password hashing + `sessionStorage` for sensitive keys (cleared on tab close).                  |
+| **🚫 Zero-Trust Backend**   | Every request validates the `user_id` from the JWT `sub` claim — never trusting frontend input.        |
 
 ---
 
@@ -155,12 +155,14 @@ planvIx/
 ## ⚡ Quickstart
 
 ### 1️⃣ Clone & Setup
+
 ```bash
 git clone https://github.com/ayush-lakhani/planvIx.git
 cd planvIx
 ```
 
 ### 2️⃣ Backend (FastAPI + Redis)
+
 ```bash
 cd backend
 python -m venv venv
@@ -170,6 +172,7 @@ python run.py
 ```
 
 ### 3️⃣ Frontend (React + Vite)
+
 ```bash
 cd frontend
 npm install
@@ -183,18 +186,21 @@ npm run dev
 <div align="center">
 
 ### Frontend
+
 ![React](https://img.shields.io/badge/React%2018-61DAFB?style=flat-square&logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![Recharts](https://img.shields.io/badge/Recharts-22d3ee?style=flat-square&logo=chartdotjs&logoColor=white)
 
 ### Backend
+
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
 ![Python](https://img.shields.io/badge/Python%203.11-3776AB?style=flat-square&logo=python&logoColor=white)
 ![CrewAI](https://img.shields.io/badge/CrewAI-Orchestrator-FF4F00?style=flat-square)
 ![Redis](https://img.shields.io/badge/Redis-Cache-DC382D?style=flat-square&logo=redis&logoColor=white)
 
 ### Data & AI
+
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=flat-square&logo=mongodb&logoColor=white)
 ![Groq](https://img.shields.io/badge/Groq-LPU-FF6B6B?style=flat-square)
 
@@ -203,6 +209,7 @@ npm run dev
 ---
 
 ## 📄 License
+
 This project is licensed under the **MIT License**.
 
 <div align="center">
