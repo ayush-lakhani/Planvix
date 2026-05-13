@@ -180,6 +180,7 @@ health_check*.json
 *.md
 
 # --- [13] EXCEPTIONS (TRACK THESE) ---
+!README.md
 !package.json
 !package-lock.json
 !requirements.txt
