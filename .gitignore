@@ -52,11 +52,17 @@ razorpay_test_api_keys_*.csv
 .claude/
 .claude-flow/
 .gemini/
-.gsd/phases/
-.gsd/STATE.md
 .kilo/
 .swarm/
 get-shit-done-for-antigravity/
+
+# GSD Workflow (Requested to ignore)
+.gsd/
+
+# Documentation Folders (Requested to ignore)
+docs/
+documentation/
+"final doc/"
 
 # IDE & Config
 .idea/
@@ -125,6 +131,6 @@ fix_analytics.py
 fix_dashboard.py
 pllaner for analytics page 14-4-26.txt
 
-# Keep Project Documentation
-# (Previously ignored, now explicitly tracked)
-!*.md
+# Project Documentation (Requested to ignore)
+*.md
+!README.md
