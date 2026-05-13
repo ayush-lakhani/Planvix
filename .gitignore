@@ -43,21 +43,25 @@ backend/env/
 **/*secret*
 **/credentials.json
 **/config.prod.json
+client_secret_*.json
+razorpay_test_api_keys_*.csv
 
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-dist/
-dist-ssr/
-*.local
-frontend/node_modules/
+# AI Agent & Framework Artifacts
+.agent/
+.agents/
+.claude/
+.claude-flow/
+.gemini/
+.gsd/phases/
+.gsd/STATE.md
+.kilo/
+.swarm/
+get-shit-done-for-antigravity/
 
-# IDE
-
+# IDE & Config
 .idea/
+.vscode/
+pyrightconfig.json
 *.swp
 *.swo
 *~
@@ -69,11 +73,20 @@ Thumbs.db
 # Logs
 logs/
 *.log
+crash_log.txt
+error_log.txt
+server_log.txt
+validation_errors.log
+backend/crash_log.txt
+backend/error_log.txt
+backend/server_log.txt
+backend/validation_errors.log
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
+ruvector.db
 
 # Cache
 .cache/
@@ -97,15 +110,21 @@ backend/build/
 .vercel
 .env*.local
 
-# Personal Documents & Images (DO NOT COMMIT)
+# Personal Documents & Presentations (Ignored)
 *.docx
 *.pdf
+*.pptx
+*.odt
 *.jpeg
 *.jpg
 *.png
-WhatsApp Image 2026-01-30 at 11.36.32 AM.jpeg
-Methodology & Requirements.docx
-AgentForge_IEEE_Literature_Review.docx
-Stratify_AI_Literature_Review.docx
-*.md
-!README.md
+
+# One-off Utility/Debug Scripts
+debug_fetchers.py
+fix_analytics.py
+fix_dashboard.py
+pllaner for analytics page 14-4-26.txt
+
+# Keep Project Documentation
+# (Previously ignored, now explicitly tracked)
+!*.md
