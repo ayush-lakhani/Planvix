@@ -1,12 +1,18 @@
-# Node modules
-node_modules/
-frontend/node_modules/
+###############################################################################
+# planvIx - PRODUCTION-GRADE GITIGNORE
+# Purpose: Deep security cleanup & repository hygiene
+###############################################################################
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+# --- [1] CORE DEPENDENCIES (NEVER COMMIT) ---
+node_modules/
+**/node_modules/
+venv/
+.venv/
+env/
+ENV/
+backend/venv/
+backend/env/
+frontend/node_modules/
 .Python
 build/
 develop-eggs/
@@ -23,30 +29,88 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-venv/
-env/
-ENV/
-backend/__pycache__/
-backend/venv/
-backend/env/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
 
-# Environment Variables (CRITICAL - Contains API Keys)
+# --- [2] ENVIRONMENT & SENSITIVE SECRETS (CRITICAL) ---
 .env
-.env.local
-.env.production
-.env.development
-*.env
+.env.*
 !.env.example
-
-# API Keys & Secrets (DO NOT COMMIT)
+*.env
 **/*secrets*
 **/*secret*
 **/credentials.json
 **/config.prod.json
 client_secret_*.json
-razorpay_test_api_keys_*.csv
+razorpay_*.csv
+razorpay_*.txt
+*.key
+*.pem
+*.cert
+*.p12
+*.pfx
+.test_token.txt
+**/jwt_secret*
+**/groq_key*
+**/serpapi_key*
+**/openai_key*
 
-# AI Agent & Framework Artifacts
+# --- [3] DATABASE & STORAGE ---
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+ruvector.db
+mongodb_data/
+storage/
+temp/
+tmp/
+
+# --- [4] LOGS & DEBUGGING ---
+*.log
+logs/
+**/logs/
+crash_log.txt
+error_log.txt
+server_log.txt
+validation_errors.log
+build_error.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- [5] FRONTEND & BUILD ARTIFACTS (VITE/REACT) ---
+dist/
+**/dist/
+build/
+**/build/
+.vercel
+.next/
+.turbo/
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+vite.config.js.timestamp-*
+*.mjs.timestamp-*
+
+# --- [6] IDE & EDITOR CONFIGS ---
+.vscode/
+.idea/
+.settings/
+.project
+.classpath
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+pyrightconfig.json
+
+# --- [7] AI AGENT & WORKFLOW ARTIFACTS ---
 .agent/
 .agents/
 .claude/
@@ -54,80 +118,35 @@ razorpay_test_api_keys_*.csv
 .gemini/
 .kilo/
 .swarm/
-get-shit-done-for-antigravity/
-
-# GSD Workflow & Agent Tools (Requested to ignore)
 .gsd/
+get-shit-done-*/
 scripts/
 adapters/
+.mcp.json
 
-# Documentation Folders (Requested to ignore)
+# --- [8] DOCUMENTATION & LARGE BINARIES (ROOT CLEANUP) ---
 docs/
 documentation/
 final\ doc/
-
-# IDE & Config
-.idea/
-.vscode/
-pyrightconfig.json
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-logs/
-*.log
-crash_log.txt
-error_log.txt
-server_log.txt
-validation_errors.log
-backend/crash_log.txt
-backend/error_log.txt
-backend/server_log.txt
-backend/validation_errors.log
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-ruvector.db
-
-# Cache
-.cache/
-.pytest_cache/
-
-# Coverage
-htmlcov/
-.coverage
-coverage/.sqlite
-
-# Build outputs
-frontend/dist/
-frontend/build/
-backend/dist/
-backend/build/
-
-# Docker
-.dockerignore
-
-# Vercel
-.vercel
-.env*.local
-
-# Personal Documents & Presentations (Ignored)
+"final doc/"
 *.docx
 *.pdf
 *.pptx
+*.ppt
 *.odt
-*.jpeg
-*.jpg
-*.png
+*.xls
+*.xlsx
+review_1.pptx
+abstract.odt
 
-# Image & Diagram Artifacts in root
+# --- [9] IMAGE & DIAGRAM ARTIFACTS (CLEAN ROOT) ---
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.webp
 DFD.png
 DFD_planvx.png
 ERD_planvx.png
@@ -135,12 +154,43 @@ ER_UPDATED.jpeg
 System Architecture_planvx.png
 "WhatsApp Image*"
 
-# One-off Utility/Debug Scripts
-debug_fetchers.py
-fix_analytics.py
-fix_dashboard.py
-pllaner for analytics page 14-4-26.txt
+# --- [10] OS SPECIFIC ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# Project Documentation (Requested to ignore)
-*.md
+# --- [11] ONE-OFF SCRIPTS & JUNK ---
+debug_*.py
+test_*.py
+check_*.py
+reproduce_*.py
+verify_*.py
+flush_*.py
+rename_*.py
+pllaner*.txt
+strategy_test.json
+test_strategy_output.json
+health_check*.json
+
+# --- [12] EXCEPTIONS (TRACK THESE) ---
 !README.md
+!backend/README.md
+!frontend/README.md
+!package.json
+!package-lock.json
+!requirements.txt
+!backend/requirements.txt
+!docker-compose.yml
+!Dockerfile
+!Procfile
+!vercel.json
+!frontend/vercel.json
+!vite.config.js
+!tailwind.config.js
+!postcss.config.js
+!components.json
+!tsconfig.json
