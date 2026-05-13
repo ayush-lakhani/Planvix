@@ -176,10 +176,10 @@ strategy_test.json
 test_strategy_output.json
 health_check*.json
 
-# --- [12] EXCEPTIONS (TRACK THESE) ---
-!README.md
-!backend/README.md
-!frontend/README.md
+# --- [12] ALL MARKDOWN FILES (Requested) ---
+*.md
+
+# --- [13] EXCEPTIONS (TRACK THESE) ---
 !package.json
 !package-lock.json
 !requirements.txt
