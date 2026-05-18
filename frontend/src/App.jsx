@@ -32,6 +32,7 @@ import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import DashboardSkeleton from "./components/DashboardSkeleton";
+import { StrategyProvider } from "./context/StrategyContext";
 
 // Navbar wrapper to exclude admin routes
 function NavbarWrapper({ darkMode, toggleDarkMode }) {
@@ -274,7 +275,9 @@ function App() {
   return (
     <AuthProvider>
       <AdminAuthProvider>
-        <AppContent />
+        <StrategyProvider>
+          <AppContent />
+        </StrategyProvider>
       </AdminAuthProvider>
     </AuthProvider>
   );

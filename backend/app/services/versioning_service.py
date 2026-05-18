@@ -2,11 +2,11 @@ from app.core.mongo import strategies_collection
 from app.models.schemas import StrategyInput
 
 class VersioningService:
-    def get_next_version(self, user_id: str, strategy_input: StrategyInput) -> int:
+    async def get_next_version(self, user_id: str, strategy_input: StrategyInput) -> int:
         """
         Calculates the next version number for a strategy based on inputs.
         """
-        existing_strategy = strategies_collection.find_one({
+        existing_strategy = await strategies_collection.find_one({
             "user_id": user_id,
             "goal": strategy_input.goal,
             "audience": strategy_input.audience,

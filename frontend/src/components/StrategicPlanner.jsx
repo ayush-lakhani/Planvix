@@ -8,15 +8,26 @@ import ProfileWidget from "./ProfileWidget";
 import { useAuth } from "../context/AuthContext";
 import { strategyAPI } from "../api";
 import { normalizeStrategy, isValidStrategy } from "../utils/strategyUtils";
+import { useStrategy } from "../context/StrategyContext";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
 export default function StrategicPlanner() {
   const { user, token, updateUser } = useAuth();
+  const { 
+    isGenerating, 
+    progress, 
+    generationStatus, 
+    agentLogs: wsLogs,
+    startGeneration,
+    completeGeneration,
+    failGeneration,
+    resetGeneration 
+  } = useStrategy();
+
   const [userTier, setUserTier] = useState(user?.tier || "free");
   const [strategy, setStrategy] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [agentLogs, setAgentLogs] = useState([]);
   const [usageCount, setUsageCount] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const navigate = useNavigate();
@@ -50,19 +61,11 @@ export default function StrategicPlanner() {
 
       if (response.ok) {
         const data = await response.json();
-        // Backend returns usage_count, not usage_month
         const serverUsage = data.usage_count || 0;
         setUsageCount(serverUsage);
         setUserTier(data.tier || "free");
         if (data.tier && data.tier !== user?.tier) {
           updateUser({ tier: data.tier });
-        }
-        console.log("[PROFILE] Usage count updated:", serverUsage);
-        console.log("[PROFILE] Full profile data:", data);
-
-        // Check for upgrade trigger (e.g. if limit reached)
-        if (serverUsage >= 3 && data.tier === "free") {
-          // Optional: You could show upgrade modal here
         }
       }
     } catch (error) {
@@ -72,75 +75,26 @@ export default function StrategicPlanner() {
 
   const handleGenerate = async (formData) => {
     setLoading(true);
-    setAgentLogs([]);
     setStrategy(null);
-
-    // Simulate agent logs
-    const logs = [
-      {
-        agent: "SYSTEM",
-        message: "Initializing strategy engine...",
-        type: "info",
-      },
-      {
-        agent: "ANALYZER",
-        message: `Analyzing ${formData.industry} market trends...`,
-        type: "agent",
-      },
-      {
-        agent: "PERSONA",
-        message: `Building ${formData.experience} persona profile...`,
-        type: "agent",
-      },
-      {
-        agent: "STRATEGIST",
-        message: `Crafting ${formData.platform} content strategy...`,
-        type: "agent",
-      },
-      {
-        agent: "OPTIMIZER",
-        message: "Generating SEO keywords and calendar...",
-        type: "agent",
-      },
-    ];
-
-    for (const log of logs) {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      setAgentLogs((prev) => [...prev, log]);
-    }
+    startGeneration(user.id || user.user_id);
 
     try {
       const result = await strategyAPI.generate(formData);
       console.log("[STRATEGY RESULT] Raw API response:", result);
 
-      // CRITICAL: Normalize strategy structure
       const normalized = normalizeStrategy(result);
-      console.log("[STRATEGY RESULT] Normalized:", normalized);
-      console.log("[STRATEGY RESULT] Is valid?", isValidStrategy(normalized));
-
       if (!isValidStrategy(normalized)) {
         throw new Error("Invalid strategy structure received from API");
       }
 
       setStrategy(normalized);
+      completeGeneration(normalized);
 
       // Refresh profile to get updated usage count from server
       await fetchUserProfile();
-
-      setAgentLogs((prev) => [
-        ...prev,
-        {
-          agent: "SYSTEM",
-          message: "✅ Strategy generated successfully!",
-          type: "success",
-        },
-      ]);
     } catch (error) {
       console.error("[STRATEGY ERROR]", error);
-      setAgentLogs((prev) => [
-        ...prev,
-        { agent: "ERROR", message: error.message, type: "error" },
-      ]);
+      failGeneration(error.message);
     } finally {
       setLoading(false);
     }
@@ -148,7 +102,7 @@ export default function StrategicPlanner() {
 
   const handleReset = () => {
     setStrategy(null);
-    setAgentLogs([]);
+    resetGeneration();
     fetchUserProfile(); // Refresh usage count
   };
 
@@ -160,10 +114,6 @@ export default function StrategicPlanner() {
   const handleCloseModal = () => {
     setShowUpgradeModal(false);
   };
-
-  // Debug logging for state tracking
-  console.log("[PLANNER] Current strategy state:", strategy);
-  console.log("[PLANNER] Has strategy?", !!strategy);
 
   if (strategy) {
     return <StrategyResults strategy={strategy} onReset={handleReset} />;
@@ -188,14 +138,18 @@ export default function StrategicPlanner() {
             <StrategyForm
               onGenerate={handleGenerate}
               setLoading={setLoading}
-              setAgentLogs={setAgentLogs}
-              loading={loading}
+              loading={loading || isGenerating}
             />
           </div>
 
           {/* Right: Agent Terminal */}
           <div>
-            <AgentTerminal logs={agentLogs} loading={loading} />
+            <AgentTerminal 
+              logs={wsLogs} 
+              loading={loading || isGenerating} 
+              progress={progress}
+              status={generationStatus}
+            />
           </div>
         </div>
       </div>

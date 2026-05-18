@@ -1,60 +1,102 @@
 from app.orchestrator.crew_orchestrator import StrategyOrchestrator
-from app.models.schemas import StrategyInput
+from app.models.schemas import StrategyInput, ContentStrategy
 from app.core.mongo import strategies_collection
 from app.core.redis import redis_client
 from app.services.versioning_service import versioning_service
+from app.core.logger import logger, log_event
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import Optional, Dict, Any, Callable
 from bson import ObjectId
 import hashlib
 import json
+import anyio
+from app.websocket.strategy_socket import strategy_ws_manager
 
 class StrategyService:
+    """
+    Enterprise Strategy Service.
+    Manages the lifecycle of AI strategies with intelligent caching and multi-agent orchestration.
+    """
     def __init__(self):
         self.orchestrator = StrategyOrchestrator()
 
-    async def create_strategy(self, user_id: str, strategy_input: StrategyInput) -> dict:
+    async def create_strategy(
+        self, 
+        user_id: str, 
+        strategy_input: StrategyInput,
+        progress_callback: Optional[Callable[[str, int], Any]] = None
+    ) -> Dict[str, Any]:
         """
-        Full lifecycle: Check Cache -> Generate (Orchestrator) -> Save DB -> Update Cache
+        Generates a content strategy with cache-first logic and real-time progress updates.
         """
         
-        # 1. Check Cache
+        # 1. Check Intelligent Cache
         cache_key = self._generate_cache_key(strategy_input)
         cached_strategy = self._get_cached_strategy(cache_key)
+        
         if cached_strategy:
+            log_event("cache_hit", {"user_id": user_id, "cache_key": cache_key})
+            if progress_callback: await progress_callback("Strategy retrieved from cache", 100)
             return {
                 "success": True,
                 "strategy": cached_strategy,
                 "cached": True,
                 "generation_time": 0.0,
-                "message": "Strategy retrieved from cache"
+                "message": "Strategy retrieved from cache (High-Speed)"
             }
 
-        # 2. Generate via Orchestrator
-        start_time = datetime.now()
+        log_event("cache_miss", {"user_id": user_id, "cache_key": cache_key})
+
+        # 2. Generate via Orchestrator (with Failover and Progress)
+        start_time = datetime.now(timezone.utc)
+        
+        # Define internal progress hook for WebSocket
+        async def ws_progress_callback(status_msg: str, progress_val: int):
+            # Send via WS
+            await strategy_ws_manager.send_progress(user_id, status_msg, progress_val)
+            # Call original callback if exists
+            if progress_callback:
+                if anyio.is_async_callable(progress_callback):
+                    await progress_callback(status_msg, progress_val)
+                else:
+                    progress_callback(status_msg, progress_val)
+
         try:
-            strategy_data = self.orchestrator.generate_strategy(strategy_input)
+            from app.services.intelligence import intelligence_service
+            from app.services.prediction import growth_predictor
+
+            strategy_dict = await self.orchestrator.generate_strategy(
+                strategy_input, 
+                progress_callback=ws_progress_callback
+            )
+
+            # 4. Post-Process with Strategic Intelligence
+            strategy_dict = intelligence_service.deduplicate_content(strategy_dict)
+            strategy_dict = intelligence_service.apply_funnel_logic(strategy_dict)
+            strategy_dict = growth_predictor.predict_growth(strategy_dict)
+
+            # 5. Convert to Pydantic and Save
+            strategy = ContentStrategy(**strategy_dict)
+            strategy_data = strategy.dict()
+
         except Exception as e:
-            raise e # Router will handle 500
+            logger.error(f"❌ Strategy Generation Failed for user {user_id}: {e}")
+            await strategy_ws_manager.send_progress(user_id, "Generation Failed", 0, {"error": str(e)})
+            raise e
 
-        generation_time = (datetime.now() - start_time).total_seconds()
+        generation_time = (datetime.now(timezone.utc) - start_time).total_seconds()
 
-        # 3. Add Metadata
-        DifficultyScore = 8 if strategy_input.strategy_mode == 'aggressive' else 4
-        ConfidenceScore = 85 if strategy_input.strategy_mode == 'conservative' else 70
-        GrowthScore = 90 if strategy_input.strategy_mode == 'aggressive' else 60
+        # 3. Enrich with Enterprise Metadata
+        strategy_data["metadata"].update({
+            "difficulty_score": 8 if strategy_input.strategy_mode == 'aggressive' else 4,
+            "confidence_score": 85 if strategy_input.strategy_mode == 'conservative' else 70,
+            "growth_velocity_score": 90 if strategy_input.strategy_mode == 'aggressive' else 60,
+            "generation_time": generation_time,
+            "user_id": user_id
+        })
 
-        strategy_data["metadata"] = {
-            "generated_at": datetime.now().isoformat(),
-            "difficulty_score": DifficultyScore,
-            "confidence_score": ConfidenceScore,
-            "growth_velocity_score": GrowthScore,
-            "token_usage": 0,
-            "generation_time": generation_time
-        }
-
-        # 4. Save to DB (Versioning)
-        new_version = versioning_service.get_next_version(user_id, strategy_input)
+        # 4. Persistence & Versioning
+        new_version = await versioning_service.get_next_version(user_id, strategy_input)
         
         strategy_doc = {
             "user_id": user_id,
@@ -66,8 +108,9 @@ class StrategyService:
             "strategy_mode": strategy_input.strategy_mode,
             "version": new_version,
             "metadata": strategy_data["metadata"],
-            # Flattened structure for easier access
             "strategic_overview": strategy_data.get("strategic_overview"),
+            "growth_intelligence": strategy_data.get("growth_intelligence"),
+            "strategic_narrative": strategy_data.get("strategic_narrative"),
             "content_pillars": strategy_data.get("content_pillars"),
             "content_calendar": strategy_data.get("content_calendar"),
             "keywords": strategy_data.get("keywords"),
@@ -78,16 +121,21 @@ class StrategyService:
             "is_deleted": False
         }
 
-        result = strategies_collection.insert_one(strategy_doc)
+        result = await strategies_collection.insert_one(strategy_doc)
 
-        # 5. Update Cache
-        self._set_cached_strategy(cache_key, strategy_data)
+        # 5. Update Intelligent Cache (TTL based on mode or defaults)
+        ttl = 86400 * 7 if strategy_input.strategy_mode == "conservative" else 86400
+        self._set_cached_strategy(cache_key, strategy_data, ttl=ttl)
         
-        # 6. Increment Usage in User document (MongoDB - source of truth)
-        self._increment_usage_mongo(user_id)
-        
-        # 7. Also increment Redis counter (for fast reads, non-authoritative)
+        # 6. Usage Accounting
+        await self._increment_usage_mongo(user_id)
         self._increment_usage_redis(user_id)
+
+        log_event("strategy_created", {
+            "user_id": user_id, 
+            "strategy_id": str(result.inserted_id),
+            "time": generation_time
+        })
 
         return {
             "success": True,
@@ -100,209 +148,79 @@ class StrategyService:
         }
 
     async def get_user_history(self, user_id: str, limit: int = 50) -> list:
-        strategies = list(strategies_collection.find({
+        cursor = strategies_collection.find({
             "user_id": user_id,
             "is_deleted": {"$ne": True}
-        }).sort("created_at", -1).limit(limit))
+        }).sort("created_at", -1).limit(limit)
         
+        strategies = await cursor.to_list(length=limit)
         for s in strategies:
             s["id"] = str(s["_id"])
-            s["_id"] = str(s["_id"])
+            del s["_id"]
             if isinstance(s.get("created_at"), datetime):
                 s["created_at"] = s["created_at"].isoformat()
-        return strategies or []
+        return strategies
 
     async def get_strategy_by_id(self, strategy_id: str, user_id: str) -> Optional[dict]:
         try:
-            strategy_doc = strategies_collection.find_one({
+            strategy_doc = await strategies_collection.find_one({
                 "_id": ObjectId(strategy_id),
                 "user_id": user_id
             })
+            if not strategy_doc: return None
+            
+            strategy_doc["id"] = str(strategy_doc["_id"])
+            del strategy_doc["_id"]
+            if isinstance(strategy_doc.get("created_at"), datetime):
+                strategy_doc["created_at"] = strategy_doc["created_at"].isoformat()
+            return strategy_doc
         except Exception:
             return None
-            
-        if not strategy_doc:
-            return None
-        
-        # Clean and Flatten
-        strategy_doc["id"] = str(strategy_doc["_id"])
-        strategy_doc["_id"] = str(strategy_doc["_id"])
-        if isinstance(strategy_doc.get("created_at"), datetime):
-            strategy_doc["created_at"] = strategy_doc["created_at"].isoformat()
 
-        # Flatten output_data if existing (legacy support)
-        if "output_data" in strategy_doc and isinstance(strategy_doc["output_data"], dict):
-            output_data = strategy_doc.pop("output_data")
-            strategy_doc.update(output_data)
-            
-        return strategy_doc
+    # === Internal Helpers ===
 
-    async def submit_feedback(self, strategy_id: str, rating: int, user_id: str) -> dict:
-        """
-        Save feedback for a specific strategy
-        """
-        try:
-            from bson import ObjectId
-            result = strategies_collection.update_one(
-                {"_id": ObjectId(strategy_id), "user_id": user_id},
-                {"$set": {"feedback": {"rating": rating, "submitted_at": datetime.now(timezone.utc)}}}
-            )
-            if result.matched_count == 0:
-                return {"success": False, "message": "Strategy not found", "code": 404}
-            return {"success": True, "message": "Feedback submitted successfully"}
-        except Exception as e:
-            return {"success": False, "message": str(e), "code": 500}
-
-    async def get_blueprint(self, strategy_id: str, user_id: str) -> Optional[dict]:
-        """
-        Generate/Retrieve a blueprint for a strategy
-        """
-        strategy = await self.get_strategy_by_id(strategy_id, user_id)
-        if not strategy:
-            return None
-        
-        # Simple implementation for now: return transformed strategy data
-        blueprint = {
-            "strategy_id": strategy_id,
-            "title": f"Execution Blueprint: {strategy['goal']}",
-            "steps": [
-                {"name": "Setup Platforms", "details": f"Configure {strategy['platform']}"},
-                {"name": "Content Creation", "details": f"Create posts for {len(strategy.get('content_pillars', []))} pillars"},
-                {"name": "Execution", "details": f"Follow the {len(strategy.get('content_calendar', []))} day calendar"}
-            ],
-            "generated_at": datetime.now(timezone.utc).isoformat()
-        }
-        return blueprint
-
-    async def delete_strategy(self, strategy_id: str, user_id: str) -> dict:
-        """
-        Soft delete only. Does NOT modify usage_count.
-        Deleting a strategy must never restore usage credits.
-        """
-        try:
-            result = strategies_collection.update_one(
-                {"_id": ObjectId(strategy_id), "user_id": user_id},
-                {"$set": {"is_deleted": True, "deleted_at": datetime.now(timezone.utc)}}
-            )
-            if result.modified_count > 0:
-                return {"success": True, "message": "Strategy deleted"}
-            
-            # Check existence
-            doc = strategies_collection.find_one({"_id": ObjectId(strategy_id), "user_id": user_id})
-            if not doc:
-                return {"success": False, "message": "Not found", "code": 404}
-            if doc.get("is_deleted"):
-                 return {"success": True, "message": "Already deleted"}
-                 
-            return {"success": False, "message": "Delete failed", "code": 500}
-        except Exception:
-            return {"success": False, "message": "Invalid ID", "code": 400}
-
-    async def get_user_usage_stats(self, user_id: str) -> dict:
-        """
-        Read usage_count from User document (source of truth).
-        Falls back to counting strategy documents for legacy users
-        who don't have usage_count/usage_month fields yet.
-        """
+    async def _increment_usage_mongo(self, user_id: str):
         from app.core.mongo import users_collection
-        
         current_month = datetime.now(timezone.utc).strftime("%Y-%m")
-        
-        # Read from User document (authoritative source)
-        user = users_collection.find_one({"_id": ObjectId(user_id)})
-        
-        if user and "usage_count" in user:
-            usage_month = user.get("usage_month", "")
-            if usage_month == current_month:
-                usage_count = user.get("usage_count", 0)
-            else:
-                # Month changed — reset usage (lazy reset)
-                users_collection.update_one(
-                    {"_id": ObjectId(user_id)},
-                    {"$set": {"usage_count": 0, "usage_month": current_month}}
-                )
-                usage_count = 0
-        else:
-            # Legacy user: fallback to counting strategy documents
-            # and initialize the usage fields
-            now = datetime.now(timezone.utc)
-            month_start = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
-            usage_count = strategies_collection.count_documents({
-                "user_id": user_id,
-                "created_at": {"$gte": month_start}
-            })
-            # Backfill usage fields for this legacy user
-            users_collection.update_one(
-                {"_id": ObjectId(user_id)},
-                {"$set": {"usage_count": usage_count, "usage_month": current_month}}
-            )
-        
-        # Total strategies (all time, for display)
-        total_strategies = strategies_collection.count_documents({
-            "user_id": user_id
-        })
-        
-        return {
-            "usage_count": usage_count,
-            "total_strategies": total_strategies
-        }
-
-    # ========================================================================
-    # USAGE TRACKING HELPERS
-    # ========================================================================
-
-    def _increment_usage_mongo(self, user_id: str):
-        """
-        Atomically increment usage_count in the User document.
-        Handles monthly reset: if usage_month differs from current month,
-        reset count to 1 and update the month.
-        """
-        from app.core.mongo import users_collection
-        
-        current_month = datetime.now(timezone.utc).strftime("%Y-%m")
-        
-        # Try to increment if same month
-        result = users_collection.update_one(
-            {"_id": ObjectId(user_id), "usage_month": current_month},
-            {"$inc": {"usage_count": 1}}
+        await users_collection.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$inc": {"usage_count": 1}, "$set": {"usage_month": current_month}},
+            upsert=True
         )
-        
-        if result.matched_count == 0:
-            # Month changed or fields don't exist — reset to 1
-            users_collection.update_one(
-                {"_id": ObjectId(user_id)},
-                {"$set": {"usage_count": 1, "usage_month": current_month}}
-            )
 
-    def _generate_cache_key(self, strategy_input: StrategyInput) -> str:
-        version = "v2"
-        input_str = f"{version}|{strategy_input.goal}|{strategy_input.audience}|{strategy_input.industry}|{strategy_input.platform}|{strategy_input.contentType}|{strategy_input.experience}"
-        return hashlib.md5(input_str.encode()).hexdigest()
+    def _increment_usage_redis(self, user_id: str):
+        if not redis_client.enabled: return
+        try:
+            current_month = datetime.now(timezone.utc).strftime("%Y-%m")
+            redis_client.client.incr(f"usage:{user_id}:{current_month}")
+        except Exception as e:
+            logger.warning(f"Redis usage increment failed: {e}")
+
+    def _generate_cache_key(self, si: StrategyInput) -> str:
+        # Deterministic key for AI output stability
+        components = [
+            "v3",
+            si.goal.lower().strip(),
+            si.audience.lower().strip(),
+            si.industry.lower().strip(),
+            si.platform.lower().strip(),
+            si.contentType.lower().strip(),
+            si.strategy_mode.lower()
+        ]
+        return hashlib.sha256("|".join(components).encode()).hexdigest()
 
     def _get_cached_strategy(self, cache_key: str):
         if not redis_client.enabled: return None
         try:
-            cached = redis_client.get(f"strategy:{cache_key}")
-            return json.loads(cached) if cached else None
-        except: return None
+            data = redis_client.get(f"strat_cache:{cache_key}")
+            return json.loads(data) if data else None
+        except Exception: return None
 
-    def _set_cached_strategy(self, cache_key: str, strategy: dict, ttl: int = 86400):
+    def _set_cached_strategy(self, cache_key: str, data: dict, ttl: int):
         if not redis_client.enabled: return
         try:
-            redis_client.setex(f"strategy:{cache_key}", ttl, json.dumps(strategy))
-        except: pass
+            redis_client.set(f"strat_cache:{cache_key}", json.dumps(data), ex=ttl)
+        except Exception: pass
 
-    def _increment_usage_redis(self, user_id: str):
-        """Non-authoritative Redis counter for fast reads (optional)."""
-        if not redis_client.enabled: return
-        try:
-            current_month = datetime.now().strftime("%Y-%m")
-            count_key = f"strategy_count:{user_id}:{current_month}"
-            current_val = redis_client.get(count_key)
-            new_count = int(current_val) + 1 if current_val else 1
-            redis_client.setex(count_key, 86400, new_count)
-        except Exception as e:
-            print(f"[WARNING] Failed to increment Redis usage: {e}")
-
-# Singleton
+# Singleton instance
 strategy_service = StrategyService()

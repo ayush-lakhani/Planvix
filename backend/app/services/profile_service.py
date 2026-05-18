@@ -18,7 +18,7 @@ class ProfileService:
         user_id = str(user["_id"])
         
         # Total strategies
-        total_strategies = mongo.strategies_collection.count_documents({"user_id": user_id})
+        total_strategies = await mongo.strategies_collection.count_documents({"user_id": user_id})
         
         # Token usage this month (aggregation)
         now = datetime.now(timezone.utc)
@@ -34,7 +34,8 @@ class ProfileService:
                 "total_tokens": {"$sum": {"$ifNull": ["$tokens_used", 800]}}
             }}
         ]
-        token_results = list(mongo.strategies_collection.aggregate(pipeline))
+        token_cursor = mongo.strategies_collection.aggregate(pipeline)
+        token_results = await token_cursor.to_list(length=None)
         tokens_used_month = token_results[0]["total_tokens"] if token_results else 0
         
         # Next billing date
@@ -68,8 +69,10 @@ class ProfileService:
             }},
             {"$sort": {"_id": 1}}
         ]
+        strat_cursor = mongo.strategies_collection.aggregate(strat_pipeline)
+        strat_list = await strat_cursor.to_list(length=None)
         strat_data = [AnalyticsDataPoint(date=r["_id"], count=r["count"]) 
-                     for r in mongo.strategies_collection.aggregate(strat_pipeline)]
+                     for r in strat_list]
         
         # Token Usage Chart Data
         token_pipeline = [
@@ -83,11 +86,13 @@ class ProfileService:
             }},
             {"$sort": {"_id": 1}}
         ]
+        token_cursor = mongo.strategies_collection.aggregate(token_pipeline)
+        token_list = await token_cursor.to_list(length=None)
         token_data = [TokenUsagePoint(date=r["_id"], tokens=r["tokens"]) 
-                     for r in mongo.strategies_collection.aggregate(token_pipeline)]
+                     for r in token_list]
         
         # Growth Trend (Dummy calculation for now based on cumulative strategies)
-        total_strategies = mongo.strategies_collection.count_documents({"user_id": user_id})
+        total_strategies = await mongo.strategies_collection.count_documents({"user_id": user_id})
         growth_data = [
             GrowthTrendPoint(month="Jan", value=10),
             GrowthTrendPoint(month="Feb", value=25),
@@ -105,9 +110,10 @@ class ProfileService:
         user_id = str(user["_id"])
         
         # Fetch recent strategies
-        recent_strats = list(mongo.strategies_collection.find(
+        recent_cursor = mongo.strategies_collection.find(
             {"user_id": user_id}
-        ).sort("created_at", -1).limit(limit))
+        ).sort("created_at", -1).limit(limit)
+        recent_strats = await recent_cursor.to_list(length=None)
         
         activity = []
         for s in recent_strats:
@@ -132,7 +138,7 @@ class ProfileService:
         """Calculate billing and usage limits"""
         user_id = str(user["_id"])
         
-        usage_count = mongo.strategies_collection.count_documents({
+        usage_count = await mongo.strategies_collection.count_documents({
             "user_id": user_id,
             "created_at": {"$gte": datetime.now(timezone.utc).replace(day=1)}
         })

@@ -1,38 +1,64 @@
 import logging
 import json
-from datetime import datetime
+import sys
+from datetime import datetime, timezone
 import contextvars
+from typing import Any, Dict
 
-# Context variable to store request ID across async calls
+# Context variables for enterprise observability
 request_id_var = contextvars.ContextVar("request_id", default="system")
+user_id_var = contextvars.ContextVar("user_id", default="anonymous")
+user_tier_var = contextvars.ContextVar("user_tier", default="free")
 
-class JSONFormatter(logging.Formatter):
-    def format(self, record):
-        log_record = {
-            "timestamp": datetime.utcnow().isoformat(),
+class EnterpriseJSONFormatter(logging.Formatter):
+    """
+    Standardized JSON formatter for ELK/Sentry ingestion.
+    Includes correlation IDs and performance metadata.
+    """
+    def format(self, record: logging.LogRecord) -> str:
+        log_data: Dict[str, Any] = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
             "request_id": request_id_var.get(),
+            "user_id": user_id_var.get(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno
         }
-        if record.exc_info:
-            # We don't expose stack trace to the client, but we log it internally
-            log_record["exc_info"] = self.formatException(record.exc_info)
-        return json.dumps(log_record)
 
-def setup_logger(name="app"):
+        # Include custom extra fields
+        if hasattr(record, "extra_data"):
+            log_data["extra"] = record.extra_data
+
+        # Handle exceptions
+        if record.exc_info:
+            log_data["exception"] = self.formatException(record.exc_info)
+
+        return json.dumps(log_data)
+
+def setup_logger(name: str = "planvix"):
+    """
+    Configures the logger for production SaaS observability.
+    """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     
-    # Prevent duplicate handlers
     if not logger.handlers:
-        handler = logging.StreamHandler()
-        handler.setFormatter(JSONFormatter())
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(EnterpriseJSONFormatter())
         logger.addHandler(handler)
         
-    # Disable propagation to root logger to avoid duplicate logs if root is configured elsewhere
     logger.propagate = False
-    
     return logger
 
+# Primary logger instance
 logger = setup_logger()
+
+# Convenience method for structured logs
+def log_event(event_name: str, data: Dict[str, Any], level: int = logging.INFO):
+    """
+    Logs a structured event with metadata.
+    """
+    logger.log(level, f"EVENT: {event_name}", extra={"extra_data": data})

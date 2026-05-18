@@ -2,44 +2,50 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from fastapi import Request
 from app.core.config import settings
-from app.core.logger import logger
+from app.core.logger import logger, user_tier_var
 
 def get_user_rate_key(request: Request) -> str:
     """
-    Custom key function that uses user_id if present, else falls back to IP.
-    Ensures that rate limiting follows the user across devices/IPs.
+    Enterprise rate key: User ID if authenticated, else Client IP.
     """
     user_id = getattr(request.state, "user_id", None)
-    if user_id:
+    if user_id and user_id != "anonymous":
         return f"user:{user_id}"
-    
-    # Fallback to IP address
     return get_remote_address(request)
 
-def get_tiered_limit(*args, **kwargs) -> str:
+def get_general_limit() -> str:
     """
-    Dynamic limit string based on user tier.
-    Free: 10/minute
-    Pro: 20/minute
+    General API limits based on tier.
     """
-    request = kwargs.get('request')
-    if not request and args:
-        request = args[0]
-        
-    tier = "free"
-    if request and hasattr(request, "state"):
-        tier = getattr(request.state, "user_tier", "free")
+    try:
+        tier = user_tier_var.get()
+    except LookupError:
+        tier = "free"
         
     if tier == "pro":
-        return "20/minute"
-    return "10/minute"
+        return "60/minute"
+    return "20/minute"
 
-# Initialize Limiter with Redis storage via storage_uri
-# SlowAPI internally handles the Redis connection using the 'limits' library.
+def get_ai_limit(request: Request) -> str:
+    """
+    Strict AI generation limits to prevent provider abuse.
+    """
+    tier = getattr(request.state, "user_tier", "free")
+    if tier == "pro":
+        return "10/minute"
+    return "2/minute"
+
+def get_auth_limit(request: Request) -> str:
+    """
+    Strict auth limits to prevent brute-force attacks.
+    """
+    return "5/minute"
+
+# Initialize Limiter
 limiter = Limiter(
     key_func=get_user_rate_key,
     storage_uri=settings.REDIS_URL,
-    default_limits=[get_tiered_limit]
+    default_limits=[get_general_limit]
 )
 
-logger.info(f"✅ SlowAPI initialized with storage: {settings.REDIS_URL}")
+logger.info(f"✅ Enterprise Rate Limiter initialized with Redis: {settings.REDIS_URL}")

@@ -45,7 +45,10 @@ async def get_current_user(
                 detail="Invalid token payload"
             )
 
-        if exp and datetime.utcfromtimestamp(exp) < datetime.utcnow():
+        from datetime import timezone
+        now = datetime.now(timezone.utc)
+        
+        if exp and datetime.fromtimestamp(exp, tz=timezone.utc) < now:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token expired"
@@ -57,7 +60,7 @@ async def get_current_user(
             detail="Invalid or expired token"
         )
 
-    user = db.users.find_one({"_id": ObjectId(user_id)})
+    user = await db.users.find_one({"_id": ObjectId(user_id)})
 
     if not user:
         raise HTTPException(

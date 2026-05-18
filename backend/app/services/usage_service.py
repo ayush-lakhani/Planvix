@@ -16,7 +16,7 @@ class UsageService:
             return {"exceeded": False, "used": 0, "limit": None}
         
         current_month = datetime.now(timezone.utc).strftime("%Y-%m")
-        user = users_collection.find_one({"_id": ObjectId(user_id)})
+        user = await users_collection.find_one({"_id": ObjectId(user_id)})
         
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -26,7 +26,7 @@ class UsageService:
         
         # Monthly reset tracking
         if usage_month != current_month:
-            users_collection.update_one(
+            await users_collection.update_one(
                 {"_id": ObjectId(user_id)},
                 {"$set": {"usage_count": 0, "usage_month": current_month}}
             )
@@ -61,7 +61,7 @@ class UsageService:
         now = datetime.now(timezone.utc)
         window_start = now - timedelta(seconds=self.BURST_LIMIT_SECONDS)
         
-        used = db.rate_limits.count_documents({
+        used = await db.rate_limits.count_documents({
             "user_id": user_id,
             "timestamp": {"$gte": window_start}
         })
@@ -75,7 +75,7 @@ class UsageService:
             }
         
         # Log attempt (non-blocking)
-        db.rate_limits.insert_one({
+        await db.rate_limits.insert_one({
             "user_id": user_id,
             "timestamp": now
         })

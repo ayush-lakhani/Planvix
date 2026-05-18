@@ -23,7 +23,7 @@ class HealthService:
         mongo_latency_ms = None
         try:
             t0 = time.perf_counter()
-            mongo_client.admin.command("ping")
+            await mongo_client.admin.command("ping")
             mongo_latency_ms = round((time.perf_counter() - t0) * 1000, 2)
         except Exception as e:
             mongo_status = "error"

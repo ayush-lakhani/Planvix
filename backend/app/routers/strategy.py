@@ -87,19 +87,6 @@ async def delete_strategy(strategy_id: str, current_user: dict = Depends(get_cur
     return result
 
 
-@router.get("/profile")
-async def get_profile(current_user: dict = Depends(get_current_user)):
-    stats = await strategy_service.get_user_usage_stats(current_user["id"])
-    
-    return {
-        "email": current_user.get("email"),
-        "tier": current_user.get("tier", "free"),
-        "usage_count": stats["usage_count"],
-        "total_strategies": stats["total_strategies"],
-        "created_at": current_user.get("created_at"),
-        "razorpay_subscription_id": current_user.get("razorpay_subscription_id")
-    }
-
 
 @router.post("/feedback")
 async def submit_feedback(

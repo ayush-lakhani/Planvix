@@ -5,6 +5,7 @@ pydantic[email]
 python-dotenv
 python-jose[cryptography]
 passlib[bcrypt]
+motor
 pymongo
 redis>=4.0.0
 requests

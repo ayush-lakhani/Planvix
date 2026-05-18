@@ -6,7 +6,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from app.core.logger import logger, request_id_var
-from app.core.middleware import RequestIDMiddleware, SecurityHeadersMiddleware, UserStateMiddleware
+from app.core.middleware import (
+    RequestIDMiddleware, 
+    SecurityHeadersMiddleware, 
+    UserStateMiddleware,
+    TimingMiddleware,
+    ObservabilityMiddleware
+)
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -14,6 +20,7 @@ from app.core.rate_limit import limiter
 from app.core.config import settings
 from app.routers import auth, strategy, health, admin, profile, analytics, payment
 from app.websocket.activity_socket import router as ws_router
+from app.websocket.strategy_socket import router as strategy_ws_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -48,6 +55,10 @@ async def startup_event():
     logger.info("🔌  WebSocket Activity Feed: /ws/admin/activity")
     logger.info("📊  Analytics Engine: MongoDB Aggregation Based")
     logger.info("================================================================")
+    
+    # Initialize DB
+    from app.core.mongo import init_db
+    await init_db()
 
 # Add rate limiter to app
 app.state.limiter = limiter
@@ -72,9 +83,11 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 # Middlewares
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(ObservabilityMiddleware)
+app.add_middleware(TimingMiddleware)
 app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(UserStateMiddleware)
-app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RequestIDMiddleware)
 
 # CORS
@@ -106,6 +119,7 @@ app.include_router(profile.router)
 app.include_router(analytics.router)
 app.include_router(payment.router)
 app.include_router(ws_router)  # WebSocket activity feed
+app.include_router(strategy_ws_router) # Strategy generation progress
 
 @app.get("/")
 async def root():

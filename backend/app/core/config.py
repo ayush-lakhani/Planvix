@@ -21,6 +21,10 @@ class Settings:
 
     if not SECRET_KEY:
         raise RuntimeError("CRITICAL ERROR: JWT_SECRET_KEY environment variable is missing!")
+    
+    if not os.getenv("GROQ_API_KEY"):
+        # We don't raise RuntimeError here but we'll log a warning in startup if needed
+        pass
         
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
@@ -33,6 +37,7 @@ class Settings:
     
     # AI & API Keys
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     SERPAPI_KEY: str = os.getenv("SERPAPI_KEY", "")
     GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
     

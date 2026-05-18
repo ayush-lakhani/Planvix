@@ -67,7 +67,7 @@ async def confirm_upgrade(
 
     # Update tier to 'pro' in MongoDB
     try:
-        result = users_collection.update_one(
+        result = await users_collection.update_one(
             {"_id": ObjectId(str(user_id))},
             {
                 "$set": {

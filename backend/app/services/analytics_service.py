@@ -11,15 +11,6 @@ import json
 
 logger = logging.getLogger(__name__)
 
-# ── helper ─────────────────────────────────────────────────────────────────
-def _safe_list(cursor):
-    try:
-        return list(cursor)
-    except Exception as e:
-        logger.error(f"Aggregation error: {e}")
-        return []
-
-
 class AnalyticsService:
 
     # ════════════════════════════════════════════════════════
@@ -41,10 +32,10 @@ class AnalyticsService:
         seven_days_ago = now - timedelta(days=7)
 
         # ── user counts ────────────────────────────────────
-        total_users = users_collection.count_documents({})
-        active_users = users_collection.count_documents({
+        total_users = await users_collection.count_documents({})
+        active_users = await users_collection.count_documents({
             "last_active": {"$gte": thirty_days_ago}
-        }) or users_collection.count_documents({
+        }) or await users_collection.count_documents({
             "created_at": {"$gte": thirty_days_ago}
         })
 
@@ -52,50 +43,48 @@ class AnalyticsService:
         tier_pipeline = [
             {"$group": {"_id": {"$toLower": "$tier"}, "count": {"$sum": 1}}}
         ]
-        tier_results = {r["_id"]: r["count"] for r in _safe_list(users_collection.aggregate(tier_pipeline))}
+        tier_cursor = users_collection.aggregate(tier_pipeline)
+        tier_list = await tier_cursor.to_list(length=None)
+        tier_results = {r["_id"]: r["count"] for r in tier_list}
         free_count = tier_results.get("free", 0) + tier_results.get(None, 0)
         pro_count = tier_results.get("pro", 0)
         enterprise_count = tier_results.get("enterprise", 0)
         paid_users = pro_count + enterprise_count
 
         # ── MRR calculation ────────────────────────────────
-        # Revenue assumptions should match the active checkout pricing.
         PRO_PRICE = PRO_MONTHLY_PRICE
         ENT_PRICE = ENTERPRISE_MONTHLY_PRICE
         mrr = (pro_count * PRO_PRICE) + (enterprise_count * ENT_PRICE)
 
         # ── previous period MRR (for growth %) ────────────
-        prev_pro = users_collection.count_documents({
+        prev_pro = await users_collection.count_documents({
             "tier": "pro",
             "upgraded_at": {"$lt": month_start, "$gte": prev_month_start}
         })
-        prev_ent = users_collection.count_documents({
+        prev_ent = await users_collection.count_documents({
             "tier": "enterprise",
             "upgraded_at": {"$lt": month_start, "$gte": prev_month_start}
         })
         prev_mrr = (prev_pro * PRO_PRICE) + (prev_ent * ENT_PRICE)
-        # Fallback: use total paid vs last month's signup count
         if prev_mrr == 0:
-            prev_paid = users_collection.count_documents({
+            prev_paid = await users_collection.count_documents({
                 "tier": {"$in": ["pro", "enterprise"]},
                 "created_at": {"$lt": month_start}
             })
             prev_mrr = (prev_paid * PRO_PRICE) if prev_paid else mrr
 
         mrr_growth = round(((mrr - prev_mrr) / prev_mrr * 100) if prev_mrr > 0 else 0, 1)
-
-        # ── ARPU ───────────────────────────────────────────
         arpu = round(mrr / paid_users, 2) if paid_users > 0 else 0
 
         # ── churn rate ─────────────────────────────────────
-        churned = users_collection.count_documents({
+        churned = await users_collection.count_documents({
             "subscription_status": "cancelled",
             "cancelled_at": {"$gte": month_start}
         })
         churn_rate = round((churned / total_users * 100) if total_users > 0 else 0, 2)
 
         # ── active strategies ──────────────────────────────
-        active_strategies = strategies_collection.count_documents({"is_deleted": {"$ne": True}})
+        active_strategies = await strategies_collection.count_documents({"is_deleted": {"$ne": True}})
 
         # ── revenue trend (last 30 days) ───────────────────
         revenue_trend_pipeline = [
@@ -109,12 +98,12 @@ class AnalyticsService:
             }},
             {"$sort": {"_id": 1}}
         ]
-        revenue_trend_raw = _safe_list(users_collection.aggregate(revenue_trend_pipeline))
+        revenue_trend_cursor = users_collection.aggregate(revenue_trend_pipeline)
+        revenue_trend_raw = await revenue_trend_cursor.to_list(length=None)
         revenue_trend = [
             {"date": r["_id"], "revenue": r["new_paid"] * PRO_PRICE}
             for r in revenue_trend_raw
         ]
-        # Fallback: generate from strategy creation dates if no revenue data
         if not revenue_trend:
             strat_trend_pipeline = [
                 {"$match": {"created_at": {"$gte": thirty_days_ago}}},
@@ -124,7 +113,8 @@ class AnalyticsService:
                 }},
                 {"$sort": {"_id": 1}}
             ]
-            strat_trend = _safe_list(strategies_collection.aggregate(strat_trend_pipeline))
+            strat_trend_cursor = strategies_collection.aggregate(strat_trend_pipeline)
+            strat_trend = await strat_trend_cursor.to_list(length=None)
             revenue_trend = [{"date": r["_id"], "revenue": r["count"] * 10} for r in strat_trend]
 
         # ── user growth (last 30 days) ─────────────────────
@@ -136,9 +126,11 @@ class AnalyticsService:
             }},
             {"$sort": {"_id": 1}}
         ]
+        user_growth_cursor = users_collection.aggregate(user_growth_pipeline)
+        user_growth_list = await user_growth_cursor.to_list(length=None)
         user_growth = [
             {"date": r["_id"], "users": r["users"]}
-            for r in _safe_list(users_collection.aggregate(user_growth_pipeline))
+            for r in user_growth_list
         ]
 
         # ── industry breakdown ─────────────────────────────
@@ -152,8 +144,8 @@ class AnalyticsService:
             {"$sort": {"count": -1}},
             {"$limit": 8}
         ]
-        industry_raw = _safe_list(strategies_collection.aggregate(industry_pipeline))
-        # Also try from users collection
+        industry_cursor = strategies_collection.aggregate(industry_pipeline)
+        industry_raw = await industry_cursor.to_list(length=None)
         if not industry_raw:
             industry_pipeline2 = [
                 {"$match": {"industry": {"$exists": True, "$ne": None}}},
@@ -165,7 +157,8 @@ class AnalyticsService:
                 {"$sort": {"count": -1}},
                 {"$limit": 8}
             ]
-            industry_raw = _safe_list(users_collection.aggregate(industry_pipeline2))
+            industry_cursor2 = users_collection.aggregate(industry_pipeline2)
+            industry_raw = await industry_cursor2.to_list(length=None)
 
         industry_breakdown = [
             {"industry": r["_id"] or "Unknown", "count": r["count"], "revenue": r.get("revenue", r["count"] * 10)}
@@ -180,11 +173,11 @@ class AnalyticsService:
                 "total_requests": {"$sum": 1},
             }}
         ]
-        token_raw = _safe_list(strategies_collection.aggregate(token_pipeline))
+        token_cursor = strategies_collection.aggregate(token_pipeline)
+        token_raw = await token_cursor.to_list(length=None)
         total_tokens = token_raw[0]["total_tokens"] if token_raw else 0
         total_requests = token_raw[0]["total_requests"] if token_raw else active_strategies
 
-        # daily token trend
         token_trend_pipeline = [
             {"$match": {"created_at": {"$gte": seven_days_ago}}},
             {"$group": {
@@ -194,25 +187,24 @@ class AnalyticsService:
             }},
             {"$sort": {"_id": 1}}
         ]
+        token_trend_cursor = strategies_collection.aggregate(token_trend_pipeline)
+        daily_tokens_raw = await token_trend_cursor.to_list(length=None)
         daily_tokens = [
             {"date": r["_id"], "tokens": r["tokens"], "requests": r["requests"]}
-            for r in _safe_list(strategies_collection.aggregate(token_trend_pipeline))
+            for r in daily_tokens_raw
         ]
 
-        # Cost estimate: $0.001 per 1K tokens (Groq pricing approx)
         cost_estimate = round((total_tokens / 1000) * 0.001, 4) if total_tokens else round(total_requests * 0.0008, 4)
-
-        # Most active industry from strategies
         most_active_industry = industry_breakdown[0]["industry"] if industry_breakdown else "N/A"
 
-        # Most used strategy mode
         mode_pipeline = [
             {"$match": {"mode": {"$exists": True}}},
             {"$group": {"_id": "$mode", "count": {"$sum": 1}}},
             {"$sort": {"count": -1}},
             {"$limit": 1}
         ]
-        mode_raw = _safe_list(strategies_collection.aggregate(mode_pipeline))
+        mode_cursor = strategies_collection.aggregate(mode_pipeline)
+        mode_raw = await mode_cursor.to_list(length=None)
         most_used_mode = mode_raw[0]["_id"] if mode_raw else "standard"
 
         result = {
@@ -246,16 +238,12 @@ class AnalyticsService:
             }
         }
 
-        # Cache for 60 seconds
         try:
             redis_client.set(cache_key, json.dumps(result, default=str), ex=60)
         except Exception:
             pass
         return result
 
-    # ════════════════════════════════════════════════════════
-    # USERS (server-side search / filter / pagination)
-    # ════════════════════════════════════════════════════════
     async def get_users(
         self,
         search: str = "",
@@ -274,29 +262,26 @@ class AnalyticsService:
         if tier and tier != "all":
             query["tier"] = {"$regex": f"^{tier}$", "$options": "i"}
 
-        total = users_collection.count_documents(query)
+        total = await users_collection.count_documents(query)
         skip = (page - 1) * limit
 
         valid_sorts = {"created_at", "email", "tier", "usage_count"}
         sort_field = sort_by if sort_by in valid_sorts else "created_at"
 
-        users = list(
-            users_collection.find(query)
-            .sort(sort_field, sort_dir)
-            .skip(skip)
-            .limit(limit)
-        )
+        users_cursor = users_collection.find(query).sort(sort_field, sort_dir).skip(skip).limit(limit)
+        users = await users_cursor.to_list(length=None)
 
         result = []
         for u in users:
             uid = str(u["_id"])
-            strategies_count = strategies_collection.count_documents({"user_id": uid})
+            strategies_count = await strategies_collection.count_documents({"user_id": uid})
             tokens_used = 0
             try:
-                tk = list(strategies_collection.aggregate([
+                tk_cursor = strategies_collection.aggregate([
                     {"$match": {"user_id": uid}},
                     {"$group": {"_id": None, "t": {"$sum": {"$ifNull": ["$tokens_used", 0]}}}}
-                ]))
+                ])
+                tk = await tk_cursor.to_list(length=None)
                 tokens_used = tk[0]["t"] if tk else strategies_count * 800
             except Exception:
                 tokens_used = strategies_count * 800
@@ -318,11 +303,9 @@ class AnalyticsService:
 
         return {"users": result, "total": total, "page": page, "limit": limit, "pages": max(1, -(-total // limit))}
 
-    # ════════════════════════════════════════════════════════
-    # RECENT ACTIVITY (REST fallback)
-    # ════════════════════════════════════════════════════════
     async def get_recent_activity(self, limit: int = 50) -> list:
-        recent = list(strategies_collection.find().sort("created_at", -1).limit(limit))
+        recent_cursor = strategies_collection.find().sort("created_at", -1).limit(limit)
+        recent = await recent_cursor.to_list(length=None)
         activities = []
         for s in recent:
             dt = s.get("created_at")
@@ -337,12 +320,10 @@ class AnalyticsService:
             })
         return activities
 
-    # ════════════════════════════════════════════════════════
-    # ADMIN LOGS
-    # ════════════════════════════════════════════════════════
     async def get_admin_logs(self, limit: int = 100) -> list:
         logs_col = db["admin_logs"]
-        logs = list(logs_col.find().sort("timestamp", -1).limit(limit))
+        logs_cursor = logs_col.find().sort("timestamp", -1).limit(limit)
+        logs = await logs_cursor.to_list(length=None)
         result = []
         for log in logs:
             result.append({
@@ -355,12 +336,12 @@ class AnalyticsService:
             })
         return result
 
-    # ════════════════════════════════════════════════════════
-    # LEGACY COMPATIBILITY (keep old dashboard route working)
-    # ════════════════════════════════════════════════════════
     async def get_dashboard_stats(self) -> dict:
         analytics = await self.get_analytics()
         kpi = analytics["kpis"]
+        strategies_today = await strategies_collection.count_documents({
+            "created_at": {"$gte": datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)}
+        })
         return {
             "revenue": {
                 "mrr": f"₹{kpi['mrr']}",
@@ -371,13 +352,11 @@ class AnalyticsService:
                 "active_users": kpi["total_users"],
                 "total_strategies": kpi["active_strategies"],
                 "active_strategies": kpi["active_strategies"],
-                "strategies_today": strategies_collection.count_documents({
-                    "created_at": {"$gte": datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)}
-                })
+                "strategies_today": strategies_today
             },
             "system": {
                 "mongodb_healthy": True,
-                "redis_healthy": False,
+                "redis_healthy": redis_client.enabled,
                 "crew_ai_enabled": True
             }
         }
@@ -389,9 +368,6 @@ class AnalyticsService:
     async def get_system_alerts(self) -> list:
         return []
 
-    # ════════════════════════════════════════════════════════
-    # USER SPECIFIC ANALYTICS
-    # ════════════════════════════════════════════════════════
     async def get_user_analytics(self, user_id: str) -> dict:
         """Compute analytics for a specific user"""
         cache_key = f"user:analytics:{user_id}"
@@ -405,18 +381,16 @@ class AnalyticsService:
         now = datetime.now(timezone.utc)
         thirty_days_ago = now - timedelta(days=30)
         
-        # Strategies count
-        total_strategies = strategies_collection.count_documents({"user_id": user_id, "is_deleted": {"$ne": True}})
+        total_strategies = await strategies_collection.count_documents({"user_id": user_id, "is_deleted": {"$ne": True}})
         
-        # Industry breakdown for user
         industry_pipeline = [
             {"$match": {"user_id": user_id, "industry": {"$exists": True, "$ne": None}}},
             {"$group": {"_id": "$industry", "count": {"$sum": 1}}},
             {"$sort": {"count": -1}}
         ]
-        industries = _safe_list(strategies_collection.aggregate(industry_pipeline))
+        industry_cursor = strategies_collection.aggregate(industry_pipeline)
+        industries = await industry_cursor.to_list(length=None)
         
-        # Token usage trend
         token_trend_pipeline = [
             {"$match": {"user_id": user_id, "created_at": {"$gte": thirty_days_ago}}},
             {"$group": {
@@ -426,17 +400,19 @@ class AnalyticsService:
             }},
             {"$sort": {"_id": 1}}
         ]
+        usage_history_cursor = strategies_collection.aggregate(token_trend_pipeline)
+        usage_history_raw = await usage_history_cursor.to_list(length=None)
         usage_history = [
             {"date": r["_id"], "tokens": r["tokens"], "strategies": r["count"]}
-            for r in _safe_list(strategies_collection.aggregate(token_trend_pipeline))
+            for r in usage_history_raw
         ]
         
-        # Totals
         token_sum_pipeline = [
             {"$match": {"user_id": user_id}},
             {"$group": {"_id": None, "total": {"$sum": {"$ifNull": ["$tokens_used", 0]}}}}
         ]
-        token_sum_raw = _safe_list(strategies_collection.aggregate(token_sum_pipeline))
+        token_sum_cursor = strategies_collection.aggregate(token_sum_pipeline)
+        token_sum_raw = await token_sum_cursor.to_list(length=None)
         total_tokens = token_sum_raw[0]["total"] if token_sum_raw else total_strategies * 800
 
         result = {
@@ -447,7 +423,6 @@ class AnalyticsService:
             "most_active_industry": industries[0]["_id"] if industries else "N/A"
         }
 
-        # Cache user metrics for 60 seconds
         try:
             redis_client.set(cache_key, json.dumps(result, default=str), ex=60)
         except Exception:
