@@ -13,7 +13,7 @@ import {
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PrismPlannerLogo from "./planvIxLogo";
-import logoHorizontal from "../assets/branding/logo-horizontal.svg";
+
 import Dropdown from "./ui/Dropdown";
 
 export default function Navbar({ darkMode, toggleDarkMode }) {
