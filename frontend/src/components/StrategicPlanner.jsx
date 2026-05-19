@@ -79,9 +79,20 @@ export default function StrategicPlanner() {
     startGeneration(user.id || user.user_id);
 
     try {
+      // Log the outgoing request to the terminal
+      setAgentLogs((prev) => [
+        ...prev,
+        {
+          agent: "REQUEST",
+          message: `POST /api/strategy  →  ${import.meta.env.VITE_API_URL || "http://localhost:8000"}`,
+          type: "info",
+        },
+      ]);
+
       const result = await strategyAPI.generate(formData);
       console.log("[STRATEGY RESULT] Raw API response:", result);
 
+      // CRITICAL: Normalize strategy structure
       const normalized = normalizeStrategy(result);
       if (!isValidStrategy(normalized)) {
         throw new Error("Invalid strategy structure received from API");
@@ -92,13 +103,40 @@ export default function StrategicPlanner() {
 
       // Refresh profile to get updated usage count from server
       await fetchUserProfile();
+
     } catch (error) {
       console.error("[STRATEGY ERROR]", error);
-      failGeneration(error.message);
+
+      // Extract rich error detail from Axios error response
+      let errorMessage = error.message || "Unknown error";
+      let statusCode = null;
+      let serverDetail = null;
+
+      if (error.response) {
+        // Server responded with a non-2xx status
+        statusCode = error.response.status;
+        const data = error.response.data;
+        serverDetail =
+          typeof data?.detail === "string"
+            ? data.detail
+            : typeof data?.error === "string"
+              ? data.error
+              : typeof data === "string"
+                ? data
+                : JSON.stringify(data);
+
+        errorMessage = `HTTP ${statusCode} — ${error.response.statusText || "Error"}`;
+      } else if (error.request) {
+        // Request was made but no response received (network / CORS / server down)
+        errorMessage = "No response from server — backend may be offline or CORS blocked";
+      }
+
+      failGeneration(errorMessage);
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleReset = () => {
     setStrategy(null);

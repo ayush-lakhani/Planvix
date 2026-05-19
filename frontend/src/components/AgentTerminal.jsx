@@ -69,12 +69,16 @@ export default function AgentTerminal({ logs, loading, progress, status }) {
                   <span
                     className={`font-bold cursor-help shrink-0 ${
                       log.type === "error"
-                        ? "text-red-600 dark:text-red-400"
+                        ? "text-red-500 dark:text-red-400"
                         : log.type === "success"
-                          ? "text-green-600 dark:text-green-400"
+                          ? "text-green-500 dark:text-green-400"
                           : log.type === "agent"
-                            ? "text-cyan-600 dark:text-cyan-400"
-                            : "text-amber-600 dark:text-yellow-400"
+                            ? "text-cyan-500 dark:text-cyan-400"
+                            : log.type === "request"
+                              ? "text-blue-500 dark:text-blue-400"
+                              : log.agent === "HTTP" || log.agent === "SERVER"
+                                ? "text-orange-500 dark:text-orange-400"
+                                : "text-amber-500 dark:text-yellow-400"
                     }`}
                   >
                     [{log.agent}]
@@ -82,6 +86,7 @@ export default function AgentTerminal({ logs, loading, progress, status }) {
                 </Tooltip>
                 <span className="text-slate-700 dark:text-gray-300">{log.message}</span>
               </div>
+
             ))}
             {loading && (
               <div className="flex items-center gap-2 text-gray-400 animate-pulse mt-2">

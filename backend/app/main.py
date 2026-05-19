@@ -1,5 +1,30 @@
+import sys
+import io
+
+# ─── CRITICAL: Fix Unicode on Windows ──────────────────────────────────────
+# CrewAI / LiteLLM wraps sys.stdout with the Windows default encoding (cp1252).
+# Emoji chars like ✅ ❌ 🤖 are not in cp1252 → UnicodeEncodeError at startup.
+# Reconfigure BEFORE any other import.
+try:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    else:
+        sys.stdout = io.TextIOWrapper(
+            sys.stdout.buffer, encoding="utf-8", errors="replace"
+        )
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    else:
+        sys.stderr = io.TextIOWrapper(
+            sys.stderr.buffer, encoding="utf-8", errors="replace"
+        )
+except Exception:
+    pass
+# ───────────────────────────────────────────────────────────────────────────
+
 from dotenv import load_dotenv
 load_dotenv()
+
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
