@@ -1,7 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
 from app.models.schemas import UserCreate, UserLogin, Token, GoogleAuthRequest
 from app.services.auth_service import auth_service
-from app.core.rate_limit import limiter
+from app.core.rate_limit import (
+    limiter, 
+    get_rate_limit_signup, 
+    get_rate_limit_login, 
+    get_rate_limit_refresh, 
+    get_rate_limit_google
+)
 import asyncio
 
 from app.dependencies.auth import get_current_user
@@ -14,7 +20,7 @@ async def delete_account(current_user: dict = Depends(get_current_user)):
     return await auth_service.delete_account(str(current_user["_id"]))
 
 @router.post("/signup", response_model=Token)
-@limiter.limit("5/minute")
+@limiter.limit(get_rate_limit_signup)
 async def signup(request: Request, response: Response, user_data: UserCreate):
     result = await auth_service.signup(user_data)
     
@@ -41,7 +47,7 @@ async def signup(request: Request, response: Response, user_data: UserCreate):
     return result
 
 @router.post("/login", response_model=Token)
-@limiter.limit("5/minute")
+@limiter.limit(get_rate_limit_login)
 async def login(request: Request, response: Response, user_data: UserLogin):
     result = await auth_service.login(user_data)
     
@@ -57,7 +63,7 @@ async def login(request: Request, response: Response, user_data: UserLogin):
     return result
 
 @router.post("/refresh", response_model=Token)
-@limiter.limit("10/minute")
+@limiter.limit(get_rate_limit_refresh)
 async def refresh_token(request: Request, response: Response):
     token = request.cookies.get("refresh_token")
     if not token:
@@ -87,8 +93,9 @@ async def logout(request: Request, response: Response):
 
 
 @router.post("/google", response_model=Token)
-@limiter.limit("10/minute")
+@limiter.limit(get_rate_limit_google)
 async def google_auth(request: Request, response: Response, body: GoogleAuthRequest):
+
     """Authenticate via Google OAuth access token (implicit flow)."""
     result = await auth_service.google_auth(body.access_token)
 

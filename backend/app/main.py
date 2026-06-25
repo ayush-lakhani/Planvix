@@ -56,38 +56,96 @@ app = FastAPI(
 # Startup Logging
 from datetime import datetime
 
+from app.core.config import settings, validate_environment
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from fastapi import Response
+from app.core.telemetry import RATE_LIMIT_HIT_COUNT
+from app.core.rate_limit import get_client_ip
+
 @app.on_event("startup")
 async def startup_event():
+    # Call environment variable validations
+    validate_environment()
+
     logger.info("================================================================")
-    logger.info(f"🚀 {settings.PROJECT_NAME} Backend v{settings.VERSION}")
+    logger.info(f"planvIx Backend v{settings.VERSION}")
     logger.info("================================================================")
     
     # CrewAI Status
     if settings.GROQ_API_KEY:
-        logger.info(f"✅  CrewAI Status: ENABLED (API Key found: {settings.GROQ_API_KEY[:4]}***)")
+        logger.info(f"CrewAI Status: ENABLED (API Key found: {settings.GROQ_API_KEY[:4]}***)")
     else:
-        logger.warning("⚠️  CrewAI Status: DISABLED (Missing GROQ_API_KEY)")
+        logger.warning("CrewAI Status: DISABLED (Missing GROQ_API_KEY)")
         logger.warning("    -> App will use DEMO MODE for strategy generation.")
 
     # Admin Key Status
     if settings.ADMIN_SECRET and settings.ADMIN_SECRET != "planvix-admin-2026-change-now":
-        logger.info("🔒  Admin Security: CONFIGURED")
+        logger.info("Admin Security: CONFIGURED")
     elif settings.ADMIN_SECRET:
-         logger.warning("⚠️  Admin Security: USING DEFAULT SECRET (Please change in production)")
+         logger.warning("Admin Security: USING DEFAULT SECRET (Please change in production)")
     else:
-        logger.error("❌  Admin Security: MISSING ADMIN_SECRET")
+        logger.error("Admin Security: MISSING ADMIN_SECRET")
     
-    logger.info("🔌  WebSocket Activity Feed: /ws/admin/activity")
-    logger.info("📊  Analytics Engine: MongoDB Aggregation Based")
+    logger.info("WebSocket Activity Feed: /ws/admin/activity")
+    logger.info("Analytics Engine: MongoDB Aggregation Based")
     logger.info("================================================================")
     
     # Initialize DB
     from app.core.mongo import init_db
     await init_db()
 
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("Graceful shutdown: closing connections and flushing logs...")
+    
+    # Close Redis client connection pool
+    try:
+        from app.core.redis import redis_client
+        redis_client.close()
+        logger.info("Redis connection closed.")
+    except Exception as e:
+        logger.error(f"Error during Redis client close: {e}")
+        
+    # Flush logs
+    try:
+        import logging
+        for handler in logging.getLogger().handlers:
+            handler.flush()
+        logger.info("Logs flushed successfully.")
+    except Exception as e:
+        print(f"Error flushing logs: {e}")
+        
+    logger.info("Graceful shutdown complete.")
+
 # Add rate limiter to app
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+async def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    endpoint = request.url.path
+    user_id = getattr(request.state, "user_id", "anonymous")
+    client_ip = get_client_ip(request)
+    
+    try:
+        RATE_LIMIT_HIT_COUNT.labels(
+            endpoint=endpoint,
+            user_id=user_id,
+            client_ip=client_ip
+        ).inc()
+    except Exception:
+        pass
+        
+    logger.warning(f"Rate limit exceeded: path={endpoint}, user_id={user_id}, ip={client_ip}")
+    return JSONResponse(
+        status_code=429,
+        content={"detail": f"Rate limit exceeded: {exc.detail or 'Too many requests'}"}
+    )
+
+app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
+
+@app.get("/metrics")
+@app.get("/api/metrics")
+async def metrics_endpoint():
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 # Global Exception Handler
 @app.exception_handler(Exception)

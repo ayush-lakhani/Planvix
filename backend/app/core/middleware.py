@@ -6,12 +6,15 @@ from jose import jwt, JWTError
 from app.core.logger import request_id_var, user_id_var, user_tier_var, logger, log_event
 from app.core.config import settings
 
+from app.core.telemetry import HTTP_REQUEST_COUNT, HTTP_REQUEST_DURATION, get_tracer
+
 class RequestIDMiddleware(BaseHTTPMiddleware):
     """
     Injects a unique correlation ID into every request context.
+    If X-Request-ID is already present in headers, reuses it for distributed tracing.
     """
     async def dispatch(self, request: Request, call_next):
-        request_id = str(uuid.uuid4())
+        request_id = request.headers.get("x-request-id") or str(uuid.uuid4())
         token = request_id_var.set(request_id)
         request.state.request_id = request_id
         
@@ -22,17 +25,46 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
 
 class TimingMiddleware(BaseHTTPMiddleware):
     """
-    Tracks request execution time for performance observability.
+    Tracks request execution time for performance observability,
+    emitting Prometheus metrics and OpenTelemetry traces.
     """
     async def dispatch(self, request: Request, call_next):
+        path = request.url.path
+        if path in ("/metrics", "/health", "/ready", "/live", "/api/health") or "ws" in path:
+            return await call_next(request)
+
         start_time = time.perf_counter()
-        response = await call_next(request)
+        
+        tracer = get_tracer()
+        if tracer:
+            with tracer.start_as_current_span(f"{request.method} {request.url.path}") as span:
+                span.set_attribute("http.method", request.method)
+                span.set_attribute("http.url", str(request.url))
+                span.set_attribute("http.request_id", getattr(request.state, "request_id", "unknown"))
+                response = await call_next(request)
+                span.set_attribute("http.status_code", response.status_code)
+        else:
+            response = await call_next(request)
+            
         process_time = time.perf_counter() - start_time
         response.headers["X-Process-Time"] = f"{process_time:.4f}"
         
+        # Record Prometheus metrics
+        endpoint = request.url.path
+        HTTP_REQUEST_COUNT.labels(
+            method=request.method,
+            endpoint=endpoint,
+            status=response.status_code
+        ).inc()
+        
+        HTTP_REQUEST_DURATION.labels(
+            method=request.method,
+            endpoint=endpoint
+        ).observe(process_time)
+        
         # Log slow requests (> 2s for standard endpoints, AI ones expected to be slow)
         if process_time > 2.0 and not request.url.path.startswith("/strategy"):
-            logger.warning(f"⚠️ Slow request detected: {request.method} {request.url.path} ({process_time:.2f}s)")
+            logger.warning(f"Slow request detected: {request.method} {request.url.path} ({process_time:.2f}s)")
             
         return response
 
@@ -41,8 +73,11 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
     Logs all incoming requests and outgoing responses in a structured format.
     """
     async def dispatch(self, request: Request, call_next):
-        method = request.method
         path = request.url.path
+        if path in ("/metrics", "/health", "/ready", "/live", "/api/health") or "ws" in path:
+            return await call_next(request)
+
+        method = request.method
         
         # Pre-log request
         log_event("http_request", {
@@ -70,6 +105,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
         response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' ws: wss:;"
         return response
 

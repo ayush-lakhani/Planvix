@@ -1,6 +1,7 @@
 import time
 import logging
 import threading
+import random
 import redis
 from app.core.config import settings
 
@@ -9,25 +10,29 @@ logger = logging.getLogger("app.core.redis_health")
 class RedisHealthManager:
     """
     Production-grade Redis Health Manager implementing:
-    - Continuous health monitoring
-    - Circuit breaker to prevent connection spamming
-    - Reconnection with exponential backoff (2^failures up to max 60s)
-    - Automatic switch back to Redis once connection is restored
+    - Canonical Circuit Breaker pattern (Closed, Open, Half-Open states)
+    - Reconnection with exponential backoff and jitter (Full Jitter)
+    - Configurable feature flags (FALLBACK_ENABLED, AUTO_RECOVERY)
     """
     def __init__(self):
         self.redis_url = getattr(settings, "REDIS_URL", "")
-        self.status = "degraded"  # "connected" | "degraded" | "reconnecting"
+        self.status = "degraded"  # "connected" | "degraded" (Open) | "reconnecting" (Half-Open)
         self.redis_client = None
         self.failure_count = 0
         self.last_attempt_time = 0
         self.backoff_delay = 1.0  # Start with 1.0s backoff
         self.max_backoff = 60.0   # Cap at 60s backoff
         self.lock = threading.Lock()
+        
+        # Feature Flags from settings
+        self.fallback_enabled = getattr(settings, "REDIS_FALLBACK_ENABLED", True)
+        self.auto_recovery = getattr(settings, "REDIS_AUTO_RECOVERY", True)
+        
         self.connect()
 
     def connect(self) -> bool:
         """
-        Performs the actual socket ping and sets state/circuit breaker options.
+        Performs connection attempt. Transitions state to connected or degraded/reconnecting.
         """
         with self.lock:
             self.last_attempt_time = time.time()
@@ -37,7 +42,10 @@ class RedisHealthManager:
                 return False
 
             try:
-                # Short timeout to prevent locking request threads
+                # Obfuscate url password for log
+                safe_url = self.redis_url.split("@")[-1] if "@" in self.redis_url else self.redis_url
+                logger.info(f"RedisHealthManager: Trying connection to {safe_url}...")
+                
                 client = redis.from_url(
                     self.redis_url,
                     decode_responses=True,
@@ -48,65 +56,96 @@ class RedisHealthManager:
                 
                 # Check for recovery transition
                 if self.status != "connected":
-                    logger.info("🔄 RedisHealthManager: Redis recovered.")
-                    logger.info("🔄 RedisHealthManager: Switched back to Redis.")
+                    logger.info("RedisHealthManager: Redis recovered.")
+                    logger.info("RedisHealthManager: Switched back to Redis.")
                 
                 self.redis_client = client
                 self.status = "connected"
                 self.failure_count = 0
                 self.backoff_delay = 1.0
+                try:
+                    from app.core.telemetry import REDIS_HEALTH_STATUS
+                    REDIS_HEALTH_STATUS.set(1)
+                except Exception:
+                    pass
                 return True
             except Exception as e:
                 self.failure_count += 1
-                # Exponential backoff: 2^(failures-1)
-                self.backoff_delay = min(self.max_backoff, 1.0 * (2 ** (self.failure_count - 1)))
+                
+                # Exponential backoff with Jitter (Full Jitter)
+                temp_delay = min(self.max_backoff, 1.0 * (2 ** (self.failure_count - 1)))
+                self.backoff_delay = random.uniform(0.5 * temp_delay, temp_delay)
                 self.redis_client = None
                 
                 if self.status == "connected":
-                    logger.error("🚨 RedisHealthManager: Redis disconnected.")
-                    logger.warning("⚠️ RedisHealthManager: Switched to memory fallback.")
+                    logger.error(f"RedisHealthManager: Redis disconnected (Connection failed: {e}).")
+                    logger.warning("RedisHealthManager: Switched to memory fallback.")
                 
                 self.status = "reconnecting" if self.failure_count > 1 else "degraded"
-                logger.warning(f"⚠️ RedisHealthManager: Connection failed: {e}. Backoff active for {self.backoff_delay:.1f}s.")
+                logger.warning(f"RedisHealthManager: Connection attempt failed: {e}. Circuit Breaker: OPEN. Reconnect backoff: {self.backoff_delay:.1f}s.")
+                
+                try:
+                    from app.core.telemetry import REDIS_HEALTH_STATUS
+                    REDIS_HEALTH_STATUS.set(0)
+                except Exception:
+                    pass
+                
+                # If fallback is disabled, bubble up the exception
+                if not self.fallback_enabled:
+                    raise e
+                    
                 return False
 
     def check_reconnect(self) -> bool:
         """
-        Checks if backoff window has expired, and if so, performs reconnect check.
+        State machine transition: Half-Open check.
+        If auto_recovery is disabled, reconnection will never be attempted.
         """
         if self.status == "connected":
             return True
 
+        if not self.auto_recovery:
+            return False
+
         now = time.time()
-        # Circuit breaker: only attempt reconnect if backoff delay has passed
+        # Only attempt to reconnect if circuit breaker has been open longer than backoff delay
         if now - self.last_attempt_time > self.backoff_delay:
-            self.last_attempt_time = now
+            logger.info("RedisHealthManager: Circuit Breaker: HALF-OPEN. Running reconnection probe...")
             return self.connect()
             
         return False
 
     def is_redis_available(self) -> bool:
         """
-        Verifies if Redis is available. Safely triggers lazy reconnects.
+        Checks health status. If degraded, checks if we can reconnect.
         """
         if self.status == "connected" and self.redis_client:
             return True
         self.check_reconnect()
         return self.status == "connected"
 
-    def report_failure(self):
+    def report_failure(self, error: Exception = None):
         """
-        Reports an operational failure. Instantly trips circuit breaker to memory fallback.
+        Reports an operational failure. Instantly trips the circuit breaker to OPEN state.
         """
         with self.lock:
             if self.status == "connected":
-                logger.error("🚨 RedisHealthManager: Redis operation failure detected.")
-                logger.warning("⚠️ RedisHealthManager: Switched to memory fallback.")
+                logger.error(f"RedisHealthManager: Redis operation failure detected: {error}.")
+                logger.warning("RedisHealthManager: Switched to memory fallback.")
                 self.status = "degraded"
                 self.redis_client = None
                 self.last_attempt_time = time.time()
                 self.failure_count = 1
                 self.backoff_delay = 1.0
+                try:
+                    from app.core.telemetry import REDIS_HEALTH_STATUS
+                    REDIS_HEALTH_STATUS.set(0)
+                except Exception:
+                    pass
+                
+            # If fallback is disabled, raise exception
+            if not self.fallback_enabled and error:
+                raise error
 
 # Shared global health manager singleton
 redis_health_manager = RedisHealthManager()

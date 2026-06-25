@@ -4,42 +4,89 @@ from fastapi import Request
 from app.core.config import settings
 from app.core.logger import logger, user_tier_var
 
+def get_client_ip(request: Request) -> str:
+    """
+    Extracts the client IP address from request headers, supporting trusted proxies.
+    Checks:
+    1. CF-Connecting-IP (Cloudflare)
+    2. X-Forwarded-For (gets first element)
+    3. X-Real-IP
+    4. request.client.host (fallback)
+    """
+    cf_ip = request.headers.get("cf-connecting-ip")
+    if cf_ip:
+        return cf_ip.strip()
+        
+    xff = request.headers.get("x-forwarded-for")
+    if xff:
+        parts = xff.split(",")
+        if parts:
+            return parts[0].strip()
+            
+    xri = request.headers.get("x-real-ip")
+    if xri:
+        return xri.strip()
+        
+    if request.client:
+        return request.client.host
+        
+    return "127.0.0.1"
+
 def get_user_rate_key(request: Request) -> str:
     """
-    Enterprise rate key: User ID if authenticated, else Client IP.
+    Enterprise rate key: API Key first, then User ID, then Client IP.
     """
+    api_key = request.headers.get("x-api-key") or request.headers.get("X-API-Key")
+    if api_key:
+        return f"apikey:{api_key}"
+        
     user_id = getattr(request.state, "user_id", None)
     if user_id and user_id != "anonymous":
         return f"user:{user_id}"
-    return get_remote_address(request)
-
-def get_general_limit() -> str:
-    """
-    General API limits based on tier.
-    """
-    try:
-        tier = user_tier_var.get()
-    except LookupError:
-        tier = "free"
         
-    if tier == "pro":
-        return "60/minute"
-    return "20/minute"
+    return f"ip:{get_client_ip(request)}"
 
-def get_ai_limit(request: Request) -> str:
+def get_general_limit(request: Request = None) -> str:
     """
-    Strict AI generation limits to prevent provider abuse.
+    General API limits based on API key, user tier, or IP.
     """
-    tier = getattr(request.state, "user_tier", "free")
-    if tier == "pro":
-        return "10/minute"
-    return "2/minute"
+    if request is None:
+        try:
+            tier = user_tier_var.get()
+        except LookupError:
+            tier = "free"
+        if tier == "pro":
+            return getattr(settings, "RATE_LIMIT_USER_PRO", "100/minute")
+        return getattr(settings, "RATE_LIMIT_USER_FREE", "30/minute")
 
-def get_auth_limit(request: Request) -> str:
-    """
-    Strict auth limits to prevent brute-force attacks.
-    """
-    return "5/minute"
+    api_key = request.headers.get("x-api-key") or request.headers.get("X-API-Key")
+    if api_key:
+        return getattr(settings, "RATE_LIMIT_API_KEY", "200/minute")
+
+    user_id = getattr(request.state, "user_id", None)
+    if user_id and user_id != "anonymous":
+        tier = getattr(request.state, "user_tier", "free")
+        if tier == "pro":
+            return getattr(settings, "RATE_LIMIT_USER_PRO", "100/minute")
+        return getattr(settings, "RATE_LIMIT_USER_FREE", "30/minute")
+
+    return getattr(settings, "RATE_LIMIT_IP", "30/minute")
+
+def get_rate_limit_signup(request: Request = None) -> str:
+    return getattr(settings, "RATE_LIMIT_SIGNUP", "5/minute")
+
+def get_rate_limit_login(request: Request = None) -> str:
+    return getattr(settings, "RATE_LIMIT_LOGIN", "5/minute")
+
+def get_rate_limit_refresh(request: Request = None) -> str:
+    return getattr(settings, "RATE_LIMIT_REFRESH", "10/minute")
+
+def get_rate_limit_google(request: Request = None) -> str:
+    return getattr(settings, "RATE_LIMIT_GOOGLE", "10/minute")
+
+def get_rate_limit_ai(request: Request = None) -> str:
+    return getattr(settings, "RATE_LIMIT_AI", "2/minute")
+
 
 from limits.storage.base import Storage
 from limits.storage.redis import RedisStorage

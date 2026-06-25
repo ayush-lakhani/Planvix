@@ -23,3 +23,6 @@ motor
 razorpay
 psutil
 argon2-cffi
+prometheus-client
+opentelemetry-api
+opentelemetry-sdk

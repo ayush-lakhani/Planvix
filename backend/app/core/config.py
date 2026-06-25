@@ -49,8 +49,36 @@ class Settings:
     
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = int(os.getenv("RATE_LIMIT_PER_MINUTE", "30"))
+    RATE_LIMIT_SIGNUP: str = os.getenv("RATE_LIMIT_SIGNUP", "5/minute")
+    RATE_LIMIT_LOGIN: str = os.getenv("RATE_LIMIT_LOGIN", "5/minute")
+    RATE_LIMIT_REFRESH: str = os.getenv("RATE_LIMIT_REFRESH", "10/minute")
+    RATE_LIMIT_GOOGLE: str = os.getenv("RATE_LIMIT_GOOGLE", "10/minute")
+    RATE_LIMIT_AI: str = os.getenv("RATE_LIMIT_AI", "2/minute")
+    RATE_LIMIT_USER_FREE: str = os.getenv("RATE_LIMIT_USER_FREE", "30/minute")
+    RATE_LIMIT_USER_PRO: str = os.getenv("RATE_LIMIT_USER_PRO", "100/minute")
+    RATE_LIMIT_API_KEY: str = os.getenv("RATE_LIMIT_API_KEY", "200/minute")
+    RATE_LIMIT_IP: str = os.getenv("RATE_LIMIT_IP", "30/minute")
+
+    # Redis Feature Flags
+    REDIS_FALLBACK_ENABLED: bool = os.getenv("REDIS_FALLBACK_ENABLED", "True").lower() in ("true", "1", "yes")
+    REDIS_AUTO_RECOVERY: bool = os.getenv("REDIS_AUTO_RECOVERY", "True").lower() in ("true", "1", "yes")
 
     # CORS
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 settings = Settings()
+
+def validate_environment():
+    import sys
+    critical_missing = []
+    if not settings.SECRET_KEY:
+        critical_missing.append("JWT_SECRET_KEY")
+    if not settings.MONGODB_URL:
+        critical_missing.append("MONGODB_URL")
+        
+    if critical_missing:
+        error_msg = f"FATAL CONFIGURATION ERROR: Missing required environment variables: {', '.join(critical_missing)}. Application cannot start."
+        # Print directly and flush to make sure it is visible in console
+        print(error_msg, file=sys.stderr, flush=True)
+        sys.exit(1)
+

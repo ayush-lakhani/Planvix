@@ -23,8 +23,16 @@ class AuthService:
     Enterprise Auth Service with brute-force protection and multi-provider support.
     """
     
+    def _inc_auth_metric(self, event: str, status: str, reason: str = ""):
+        try:
+            from app.core.telemetry import AUTH_EVENT_COUNT
+            AUTH_EVENT_COUNT.labels(event=event, status=status, reason=reason).inc()
+        except Exception:
+            pass
+
     async def signup(self, user_data) -> dict:
         if await users_collection.find_one({"email": user_data.email}):
+            self._inc_auth_metric("signup", "failure", "email_exists")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Email already registered"
@@ -49,6 +57,7 @@ class AuthService:
         refresh_token = await self.create_refresh_token(user_id)
         
         log_event("user_signup", {"email": user_data.email, "user_id": user_id})
+        self._inc_auth_metric("signup", "success")
         
         return {
             "access_token": access_token,
@@ -70,6 +79,7 @@ class AuthService:
         
         if not user:
             await self._record_login_failure(user_data.email)
+            self._inc_auth_metric("login", "failure", "user_not_found")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
@@ -77,6 +87,7 @@ class AuthService:
             )
             
         if user.get("auth_provider") == "google":
+            self._inc_auth_metric("login", "failure", "google_provider_required")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="This account uses Google Sign-In. Please sign in with Google.",
@@ -87,6 +98,7 @@ class AuthService:
         
         if not hashed_password or not verify_password(user_data.password, hashed_password):
             await self._record_login_failure(user_data.email)
+            self._inc_auth_metric("login", "failure", "invalid_password")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
@@ -106,6 +118,7 @@ class AuthService:
         refresh_token = await self.create_refresh_token(user_id)
         
         log_event("user_login", {"email": user_data.email, "user_id": user_id})
+        self._inc_auth_metric("login", "success")
         
         return {
             "access_token": access_token,
@@ -227,11 +240,14 @@ class AuthService:
                 headers={"Authorization": f"Bearer {access_token}"},
             )
             if resp.status_code != 200:
+                self._inc_auth_metric("google", "failure", "invalid_token")
                 raise HTTPException(status_code=401, detail="Invalid Google token")
             user_info = resp.json()
 
         email = user_info.get("email")
-        if not email: raise HTTPException(status_code=400, detail="Google account lacks email")
+        if not email:
+            self._inc_auth_metric("google", "failure", "missing_email")
+            raise HTTPException(status_code=400, detail="Google account lacks email")
 
         existing = await users_collection.find_one({"email": email})
         if not existing:
@@ -260,6 +276,8 @@ class AuthService:
             data={"user_id": user_id, "sub": user_id, "role": user_role, "tier": user_tier}
         )
         refresh_token = await self.create_refresh_token(user_id)
+
+        self._inc_auth_metric("google", "success")
 
         return {
             "access_token": access_token_jwt,

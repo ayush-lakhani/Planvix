@@ -93,7 +93,7 @@ class RedisCache:
             try:
                 return self.health_manager.redis_client.get(key)
             except Exception as e:
-                logger.warning(f"⚠️ Redis GET failed: {e}. Degrading to in-memory fallback.")
+                logger.warning(f"Redis GET failed: {e}. Degrading to in-memory fallback.")
                 self.health_manager.report_failure()
         return self.in_memory.get(key)
 
@@ -102,7 +102,7 @@ class RedisCache:
             try:
                 return self.health_manager.redis_client.set(key, value, ex=ex)
             except Exception as e:
-                logger.warning(f"⚠️ Redis SET failed: {e}. Degrading to in-memory fallback.")
+                logger.warning(f"Redis SET failed: {e}. Degrading to in-memory fallback.")
                 self.health_manager.report_failure()
         return self.in_memory.set(key, value, ex=ex)
 
@@ -111,7 +111,7 @@ class RedisCache:
             try:
                 return bool(self.health_manager.redis_client.delete(key))
             except Exception as e:
-                logger.warning(f"⚠️ Redis DELETE failed: {e}. Degrading to in-memory fallback.")
+                logger.warning(f"Redis DELETE failed: {e}. Degrading to in-memory fallback.")
                 self.health_manager.report_failure()
         return self.in_memory.delete(key)
 
@@ -120,13 +120,82 @@ class RedisCache:
             try:
                 return self.health_manager.redis_client.incr(key)
             except Exception as e:
-                logger.warning(f"⚠️ Redis INCR failed: {e}. Degrading to in-memory fallback.")
+                logger.warning(f"Redis INCR failed: {e}. Degrading to in-memory fallback.")
                 self.health_manager.report_failure()
         return self.in_memory.incr(key)
 
     def ping(self) -> bool:
         return self.health_manager.is_redis_available()
 
+    def close(self):
+        if self.health_manager.redis_client:
+            try:
+                # Close connection if present
+                if hasattr(self.health_manager.redis_client, "close"):
+                    self.health_manager.redis_client.close()
+                logger.info("Redis connection pool closed.")
+            except Exception as e:
+                logger.warning(f"Error during Redis client close: {e}")
+
 # Singleton instance
 redis_client = RedisCache()
+
+import contextlib
+import uuid
+
+class DistributedLock:
+    """
+    Production-grade distributed lock with in-memory fallback.
+    Ensures horizontal lock sync when Redis is up, and gracefully falls back to local memory locks when Redis is down.
+    """
+    def __init__(self, key: str, ttl: int = 30):
+        self.key = f"lock:{key}"
+        self.ttl = ttl
+        self.token = str(uuid.uuid4())
+        
+    def acquire(self) -> bool:
+        if redis_client.enabled and redis_client.client:
+            try:
+                res = redis_client.client.set(self.key, self.token, ex=self.ttl, nx=True)
+                return bool(res)
+            except Exception:
+                pass
+                
+        # Memory fallback
+        val = redis_client.in_memory.get(self.key)
+        if val is None:
+            redis_client.in_memory.set(self.key, self.token, ex=self.ttl)
+            return True
+        return False
+        
+    def release(self):
+        if redis_client.enabled and redis_client.client:
+            try:
+                lua_release = """
+                if redis.call("get", KEYS[1]) == ARGV[1] then
+                    return redis.call("del", KEYS[1])
+                else
+                    return 0
+                end
+                """
+                redis_client.client.eval(lua_release, 1, self.key, self.token)
+                return
+            except Exception:
+                pass
+                
+        # Memory fallback
+        val = redis_client.in_memory.get(self.key)
+        if val == self.token:
+            redis_client.in_memory.delete(self.key)
+
+@contextlib.contextmanager
+def distributed_lock(key: str, ttl: int = 30):
+    lock = DistributedLock(key, ttl)
+    acquired = lock.acquire()
+    try:
+        yield acquired
+    finally:
+        if acquired:
+            lock.release()
+
 
