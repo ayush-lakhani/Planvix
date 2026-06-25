@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 _start_time = time.time()
 
 
+from app.core.redis_health import redis_health_manager
+
 class HealthService:
 
     async def get_health(self) -> dict:
@@ -30,18 +32,19 @@ class HealthService:
             logger.error(f"MongoDB health check failed: {e}")
 
         # ── Redis ────────────────────────────────────────────
-        redis_status = "connected" if redis_client.enabled else "degraded (memory fallback)"
+        redis_status = redis_health_manager.status
         redis_latency_ms = None
-        if redis_client.enabled:
+        rate_limiter = "redis" if redis_status == "connected" else "memory"
+        
+        if redis_status == "connected" and redis_health_manager.redis_client:
             try:
                 t0 = time.perf_counter()
-                pong = redis_client.ping()
+                redis_health_manager.redis_client.ping()
                 redis_latency_ms = round((time.perf_counter() - t0) * 1000, 2)
-                if not pong:
-                    redis_status = "degraded (memory fallback)"
             except Exception as e:
-                redis_status = "degraded (memory fallback)"
-                logger.error(f"Redis health check failed: {e}")
+                redis_status = "degraded"
+                rate_limiter = "memory"
+                logger.error(f"Redis latency check failed: {e}")
 
         # ── CPU / Memory ─────────────────────────────────────
         try:
@@ -73,6 +76,7 @@ class HealthService:
             "mongo_latency_ms": mongo_latency_ms,
             "redis": redis_status,
             "redis_latency_ms": redis_latency_ms,
+            "rateLimiter": rate_limiter,
             "agents": "running",
             "uptime": uptime_str,
             "uptime_seconds": uptime_seconds,

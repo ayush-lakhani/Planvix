@@ -3,6 +3,7 @@ from app.core.config import settings
 import logging
 import time
 import threading
+from app.core.redis_health import redis_health_manager
 
 logger = logging.getLogger("app.core.cache")
 
@@ -72,125 +73,59 @@ class InMemoryCache:
 
 class RedisCache:
     """
-    Production-grade Redis Client wrapper with automatic in-memory fallback
-    and dynamic background reconnection (self-healing).
+    Production-grade Redis Client wrapper composing RedisHealthManager
+    and falling back to local InMemoryCache on failure.
     """
     def __init__(self):
-        self.client = None
-        self.enabled = False
+        self.health_manager = redis_health_manager
         self.in_memory = InMemoryCache()
-        self.last_reconnect_time = 0
-        self.connect()
 
-    def connect(self):
-        # Startup Validation
-        redis_url = getattr(settings, "REDIS_URL", "")
-        if not redis_url or not redis_url.strip() or not (redis_url.startswith("redis://") or redis_url.startswith("rediss://")):
-            logger.warning("⚠️ Redis configuration invalid or missing. Starting with local in-memory fallback.")
-            self.enabled = False
-            self.client = None
-            return
+    @property
+    def enabled(self) -> bool:
+        return self.health_manager.is_redis_available()
 
-        try:
-            logger.info("Connecting to Redis...")
-            self.client = redis.from_url(
-                redis_url,
-                decode_responses=True,
-                socket_timeout=2,
-                socket_connect_timeout=2
-            )
-            self.client.ping()
-            self.enabled = True
-            logger.info("✅ Redis connected successfully.")
-        except Exception as e:
-            self.enabled = False
-            self.client = None
-            logger.warning(f"⚠️ Redis connection failed: {e}")
-            logger.warning("   -> Caching degraded. Falling back to local in-memory cache.")
-
-    def check_reconnect(self):
-        """
-        Dynamically attempts to reconnect if the connection was degraded,
-        limiting reconnection attempts to once every 30 seconds.
-        """
-        if not self.enabled:
-            now = time.time()
-            if now - self.last_reconnect_time > 30:
-                self.last_reconnect_time = now
-                logger.info("🔄 Attempting dynamic reconnection to Redis...")
-                try:
-                    # Attempt connection check
-                    redis_url = getattr(settings, "REDIS_URL", "")
-                    if redis_url and (redis_url.startswith("redis://") or redis_url.startswith("rediss://")):
-                        temp_client = redis.from_url(
-                            redis_url,
-                            decode_responses=True,
-                            socket_timeout=2,
-                            socket_connect_timeout=2
-                        )
-                        temp_client.ping()
-                        self.client = temp_client
-                        self.enabled = True
-                        logger.info("✅ Redis connection restored! Switching back to Redis cache.")
-                except Exception as e:
-                    logger.debug(f"Redis reconnection attempt failed: {e}")
+    @property
+    def client(self):
+        return self.health_manager.redis_client
 
     def get(self, key: str):
-        self.check_reconnect()
-        if self.enabled and self.client:
+        if self.health_manager.is_redis_available() and self.health_manager.redis_client:
             try:
-                return self.client.get(key)
+                return self.health_manager.redis_client.get(key)
             except Exception as e:
                 logger.warning(f"⚠️ Redis GET failed: {e}. Degrading to in-memory fallback.")
-                self.enabled = False
-                self.client = None
-                self.last_reconnect_time = time.time()
+                self.health_manager.report_failure()
         return self.in_memory.get(key)
 
     def set(self, key: str, value: str, ex: int = None):
-        self.check_reconnect()
-        if self.enabled and self.client:
+        if self.health_manager.is_redis_available() and self.health_manager.redis_client:
             try:
-                return self.client.set(key, value, ex=ex)
+                return self.health_manager.redis_client.set(key, value, ex=ex)
             except Exception as e:
                 logger.warning(f"⚠️ Redis SET failed: {e}. Degrading to in-memory fallback.")
-                self.enabled = False
-                self.client = None
-                self.last_reconnect_time = time.time()
+                self.health_manager.report_failure()
         return self.in_memory.set(key, value, ex=ex)
 
     def delete(self, key: str):
-        self.check_reconnect()
-        if self.enabled and self.client:
+        if self.health_manager.is_redis_available() and self.health_manager.redis_client:
             try:
-                return bool(self.client.delete(key))
+                return bool(self.health_manager.redis_client.delete(key))
             except Exception as e:
                 logger.warning(f"⚠️ Redis DELETE failed: {e}. Degrading to in-memory fallback.")
-                self.enabled = False
-                self.client = None
-                self.last_reconnect_time = time.time()
+                self.health_manager.report_failure()
         return self.in_memory.delete(key)
 
     def incr(self, key: str):
-        self.check_reconnect()
-        if self.enabled and self.client:
+        if self.health_manager.is_redis_available() and self.health_manager.redis_client:
             try:
-                return self.client.incr(key)
+                return self.health_manager.redis_client.incr(key)
             except Exception as e:
                 logger.warning(f"⚠️ Redis INCR failed: {e}. Degrading to in-memory fallback.")
-                self.enabled = False
-                self.client = None
-                self.last_reconnect_time = time.time()
+                self.health_manager.report_failure()
         return self.in_memory.incr(key)
 
     def ping(self) -> bool:
-        self.check_reconnect()
-        if self.enabled and self.client:
-            try:
-                return bool(self.client.ping())
-            except Exception:
-                return False
-        return True
+        return self.health_manager.is_redis_available()
 
 # Singleton instance
 redis_client = RedisCache()

@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 
 router = APIRouter(tags=["Health"])
 
+from app.core.redis_health import redis_health_manager
+
 @router.get("/health")
 @router.get("/api/health") # Keeping legacy route just in case
 async def health_check():
@@ -18,10 +20,14 @@ async def health_check():
             detail="Database connection failed"
         )
     
+    redis_status = redis_health_manager.status
+    rate_limiter = "redis" if redis_status == "connected" else "memory"
+    
     return {
         "status": "healthy",
         "database": db_status,
-        "redis": "connected" if redis_client.enabled else "degraded (memory fallback)",
+        "rateLimiter": rate_limiter,
+        "redis": redis_status,
         "crewai": "enabled" if settings.GROQ_API_KEY else "demo mode",
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
