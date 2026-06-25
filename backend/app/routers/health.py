@@ -19,9 +19,9 @@ async def health_check():
         )
     
     return {
-        "status": "ok",
+        "status": "healthy",
         "database": db_status,
-        "redis": "healthy" if redis_client.enabled else "disabled",
+        "redis": "connected" if redis_client.enabled else "degraded (memory fallback)",
         "crewai": "enabled" if settings.GROQ_API_KEY else "demo mode",
         "timestamp": datetime.now(timezone.utc).isoformat()
     }

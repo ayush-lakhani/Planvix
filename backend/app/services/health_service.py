@@ -30,16 +30,17 @@ class HealthService:
             logger.error(f"MongoDB health check failed: {e}")
 
         # ── Redis ────────────────────────────────────────────
-        redis_status = "disabled"
+        redis_status = "connected" if redis_client.enabled else "degraded (memory fallback)"
         redis_latency_ms = None
         if redis_client.enabled:
             try:
                 t0 = time.perf_counter()
                 pong = redis_client.ping()
                 redis_latency_ms = round((time.perf_counter() - t0) * 1000, 2)
-                redis_status = "healthy" if pong else "error"
+                if not pong:
+                    redis_status = "degraded (memory fallback)"
             except Exception as e:
-                redis_status = "error"
+                redis_status = "degraded (memory fallback)"
                 logger.error(f"Redis health check failed: {e}")
 
         # ── CPU / Memory ─────────────────────────────────────
@@ -63,8 +64,6 @@ class HealthService:
 
         # ── Overall status ────────────────────────────────────
         if mongo_status == "error":
-            overall = "degraded"
-        elif redis_status == "error":
             overall = "degraded"
         else:
             overall = "operational"

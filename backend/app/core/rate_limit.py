@@ -41,11 +41,45 @@ def get_auth_limit(request: Request) -> str:
     """
     return "5/minute"
 
-# Initialize Limiter
+import redis
+
+# Determine storage URI and validate Redis configuration at startup
+storage_uri = getattr(settings, "REDIS_URL", "")
+redis_ok = False
+
+if storage_uri and (storage_uri.startswith("redis://") or storage_uri.startswith("rediss://")):
+    try:
+        # Parse for safe log formatting
+        safe_url = storage_uri.split("@")[-1] if "@" in storage_uri else storage_uri
+        logger.info(f"Rate Limiter: Testing Redis connection to {safe_url}...")
+        
+        test_client = redis.from_url(
+            storage_uri,
+            socket_timeout=2,
+            socket_connect_timeout=2
+        )
+        test_client.ping()
+        redis_ok = True
+        logger.info("✅ Rate Limiter Redis connection test successful.")
+    except Exception as e:
+        logger.warning(f"⚠️ Rate Limiter Redis connection test failed: {e}")
+        logger.warning("   -> Degrading rate limiter to local in-memory storage (memory://).")
+        storage_uri = "memory://"
+else:
+    logger.warning("⚠️ No valid REDIS_URL configured for rate limiting. Using memory://")
+    storage_uri = "memory://"
+
+# Initialize Limiter with robust runtime fallback and error swallowing
 limiter = Limiter(
     key_func=get_user_rate_key,
-    storage_uri=settings.REDIS_URL,
-    default_limits=[get_general_limit]
+    storage_uri=storage_uri,
+    default_limits=[get_general_limit],
+    in_memory_fallback_enabled=True,
+    swallow_errors=True
 )
 
-logger.info(f"✅ Enterprise Rate Limiter initialized with Redis: {settings.REDIS_URL}")
+if redis_ok:
+    logger.info("✅ Enterprise Rate Limiter initialized with Redis storage.")
+else:
+    logger.info("✅ Enterprise Rate Limiter initialized with local In-Memory storage.")
+

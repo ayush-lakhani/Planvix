@@ -119,7 +119,6 @@ class AuthService:
     # === Security Helpers ===
 
     async def _check_brute_force(self, email: str):
-        if not redis_client.enabled: return
         try:
             key = f"auth:fail:{email}"
             count = redis_client.get(key)
@@ -133,7 +132,6 @@ class AuthService:
         except Exception: pass
 
     async def _record_login_failure(self, email: str):
-        if not redis_client.enabled: return
         try:
             key = f"auth:fail:{email}"
             count = redis_client.get(key)
@@ -142,9 +140,8 @@ class AuthService:
         except Exception: pass
 
     async def _clear_login_failures(self, email: str):
-        if not redis_client.enabled: return
         try:
-            redis_client.client.delete(f"auth:fail:{email}")
+            redis_client.delete(f"auth:fail:{email}")
         except Exception: pass
 
     # === Token Management ===

@@ -189,10 +189,9 @@ class StrategyService:
         )
 
     def _increment_usage_redis(self, user_id: str):
-        if not redis_client.enabled: return
         try:
             current_month = datetime.now(timezone.utc).strftime("%Y-%m")
-            redis_client.client.incr(f"usage:{user_id}:{current_month}")
+            redis_client.incr(f"usage:{user_id}:{current_month}")
         except Exception as e:
             logger.warning(f"Redis usage increment failed: {e}")
 
@@ -210,14 +209,12 @@ class StrategyService:
         return hashlib.sha256("|".join(components).encode()).hexdigest()
 
     def _get_cached_strategy(self, cache_key: str):
-        if not redis_client.enabled: return None
         try:
             data = redis_client.get(f"strat_cache:{cache_key}")
             return json.loads(data) if data else None
         except Exception: return None
 
     def _set_cached_strategy(self, cache_key: str, data: dict, ttl: int):
-        if not redis_client.enabled: return
         try:
             redis_client.set(f"strat_cache:{cache_key}", json.dumps(data), ex=ttl)
         except Exception: pass
