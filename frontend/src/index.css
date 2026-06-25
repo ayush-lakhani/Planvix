@@ -1563,4 +1563,113 @@
     rgba(255, 255, 255, 0.05) 50%,
     transparent 75%
   );
+}
+
+/* ============================================================================
+   PREMIUM LANDING PAGE RE-IMAGINED STYLES
+   ============================================================================ */
+
+/* Noise texture filter overlay */
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+}
+
+/* Luxury 3D grid structure overlay */
+.grid-bg-overlay {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center top;
+}
+
+.dark .grid-bg-overlay {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+}
+
+/* Animated Aurora Gradients */
+@keyframes aurora-spin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.aurora-sphere-1 {
+  animation: aurora-spin 25s infinite linear;
+}
+
+.aurora-sphere-2 {
+  animation: aurora-spin 35s infinite linear reverse;
+}
+
+/* Infinite Brand Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-container {
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+  mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
+}
+
+.marquee-content {
+  display: flex;
+  flex-shrink: 0;
+  gap: 4rem;
+  padding: 1.5rem 0;
+  min-width: 100%;
+  animation: marquee 30s linear infinite;
+}
+
+/* Hide default cursor on premium cursor pages */
+.custom-cursor-active {
+  cursor: none !important;
+}
+.custom-cursor-active a,
+.custom-cursor-active button,
+.custom-cursor-active [role="button"],
+.custom-cursor-active input,
+.custom-cursor-active select,
+.custom-cursor-active textarea {
+  cursor: none !important;
+}
+
+/* Glassmorphism panel styling */
+.glass-panel {
+  background: rgba(10, 11, 16, 0.5);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-panel-light {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+}
+
+/* Glowing text */
+.text-glow {
+  text-shadow: 0 0 30px rgba(129, 236, 255, 0.3);
+}
+
+/* Custom scroll bar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
 }

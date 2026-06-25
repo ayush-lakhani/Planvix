@@ -39,11 +39,12 @@ function NavbarWrapper({ darkMode, toggleDarkMode }) {
   const location = useLocation();
   const { token, user } = useAuth();
 
-  // Don't show navbar on admin or auth routes
+  // Don't show navbar on admin, auth, or landing page routes
   const isAdminRoute = location.pathname.startsWith("/admin");
   const isAuthRoute = location.pathname === "/login" || location.pathname === "/signup";
+  const isLandingRoute = location.pathname === "/";
 
-  if (isAdminRoute || isAuthRoute) {
+  if (isAdminRoute || isAuthRoute || isLandingRoute) {
     return null;
   }
 
