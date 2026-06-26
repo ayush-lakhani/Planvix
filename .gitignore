@@ -195,3 +195,6 @@ health_check*.json
 !postcss.config.js
 !components.json
 !tsconfig.json
+!frontend/src/lib/
+!frontend/src/lib/**
+
