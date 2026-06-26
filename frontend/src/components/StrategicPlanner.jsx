@@ -22,7 +22,8 @@ export default function StrategicPlanner() {
     startGeneration,
     completeGeneration,
     failGeneration,
-    resetGeneration 
+    resetGeneration,
+    addLog
   } = useStrategy();
 
   const [userTier, setUserTier] = useState(user?.tier || "free");
@@ -80,14 +81,12 @@ export default function StrategicPlanner() {
 
     try {
       // Log the outgoing request to the terminal
-      setAgentLogs((prev) => [
-        ...prev,
-        {
-          agent: "REQUEST",
-          message: `POST /api/strategy  →  ${import.meta.env.VITE_API_URL || "http://localhost:8000"}`,
-          type: "info",
-        },
-      ]);
+      addLog({
+        agent: "REQUEST",
+        message: `POST /api/strategy  →  ${import.meta.env.VITE_API_URL || "http://localhost:8000"}`,
+        type: "info",
+        timestamp: new Date().toLocaleTimeString(),
+      });
 
       const result = await strategyAPI.generate(formData);
       console.log("[STRATEGY RESULT] Raw API response:", result);

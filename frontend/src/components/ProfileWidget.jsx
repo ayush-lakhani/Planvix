@@ -1,25 +1,31 @@
-import { TrendingUp, Zap } from 'lucide-react';
+import React from 'react';
+import { Zap, AlertCircle, Sparkles } from 'lucide-react';
+import { Badge } from './ui/Badge';
+import { Button } from './ui/Button';
 
 export default function ProfileWidget({ usageCount, totalAllowed = 3, tier = 'free', onUpgrade }) {
   const percentage = (usageCount / totalAllowed) * 100;
   const isCritical = usageCount >= 2;
   const strategiesLeft = totalAllowed - usageCount;
   
-  // Don't show for Pro users
   if (tier !== 'free') {
     return (
-      <div className="w-full p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border-2 border-emerald-200 dark:border-emerald-800 backdrop-blur-sm">
+      <div className="w-full p-5 rounded-[2rem] bg-gradient-to-r from-emerald-500/10 to-indigo-500/5 border border-emerald-500/20 backdrop-blur-xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 blur-2xl rounded-full" />
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
-              <Zap className="w-7 h-7 text-white" />
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform duration-300">
+              <Zap className="w-6 h-6" />
             </div>
             <div>
-              <p className="font-bold text-xl text-gray-900 dark:text-white">
-                Pro Plan Active
-              </p>
-              <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                ∞ Unlimited Strategies
+              <div className="flex items-center gap-2">
+                <h3 className="font-black text-base text-white uppercase tracking-wider">
+                  Pro Plan Account
+                </h3>
+                <Badge variant="success">Active</Badge>
+              </div>
+              <p className="text-xs font-semibold text-emerald-400 mt-1">
+                ∞ Unlimited Strategy Swarm Generations
               </p>
             </div>
           </div>
@@ -29,77 +35,81 @@ export default function ProfileWidget({ usageCount, totalAllowed = 3, tier = 'fr
   }
   
   return (
-    <div className={`w-full p-4 rounded-2xl transition-all duration-500 ${
+    <div className={`w-full p-5 rounded-[2rem] backdrop-blur-xl border relative overflow-hidden transition-all duration-300 ${
       isCritical 
-        ? 'bg-gradient-to-r from-rose-500/10 to-amber-500/10 border-rose-200 dark:border-rose-800 border-2 backdrop-blur-sm' 
-        : 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-white/30 dark:border-gray-700/30'
+        ? 'bg-gradient-to-r from-rose-500/5 to-amber-500/5 border-rose-500/20' 
+        : 'bg-[#090d16]/50 border-white/5'
     }`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+      
+      {/* Glow backgrounds */}
+      <div className={`absolute top-0 right-0 w-32 h-32 blur-3xl rounded-full opacity-40 ${
+        isCritical ? 'bg-rose-500/10' : 'bg-indigo-500/10'
+      }`} />
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border shrink-0 ${
             isCritical 
-              ? 'bg-gradient-to-br from-rose-400 to-amber-500' 
-              : 'bg-gradient-to-br from-emerald-400 to-emerald-600'
+              ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' 
+              : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400'
           }`}>
             {isCritical ? (
-              <svg className="w-7 h-7 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
+              <AlertCircle className="w-6 h-6 animate-pulse" />
             ) : (
-              <TrendingUp className="w-7 h-7 text-white" />
+              <Sparkles className="w-6 h-6" />
             )}
           </div>
           <div>
-            <p className="font-bold text-xl text-gray-900 dark:text-white">
-              {usageCount}/{totalAllowed} Free Strategies Used
-            </p>
-            <p className={`text-sm font-semibold ${
+            <h3 className="font-black text-base text-white uppercase tracking-wider">
+              {usageCount} / {totalAllowed} Swarms Compiled
+            </h3>
+            <p className={`text-xs font-semibold mt-1 ${
               isCritical 
-                ? 'text-rose-600 dark:text-rose-400' 
-                : 'text-emerald-600 dark:text-emerald-400'
+                ? 'text-rose-400' 
+                : 'text-indigo-400'
             }`}>
               {isCritical 
-                ? '⏳ Last chance this month!' 
+                ? '⏳ Quota limit close. Upgrade to Pro for unlimited compilations.' 
                 : strategiesLeft === 0 
-                  ? '🎯 All used! Upgrade for more' 
-                  : `✨ ${strategiesLeft} strategies remaining`
+                  ? '🎯 Standard Quota Full. Upgrade to Pro.' 
+                  : `✨ ${strategiesLeft} strategies remaining for this cycle`
               }
             </p>
           </div>
         </div>
         
-        <div className="flex gap-3">
-          {isCritical || strategiesLeft === 0 ? (
-            <button 
-              onClick={onUpgrade}
-              className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-2 rounded-xl font-bold text-sm hover:shadow-lg transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
-            >
-              <Zap className="w-4 h-4" />
-              Upgrade Pro
-            </button>
-          ) : (
-            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-              +{strategiesLeft} left
-            </span>
-          )}
-        </div>
+        {isCritical || strategiesLeft === 0 ? (
+          <Button 
+            onClick={onUpgrade}
+            size="sm"
+            className="flex items-center gap-1.5 shrink-0 self-start sm:self-center"
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Upgrade Pro</span>
+          </Button>
+        ) : (
+          <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest bg-white/5 border border-white/5 px-3 py-1 rounded-full shrink-0 w-max">
+            {strategiesLeft} swarms left
+          </span>
+        )}
       </div>
       
       {/* Progress Bar */}
-      <div className="mt-4">
-        <div className="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2 backdrop-blur-sm overflow-hidden">
+      <div className="mt-5">
+        <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden border border-white/5">
           <div 
-            className={`h-2 rounded-full transition-all duration-1000 ${
+            className={`h-full rounded-full transition-all duration-1000 ${
               isCritical 
-                ? 'bg-gradient-to-r from-rose-400 to-amber-500' 
-                : 'bg-gradient-to-r from-emerald-400 to-emerald-500'
+                ? 'bg-gradient-to-r from-rose-500 to-amber-500 shadow-[0_0_10px_rgba(244,63,94,0.3)]' 
+                : 'bg-gradient-to-r from-indigo-500 to-[#81ecff] shadow-[0_0_10px_rgba(99,102,241,0.3)]'
             }`}
-            style={{width: `${percentage}%`}}
+            style={{ width: `${percentage}%` }}
           />
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          {percentage.toFixed(0)}% used this month • Resets on 1st
-        </p>
+        <div className="flex justify-between items-center text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1.5 px-1">
+          <span>{percentage.toFixed(0)}% quota consumed</span>
+          <span>Resets on 1st of month</span>
+        </div>
       </div>
     </div>
   );

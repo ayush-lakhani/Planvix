@@ -154,7 +154,7 @@ print("=" * 60)
 
 rate_test_payload = {
     "goal": "rate limit test",
-    "audience": "test",
+    "audience": "test audience",
     "industry": "F&B",
     "platform": "Instagram",
     "contentType": "Posts"

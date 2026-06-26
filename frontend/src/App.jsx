@@ -33,6 +33,8 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import DashboardSkeleton from "./components/DashboardSkeleton";
 import { StrategyProvider } from "./context/StrategyContext";
+import Sidebar from "./components/Sidebar";
+import TopNav from "./components/TopNav";
 
 // Navbar wrapper to exclude admin routes
 function NavbarWrapper({ darkMode, toggleDarkMode }) {
@@ -97,8 +99,129 @@ function AppContent() {
     return <DashboardSkeleton />;
   }
 
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/signup";
+  const isLandingPage = location.pathname === "/";
+  const isAdminPage = location.pathname.startsWith("/admin");
+  const isPaymentPage = location.pathname === "/demo-payment";
+  const showDashboardLayout = token && user && !isAuthPage && !isLandingPage && !isAdminPage && !isPaymentPage;
+
+  const routesContent = (
+    <Routes>
+      {/* Auth Routes */}
+      <Route
+        path="/login"
+        element={token && user ? <Navigate to="/dashboard" /> : <Login />}
+      />
+      <Route
+        path="/signup"
+        element={token && user ? <Navigate to="/dashboard" /> : <Signup />}
+      />
+
+      {/* Protected User Routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/planner"
+        element={
+          <ProtectedRoute>
+            <StrategicPlanner />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/history"
+        element={
+          <ProtectedRoute>
+            <History />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/calendar"
+        element={
+          <ProtectedRoute>
+            <ContentCalendar />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <AnalyticsDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/upgrade"
+        element={
+          <ProtectedRoute>
+            <Upgrade />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/pro-panel"
+        element={
+          <ProtectedRoute>
+            <ProPanel />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/blueprint/:strategyId"
+        element={
+          <ProtectedRoute>
+            <TacticalBlueprint />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Admin Routes */}
+      <Route
+        path="/admin-login"
+        element={adminSecret ? <Navigate to="/admin" /> : <AdminLogin />}
+      />
+      <Route
+        path="/admin"
+        element={
+          <AdminProtectedRoute>
+            <AdminDashboard />
+          </AdminProtectedRoute>
+        }
+      />
+
+      {/* Fallbacks */}
+      {/* Landing Page */}
+      <Route
+        path="/"
+        element={token && user ? <Navigate to="/dashboard" replace /> : <Landing />}
+      />
+      
+      {/* Demo Payment */}
+      <Route
+        path="/demo-payment"
+        element={<PaymentPage />}
+      />
+    </Routes>
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 transition-colors duration-300">
+    <div className="min-h-screen bg-[#030712] text-slate-100 dark:bg-[#030712] transition-colors duration-300 font-sans antialiased overflow-hidden selection:bg-[#81ecff]/20">
       {/* Search for "Arc Sweep Animation Overlay" if missing */}
       {isAnimating && (
         <div className="fixed inset-0 z-40 pointer-events-none overflow-hidden">
@@ -156,118 +279,19 @@ function AppContent() {
       <NavbarWrapper darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       <Toaster position="top-right" />
 
-      <Routes>
-        {/* Auth Routes */}
-        <Route
-          path="/login"
-          element={token && user ? <Navigate to="/dashboard" /> : <Login />}
-        />
-        <Route
-          path="/signup"
-          element={token && user ? <Navigate to="/dashboard" /> : <Signup />}
-        />
-
-        {/* Protected User Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/planner"
-          element={
-            <ProtectedRoute>
-              <StrategicPlanner />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/history"
-          element={
-            <ProtectedRoute>
-              <History />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/calendar"
-          element={
-            <ProtectedRoute>
-              <ContentCalendar />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/analytics"
-          element={
-            <ProtectedRoute>
-              <AnalyticsDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/upgrade"
-          element={
-            <ProtectedRoute>
-              <Upgrade />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/pro-panel"
-          element={
-            <ProtectedRoute>
-              <ProPanel />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/blueprint/:strategyId"
-          element={
-            <ProtectedRoute>
-              <TacticalBlueprint />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Admin Routes */}
-        <Route
-          path="/admin-login"
-          element={adminSecret ? <Navigate to="/admin" /> : <AdminLogin />}
-        />
-        <Route
-          path="/admin"
-          element={
-            <AdminProtectedRoute>
-              <AdminDashboard />
-            </AdminProtectedRoute>
-          }
-        />
-
-        {/* Fallbacks */}
-        {/* Landing Page */}
-        <Route
-          path="/"
-          element={token && user ? <Navigate to="/dashboard" replace /> : <Landing />}
-        />
-        
-        {/* Demo Payment */}
-        <Route
-          path="/demo-payment"
-          element={<PaymentPage />}
-        />
-      </Routes>
+      {showDashboardLayout ? (
+        <div className="flex h-screen overflow-hidden">
+          <Sidebar />
+          <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+            <TopNav darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+            <main className="flex-1 overflow-y-auto bg-[#070b15] relative p-6 md:p-8 scrollbar-thin">
+              {routesContent}
+            </main>
+          </div>
+        </div>
+      ) : (
+        routesContent
+      )}
     </div>
   );
 }

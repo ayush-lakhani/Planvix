@@ -1,179 +1,84 @@
-import { useState } from 'react';
-import { Target, Users, Briefcase, Share2, Sparkles, FileText } from 'lucide-react';
-import { strategyAPI } from '../api';
+import React, { useState } from 'react';
+import { Target, Users, Briefcase, Share2, Sparkles, FileText, ChevronRight, ChevronLeft, Zap } from 'lucide-react';
+import { Input } from './ui/Input';
+import { Select } from './ui/Select';
+import { Button } from './ui/Button';
 
-export default function StrategyForm({ onGenerate, setLoading, setAgentLogs, loading }) {
+export default function StrategyForm({ onGenerate, loading }) {
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     goal: '',
     audience: '',
-    industry: '',
+    industry: 'SaaS (Software as a Service)',
     platform: 'Instagram',
     contentType: 'Mixed Content',
     experience: 'beginner',
-    strategy_mode: 'conservative' // Default
+    strategy_mode: 'conservative'
   });
   
   const [errors, setErrors] = useState({});
 
   const platforms = ['Instagram', 'LinkedIn', 'TikTok', 'Twitter/X', 'Facebook', 'YouTube'];
+  
   const industries = [
-    // Technology & Digital
     'SaaS (Software as a Service)',
-    'IT Services & Consulting',
-    'Cybersecurity',
-    'Cloud Computing',
     'AI & Machine Learning',
-    'Mobile App Development',
-    'Web Development',
-    'Data Analytics & BI',
-    'DevOps & Infrastructure',
-    'Blockchain & Crypto',
-    
-    // E-commerce & Retail
     'E-commerce',
-    'Retail & Consumer Goods',
-    'Fashion & Apparel',
     'Luxury Goods',
-    'Beauty & Cosmetics',
-    'Jewelry & Accessories',
-    
-    // Food & Beverage
     'F&B (Food & Beverage)',
-    'Restaurants & Hospitality',
-    'Coffee & Tea',
-    'Organic & Health Foods',
-    'Bakery & Confectionery',
-    'Alcohol & Spirits',
-    
-    // Health & Wellness
     'Healthcare & Medical',
-    'Fitness & Gym',
-    'Wellness & Spa',
-    'Mental Health',
-    'Nutrition & Supplements',
-    'Pharmaceuticals',
-    'Medical Devices',
-    
-    // Education & Training
     'Education & EdTech',
-    'Online Courses & eLearning',
-    'Tutoring & Coaching',
-    'Corporate Training',
-    'Language Learning',
-    
-    // Finance & Insurance
     'Financial Services',
-    'Banking',
-    'Insurance',
-    'Investment & Wealth Management',
-    'FinTech',
-    'Cryptocurrency & DeFi',
-    'Accounting & Tax Services',
-    
-    // Real Estate & Construction
     'Real Estate',
-    'Property Management',
-    'Interior Design',
-    'Architecture',
-    'Construction',
-    'Home Renovation',
-    
-    // Professional Services
     'Consulting & Strategy',
-    'Legal Services',
-    'Marketing & Advertising',
-    'PR & Communications',
-    'HR & Recruitment',
-    'Business Process Outsourcing',
-    
-    // Media & Entertainment
     'Entertainment & Events',
-    'Film & Video Production',
-    'Music & Audio',
-    'Gaming & Esports',
-    'Publishing & Media',
-    'Photography',
-    'Podcasting',
-    
-    // Travel & Tourism
     'Travel & Tourism',
-    'Hotels & Lodging',
-    'Airlines',
-    'Travel Agencies',
-    'Adventure Tourism',
-    
-    // Automotive & Transportation
     'Automotive',
-    'Electric Vehicles (EV)',
-    'Logistics & Supply Chain',
-    'Transportation Services',
-    'Ride Sharing',
-    
-    // Manufacturing & Industrial
-    'Manufacturing',
-    'Industrial Equipment',
-    'Electronics',
-    'Chemicals',
-    'Textiles',
-    
-    // Energy & Environment
     'Renewable Energy',
-    'Oil & Gas',
-    'Solar & Wind Power',
-    'Environmental Services',
-    'Sustainability',
-    
-    // Non-Profit & Social
-    'Non-Profit Organizations',
-    'Charity & Fundraising',
-    'Social Impact',
-    'Community Services',
-    
-    // Agriculture & Food Production
-    'Agriculture & Farming',
-    'AgriTech',
-    'Food Production',
-    'Livestock',
-    
-    // Lifestyle & Personal
-    'Lifestyle & Personal Development',
-    'Dating & Relationships',
-    'Parenting & Family',
-    'Pet Care & Veterinary',
-    'Home Services',
-    
-    // Other
-    'Telecommunications',
-    'Government & Public Sector',
-    'Sports & Recreation',
     'Other'
   ];
-  const contentTypes = ['Mixed Content', 'Reels/Short Videos', 'Posts/Feed Content', 'Stories', 'Carousels', 'Long-Form Videos', 'Blogs/Articles', 'Live Streams'];
+
+  const contentTypes = [
+    'Mixed Content', 
+    'Reels/Short Videos', 
+    'Posts/Feed Content', 
+    'Stories', 
+    'Carousels', 
+    'Long-Form Videos', 
+    'Blogs/Articles', 
+    'Live Streams'
+  ];
+
+  const validateStep = (currentStep) => {
+    const newErrors = {};
+    if (currentStep === 1) {
+      if (formData.goal.length < 10) {
+        newErrors.goal = 'Describe your goal in more detail (at least 10 chars)';
+      }
+      if (formData.audience.length < 5) {
+        newErrors.audience = 'Describe your audience in more detail (at least 5 chars)';
+      }
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateStep(step)) {
+      setStep((prev) => Math.min(prev + 1, 3));
+    }
+  };
+
+  const handlePrev = () => {
+    setStep((prev) => Math.max(prev - 1, 1));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (loading) return; // 🚫 Prevent double submit
+    if (loading) return;
     
-    setErrors({});
-    
-    // Validation
-    const newErrors = {};
-    if (formData.goal.length < 10) {
-      newErrors.goal = 'Please provide more detail about your goal (at least 10 characters)';
-    }
-    if (formData.audience.length < 5) {
-      newErrors.audience = 'Please provide more detail about your audience';
-    }
-    if (!formData.industry || formData.industry.length < 3) {
-      newErrors.industry = 'Please select an industry';
-    }
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    if (!validateStep(3)) return;
 
-    // 🚀 BULLETPROOF FETCH PREP
     const safeData = {
       goal: formData.goal.substring(0, 500),
       audience: formData.audience.substring(0, 200),
@@ -184,232 +89,189 @@ export default function StrategyForm({ onGenerate, setLoading, setAgentLogs, loa
       strategy_mode: formData.strategy_mode || "conservative"
     };
 
-    console.log('🚀 Sending safe strategy request to parent:', safeData);
     onGenerate(safeData);
   };
 
   return (
-    <div className="glass-card p-8 animate-slide-up">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-        <Sparkles className="w-7 h-7 text-primary-600 dark:text-primary-400" />
-        Strategy Input
-      </h2>
+    <div className="bg-[#090d16]/50 border border-white/5 rounded-[2rem] p-8 shadow-2xl relative overflow-hidden animate-slide-up h-[600px] flex flex-col justify-between">
+      
+      {/* Glow accent */}
+      <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 blur-2xl rounded-full" />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Business Goal */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-            <Target className="w-4 h-4" />
-            Business Goal
-          </label>
-          <input
-            type="text"
-            value={formData.goal}
-            onChange={(e) => setFormData({ ...formData, goal: e.target.value })}
-            className="input-premium"
-            placeholder="e.g., Sell coffee subscriptions on Instagram"
-            required
-          />
-          {errors.goal && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.goal}</p>
-          )}
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            {formData.goal.length}/500 characters
-          </p>
-        </div>
-
-        {/* Target Audience */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            Target Audience
-          </label>
-          <input
-            type="text"
-            value={formData.audience}
-            onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
-            className="input-premium"
-            placeholder="e.g., College students aged 18-24"
-            required
-          />
-          {errors.audience && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.audience}</p>
-          )}
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Be specific about demographics, interests, pain points
-          </p>
-        </div>
-
-        {/* Industry */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-            <Briefcase className="w-4 h-4" />
-            Industry
-          </label>
-          <select
-            value={formData.industry}
-            onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-            className="input-premium"
-            required
-          >
-            <option value="">Select your industry</option>
-            {industries.map(ind => (
-              <option key={ind} value={ind}>{ind}</option>
-            ))}
-          </select>
-          {errors.industry && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.industry}</p>
-          )}
-        </div>
-
-        {/* Content Type */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            Content Type
-          </label>
-          <select
-            value={formData.contentType}
-            onChange={(e) => setFormData({ ...formData, contentType: e.target.value })}
-            className="input-premium"
-            required
-          >
-            {contentTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            What format do you want to focus on?
-          </p>
-        </div>
-
-        {/* Platform */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-            <Share2 className="w-4 h-4" />
-            Primary Platform
-          </label>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {platforms.map(platform => (
-              <button
-                key={platform}
-                type="button"
-                onClick={() => setFormData({ ...formData, platform })}
-                className={`px-4 py-3 rounded-xl border-2 transition-all duration-200 font-medium ${
-                  formData.platform === platform
-                    ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-primary-300 dark:hover:border-primary-700'
-                }`}
-              >
-                {platform}
-              </button>
-            ))}
+      {/* Stepper Header */}
+      <div>
+        <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-6">
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" />
+            <h2 className="text-base font-black text-white uppercase tracking-wider">Strategy Swarm Wizard</h2>
           </div>
+          <span className="text-[10px] font-black uppercase text-indigo-400 tracking-widest bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full">
+            Step {step} of 3
+          </span>
         </div>
 
-        {/* Experience Level */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-            <Sparkles className="w-4 h-4" />
-            Experience Level
-          </label>
-          <div className="space-y-3">
-            {[
-              { id: 'beginner', label: 'Beginner', desc: 'iPhone + templates, step-by-step guides' },
-              { id: 'intermediate', label: 'Intermediate', desc: 'Batch workflows, optimization strategies' },
-              { id: 'expert', label: 'Expert', desc: 'Viral frameworks, data-driven optimization' }
-            ].map((exp) => (
-              <label 
-                key={exp.id}
-                className={`flex items-start p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                  formData.experience === exp.id 
-                    ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20' 
-                    : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700'
-                }`}
+        {/* Stepper Progress Bar */}
+        <div className="w-full bg-white/5 h-1 rounded-full mb-8 overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-[#6200EE] to-[#81ecff] transition-all duration-500" 
+            style={{ width: `${(step / 3) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Steps contents */}
+      <div className="flex-1 overflow-y-auto pr-1">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {step === 1 && (
+            <div className="space-y-6 animate-fade-in">
+              <Input
+                label="Primary Business Goal"
+                icon={Target}
+                value={formData.goal}
+                onChange={(e) => setFormData({ ...formData, goal: e.target.value })}
+                placeholder="e.g. Acquire 20 active coffee subscriptions"
+                error={errors.goal}
+                helperText={`${formData.goal.length}/500 characters maximum`}
+                required
+              />
+              <Input
+                label="Target Audience Brief"
+                icon={Users}
+                value={formData.audience}
+                onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
+                placeholder="e.g. Young professionals in tech aged 25-35"
+                error={errors.audience}
+                helperText="Specify demographics and user pain points"
+                required
+              />
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-6 animate-fade-in">
+              <Select
+                label="Target Platform"
+                icon={Share2}
+                value={formData.platform}
+                onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
               >
-                <input
-                  type="radio"
-                  name="experience"
-                  value={exp.id}
-                  checked={formData.experience === exp.id}
-                  onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                  className="mt-1 mr-3 text-primary-600 focus:ring-primary-500"
-                />
-                <div>
-                  <div className={`font-bold ${formData.experience === exp.id ? 'text-primary-700 dark:text-primary-300' : 'text-gray-900 dark:text-white'}`}>
-                    {exp.label}
+                {platforms.map(p => (
+                  <option key={p} value={p} className="bg-[#0b0f19] text-white">{p}</option>
+                ))}
+              </Select>
+
+              <Select
+                label="Industry Vertical"
+                icon={Briefcase}
+                value={formData.industry}
+                onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+              >
+                {industries.map(ind => (
+                  <option key={ind} value={ind} className="bg-[#0b0f19] text-white">{ind}</option>
+                ))}
+              </Select>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-6 animate-fade-in">
+              <Select
+                label="Content Blueprint Style"
+                icon={FileText}
+                value={formData.contentType}
+                onChange={(e) => setFormData({ ...formData, contentType: e.target.value })}
+              >
+                {contentTypes.map(c => (
+                  <option key={c} value={c} className="bg-[#0b0f19] text-white">{c}</option>
+                ))}
+              </Select>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
+                    Audience Experience
+                  </label>
+                  <div className="flex gap-2">
+                    {['beginner', 'intermediate', 'expert'].map((exp) => (
+                      <button
+                        key={exp}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, experience: exp })}
+                        className={`flex-1 py-3.5 border rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors ${
+                          formData.experience === exp
+                            ? 'bg-indigo-600/10 border-indigo-500 text-indigo-300'
+                            : 'bg-[#0d1321]/45 border-white/10 text-slate-500 hover:border-white/20'
+                        }`}
+                      >
+                        {exp}
+                      </button>
+                    ))}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">{exp.desc}</div>
                 </div>
-              </label>
-            ))}
-          </div>
-        </div>
 
-        {/* Strategy Mode - NEW */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-            <Target className="w-4 h-4" />
-            Strategy Mode
-          </label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label className={`relative flex flex-col p-4 border-2 rounded-xl cursor-pointer transition-all ${
-              formData.strategy_mode === 'conservative'
-                ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
-                : 'border-gray-200 dark:border-gray-700 hover:border-emerald-300'
-            }`}>
-              <input
-                type="radio"
-                name="strategy_mode"
-                value="conservative"
-                checked={formData.strategy_mode === 'conservative'}
-                onChange={(e) => setFormData({ ...formData, strategy_mode: e.target.value })}
-                className="hidden"
-              />
-              <span className="text-emerald-600 dark:text-emerald-400 font-bold mb-1">🛡️ Conservative</span>
-              <span className="text-xs text-gray-600 dark:text-gray-400">Stable growth, safe hooks, lower risk. focus on brand trust.</span>
-            </label>
-
-            <label className={`relative flex flex-col p-4 border-2 rounded-xl cursor-pointer transition-all ${
-              formData.strategy_mode === 'aggressive'
-                ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                : 'border-gray-200 dark:border-gray-700 hover:border-red-300'
-            }`}>
-              <input
-                type="radio"
-                name="strategy_mode"
-                value="aggressive"
-                checked={formData.strategy_mode === 'aggressive'}
-                onChange={(e) => setFormData({ ...formData, strategy_mode: e.target.value })}
-                className="hidden"
-              />
-              <span className="text-red-600 dark:text-red-400 font-bold mb-1">🚀 Aggressive Growth</span>
-              <span className="text-xs text-gray-600 dark:text-gray-400">Viral hooks, trend hijacking, high risk/high reward.</span>
-            </label>
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full btn-gradient flex items-center justify-center gap-2 ${
-            loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'
-          }`}
-        >
-          {loading ? (
-            <>
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Generating Strategy...
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-5 h-5" />
-              Generate Strategy
-            </>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
+                    Strategy Mode
+                  </label>
+                  <div className="flex gap-2">
+                    {[
+                      { id: 'conservative', label: 'Balanced' },
+                      { id: 'bold', label: 'Visionary' }
+                    ].map((mode) => (
+                      <button
+                        key={mode.id}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, strategy_mode: mode.id })}
+                        className={`flex-1 py-3.5 border rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors ${
+                          formData.strategy_mode === mode.id
+                            ? 'bg-indigo-600/10 border-indigo-500 text-indigo-300'
+                            : 'bg-[#0d1321]/45 border-white/10 text-slate-500 hover:border-white/20'
+                        }`}
+                      >
+                        {mode.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
-        </button>
-      </form>
+        </form>
+      </div>
+
+      {/* Footer Navigation Buttons */}
+      <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-6">
+        <Button
+          variant="outline"
+          onClick={handlePrev}
+          disabled={step === 1 || loading}
+          className="flex items-center gap-1.5"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span>Back</span>
+        </Button>
+
+        {step < 3 ? (
+          <Button
+            onClick={handleNext}
+            className="flex items-center gap-1.5"
+          >
+            <span>Next</span>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        ) : (
+          <Button
+            onClick={handleSubmit}
+            loading={loading}
+            className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
+          >
+            <Zap className="w-4 h-4" />
+            <span>Generate Strategy</span>
+          </Button>
+        )}
+      </div>
+
     </div>
   );
 }
+

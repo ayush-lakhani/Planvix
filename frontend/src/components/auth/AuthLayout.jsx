@@ -1,73 +1,67 @@
 import React from "react";
-import GradientBackground from "./GradientBackground";
-import { BrandLogo } from "../BrandLogo";
+import { Link } from "react-router-dom";
+import { Bot, Sparkles, CheckCircle2 } from "lucide-react";
 
-const AuthLayout = ({
-  children,
-  leftPanel,
-  variant = "split",
-  backgroundVariant = "default",
-}) => {
-  if (variant === "center") {
-    return (
-      <GradientBackground variant={backgroundVariant}>
-        <div className="flex flex-col items-center justify-center px-4 py-12">
-          {children}
-        </div>
-      </GradientBackground>
-    );
-  }
-
+export default function AuthLayout({ children, leftPanel }) {
   return (
-    <GradientBackground variant={backgroundVariant}>
-      <div className="flex min-h-screen">
-        {/* Left Panel - Value Section (Hidden on mobile) */}
-        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-8 sm:p-12 relative overflow-hidden border-r border-slate-200 dark:border-white/5">
-          <div className="relative z-10">
-            <BrandLogo className="w-32 sm:w-40" />
+    <div className="min-h-screen bg-[#030712] text-slate-100 flex relative overflow-hidden font-sans select-none antialiased">
+      
+      {/* Background Mesh Glows */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-indigo-500/10 to-purple-500/5 blur-[120px] mix-blend-screen" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-bl from-cyan-500/10 to-indigo-500/5 blur-[120px] mix-blend-screen" />
+        {/* Noise overlay */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E')] opacity-[0.025]" />
+      </div>
+
+      <div className="relative z-10 flex w-full min-h-screen">
+        
+        {/* Left Panel: High-End SaaS Value Card (Hidden on Mobile) */}
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-16 relative overflow-hidden border-r border-white/5 bg-[#050811]/40 backdrop-blur-xl">
+          
+          {/* Header Branding */}
+          <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#6200EE] to-[#81ecff] flex items-center justify-center shadow-[0_0_15px_rgba(98,0,238,0.4)] group-hover:scale-105 transition-transform duration-300">
+                <Bot className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-lg font-black tracking-tight text-white mt-0.5">
+                planvIx
+              </span>
+            </Link>
           </div>
 
-          <div className="relative z-10 max-w-lg">
+          {/* Main Visual Callout */}
+          <div className="max-w-lg space-y-8">
             {leftPanel || (
               <>
-                <h1 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-4 sm:mb-6">
-                  Build Smarter{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
-                    AI Strategies
-                  </span>
-                </h1>
-                <p className="text-slate-600 dark:text-gray-400 text-base sm:text-lg mb-8 sm:mb-12">
-                  The OS for modern content teams. Plan, execute, and scale with
-                  intelligence.
-                </p>
+                <div className="space-y-4">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-wider text-indigo-400">
+                    <Sparkles className="w-3.5 h-3.5" /> Autonomous strategy OS
+                  </div>
+                  <h1 className="text-5xl font-black tracking-tight leading-[1.1] text-white">
+                    Deploy Your <br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#81ecff] via-white to-[#a68cff] drop-shadow-[0_0_30px_rgba(129,236,255,0.25)]">
+                      AI Agent Swarm
+                    </span>
+                  </h1>
+                  <p className="text-slate-400 text-sm leading-relaxed">
+                    Collaborate with specialized agents conducting deep competitor web crawling, visionary brand-voice copy writing, and semantic SEO analysis in parallel.
+                  </p>
+                </div>
 
-                <div className="space-y-4 sm:space-y-6">
+                <div className="space-y-4">
                   {[
-                    "AI Persona Analysis",
-                    "Industry Benchmarking",
-                    "30-Day Growth Blueprint",
-                    "ROI Intelligence",
-                  ].map((feature, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center space-x-4 text-slate-700 dark:text-gray-300 text-sm sm:text-base"
-                    >
-                      <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center">
-                        <svg
-                          className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                    "Multi-Agent Swarm Orchestrator",
+                    "Factual Competitor Web Ingestion",
+                    "Real SEO Semantic Keyword Checking",
+                    "Integrated Strategy Calendar Blueprint"
+                  ].map((feat, idx) => (
+                    <div key={idx} className="flex items-center gap-3 text-xs font-bold text-slate-300">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
                       </div>
-                      <span className="font-medium">{feature}</span>
+                      <span>{feat}</span>
                     </div>
                   ))}
                 </div>
@@ -75,37 +69,37 @@ const AuthLayout = ({
             )}
           </div>
 
-          <div className="relative z-10 flex items-center space-x-4">
-            <div className="flex -space-x-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white dark:border-gray-950 bg-slate-200 dark:bg-gray-800"
-                />
-              ))}
-            </div>
-            <p className="text-xs sm:text-sm text-gray-400">
-              Joined by <span className="text-slate-900 dark:text-white font-bold">2,500+</span>{" "}
-              strategies
-            </p>
+          {/* SLA Badge */}
+          <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
+            <span>SLA Uptime: 99.99%</span>
+            <span>•</span>
+            <span>Priority Queue Status: Online</span>
           </div>
 
-          {/* Abstract backgrounds for left panel */}
-          <div className="absolute top-[20%] right-[-10%] w-[80%] h-[60%] bg-indigo-500/5 rounded-full blur-[100px]" />
         </div>
 
-        {/* Right Panel - Form Section */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-12">
-          <div className="w-full max-w-sm sm:max-w-md">
-            <div className="lg:hidden mb-6 sm:mb-8 flex justify-center">
-              <BrandLogo className="w-24 sm:w-32" />
+        {/* Right Panel: Form view */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12">
+          <div className="w-full max-w-md">
+            
+            {/* Mobile Header Branding */}
+            <div className="lg:hidden flex justify-center mb-8">
+              <Link to="/" className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#6200EE] to-[#81ecff] flex items-center justify-center">
+                  <Bot className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-lg font-black tracking-tight text-white mt-0.5">
+                  planvIx
+                </span>
+              </Link>
             </div>
+
             {children}
           </div>
         </div>
-      </div>
-    </GradientBackground>
-  );
-};
 
-export default AuthLayout;
+      </div>
+
+    </div>
+  );
+}

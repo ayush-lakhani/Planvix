@@ -117,6 +117,10 @@ export const StrategyProvider = ({ children }) => {
     setError(null);
   };
 
+  const addLog = useCallback((log) => {
+    setAgentLogs((prev) => [...prev, log]);
+  }, []);
+
   return (
     <StrategyContext.Provider value={{
       isGenerating,
@@ -128,7 +132,8 @@ export const StrategyProvider = ({ children }) => {
       startGeneration,
       completeGeneration,
       failGeneration,
-      resetGeneration
+      resetGeneration,
+      addLog
     }}>
       {children}
     </StrategyContext.Provider>

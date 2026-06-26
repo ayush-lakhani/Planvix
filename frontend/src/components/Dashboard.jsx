@@ -1,27 +1,22 @@
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ProPanel from "../pages/ProPanel";
-import {
-  Sparkles,
-  TrendingUp,
-  Zap,
-  ArrowRight,
-  Calendar,
-  BarChart3,
-  Trophy,
-  AlertCircle,
+import { 
+  Sparkles, TrendingUp, Zap, ArrowRight, Calendar, 
+  BarChart3, Trophy, AlertCircle, RefreshCw, CheckCircle, Clock
 } from "lucide-react";
-import { useState, useEffect, useMemo } from "react";
 import { strategyAPI } from "../api";
 import { safeDate } from "../utils/dateUtils";
-import Skeleton from "./ui/skeleton";
-import DashboardSkeleton from "./DashboardSkeleton";
+import { Badge } from "./ui/Badge";
+import { Button } from "./ui/Button";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  
   const [strategies, setStrategies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [monthlyUsage, setMonthlyUsage] = useState(0);
@@ -33,15 +28,10 @@ export default function Dashboard() {
 
   const loadStrategies = async () => {
     try {
-      const data = await strategyAPI.getHistory(); // Already returns response.data
-      console.log("[DASHBOARD] API response:", data);
-
-      // Normalize response - backend may return array or {history: [...]}
+      const data = await strategyAPI.getHistory();
       const strategiesArray = Array.isArray(data)
         ? data
         : data?.history || data?.strategies || [];
-
-      console.log("[DASHBOARD] Extracted strategies:", strategiesArray);
       setStrategies(strategiesArray);
     } catch (error) {
       console.error("Failed to load strategies:", error);
@@ -68,34 +58,41 @@ export default function Dashboard() {
 
   const stats = {
     total: strategies.length,
-    thisMonth: monthlyUsage, // Server-authoritative usage count
+    thisMonth: monthlyUsage,
     limit: user?.tier === "pro" ? "Unlimited" : 3,
   };
 
-  // Calculate success rate from feedback data
   const successRate = useMemo(() => {
     if (strategies.length === 0) return 0;
-
-    // Count strategies that have positive feedback (rating >= 3, or "up" rating)
     const ratedStrategies = strategies.filter(s => s.feedback || s.feedback_rating);
     if (ratedStrategies.length === 0) return 0;
-
-    // Handle both numeric rating (1-5) and string "up"/"down"
     const successful = ratedStrategies.filter(s => {
       if (s.feedback && typeof s.feedback.rating === 'number') {
-        return s.feedback.rating >= 3; // 3+ out of 5 is success
+        return s.feedback.rating >= 3;
       }
       if (s.feedback_rating) {
         return s.feedback_rating === 'up';
       }
       return false;
     }).length;
-
     return Math.round((successful / ratedStrategies.length) * 100);
   }, [strategies]);
 
   if (loading) {
-    return <DashboardSkeleton />;
+    return (
+      <div className="space-y-8 animate-pulse">
+        <div className="h-10 w-64 bg-white/5 rounded-xl" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {Array(4).fill(0).map((_, i) => (
+            <div key={i} className="h-32 bg-white/5 rounded-2xl border border-white/5" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 h-96 bg-white/5 rounded-3xl border border-white/5" />
+          <div className="h-96 bg-white/5 rounded-3xl border border-white/5" />
+        </div>
+      </div>
+    );
   }
 
   if (user?.tier === "pro") {
@@ -103,245 +100,213 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-          <div data-aos="fade-right">
-            <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-2">
-              Welcome back, <span className="text-primary-600">{user?.email?.split("@")[0]}</span>
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400 text-lg">
-              Here's what's happening with your content strategies.
-            </p>
-          </div>
-          <button
-            onClick={() => navigate("/planner")}
-            className="flex items-center justify-center gap-2 px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary-600/20 hover:shadow-primary-600/40 hover:-translate-y-1 active:scale-95"
-            data-aos="fade-left"
-          >
-            <Sparkles className="w-5 h-5" />
-            Create New Strategy
-          </button>
+    <div className="space-y-10 animate-fade-in pb-10">
+      
+      {/* Personalized Welcome Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+            Welcome back, <span className="text-[#81ecff]">{user?.email?.split("@")[0]}</span>
+          </h1>
+          <p className="text-slate-500 text-sm mt-1.5">
+            Deploy your autonomous agents and audit your content calendars.
+          </p>
         </div>
+        <Button
+          onClick={() => navigate("/planner")}
+          className="flex items-center gap-2"
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>New Strategy Swarm</span>
+        </Button>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {[
-            {
-              label: "Total Strategies",
-              value: stats.total,
-              icon: Zap,
-              color: "text-blue-600",
-              bg: "bg-blue-100 dark:bg-blue-900/30",
-            },
-            {
-              label: "Usage This Month",
-              value: stats.thisMonth,
-              limit: `/${stats.limit}`,
-              icon: Calendar,
-              color: "text-emerald-600",
-              bg: "bg-emerald-100 dark:bg-emerald-900/30",
-            },
-            {
-              label: "Success Rate",
-              value: `${successRate}%`,
-              icon: Trophy,
-              color: "text-amber-600",
-              bg: "bg-amber-100 dark:bg-amber-900/30",
-            },
-            {
-              label: "Active Plan",
-              value: user?.tier?.toUpperCase() || "FREE",
-              icon: TrendingUp,
-              color: "text-purple-600",
-              bg: "bg-purple-100 dark:bg-purple-900/30",
-            },
-          ].map((stat, i) => (
+      {/* Stats KPI Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: "Total Swarms", value: stats.total, icon: Zap, glow: "indigo" },
+          { label: "Usage This Month", value: `${stats.thisMonth} / ${stats.limit}`, icon: Calendar, glow: "emerald" },
+          { label: "Success Rate", value: `${successRate}%`, icon: Trophy, glow: "amber" },
+          { label: "Subscription", value: user?.tier?.toUpperCase() || "FREE", icon: TrendingUp, glow: "cyan" }
+        ].map((item, i) => {
+          const Icon = item.icon;
+          const glowColors = {
+            indigo: "indigo-500/10 border-indigo-500/10 text-indigo-400 bg-indigo-500/5",
+            emerald: "emerald-500/10 border-emerald-500/10 text-emerald-400 bg-emerald-500/5",
+            amber: "amber-500/10 border-amber-500/10 text-amber-400 bg-amber-500/5",
+            cyan: "cyan-500/10 border-cyan-500/10 text-cyan-400 bg-cyan-500/5"
+          };
+          return (
             <div
               key={i}
-              className="glass-card p-6 rounded-2xl border border-white/10 dark:border-white/5"
-              data-aos="fade-up"
-              data-aos-delay={i * 100}
+              className="bg-[#090d16]/50 border border-white/5 rounded-2xl p-6 relative overflow-hidden group hover:border-white/10 transition-all duration-300"
             >
+              {/* Subtle background glow effect */}
+              <div className={`absolute top-0 right-0 w-24 h-24 blur-2xl rounded-full opacity-40 group-hover:opacity-60 transition-opacity bg-${item.glow}-500/10`} />
+
               <div className="flex items-center gap-4 mb-4">
-                <div className={`p-3 rounded-xl ${stat.bg}`}>
-                  <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${glowColors[item.glow]}`}>
+                  <Icon className="w-5 h-5" />
                 </div>
-                <span className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  {stat.label}
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">
+                  {item.label}
                 </span>
               </div>
+
               <div className="flex items-baseline gap-1">
-                {loading ? (
-                  <Skeleton variant="title" className="w-20" />
-                ) : (
-                  <>
-                    <span className="text-3xl font-black text-slate-900 dark:text-white">
-                      {stat.value}
-                    </span>
-                    {stat.limit && (
-                      <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                        {stat.limit}
-                      </span>
-                    )}
-                  </>
-                )}
+                <span className="text-2xl font-black text-white">
+                  {item.value}
+                </span>
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        {/* Main Content Sections */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent Strategies List */}
-          <div className="lg:col-span-2 space-y-6" data-aos="fade-right">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                Recent Strategies
-              </h2>
+      {/* Main Workspace Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Recent Strategies Column */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-black text-white uppercase tracking-wider">
+              Recent Deployments
+            </h2>
+            {strategies.length > 0 && (
               <button
                 onClick={() => navigate("/history")}
-                className="text-primary-600 font-bold hover:text-primary-700 flex items-center gap-1 group"
+                className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 group"
               >
-                View All
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <span>View history</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </button>
-            </div>
-
-            <div className="space-y-4">
-              {loading ? (
-                Array(3).fill(0).map((_, i) => (
-                  <div key={i} className="glass-card p-6 rounded-2xl">
-                    <Skeleton variant="title" className="mb-4" />
-                    <Skeleton variant="text" className="w-1/2" />
-                  </div>
-                ))
-              ) : strategies.length > 0 ? (
-                strategies.slice(0, 3).map((strategy, i) => (
-                  <div
-                    key={strategy.id || i}
-                    className="glass-card p-6 rounded-2xl border border-white/10 dark:border-white/5 hover:border-primary-500/50 transition-all group"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1 group-hover:text-primary-600 transition-colors">
-                          {strategy.title || "Untitled Strategy"}
-                        </h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-1">
-                          {strategy.objective || "No objective defined"}
-                        </p>
-                        <div className="flex items-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
-                          <span className="flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {safeDate(strategy.createdAt)}
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <Zap className="w-3.5 h-3.5" />
-                            {strategy.platform || "Multi-Platform"}
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => navigate("/history")}
-                        className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl group-hover:bg-primary-600 group-hover:text-white transition-all"
-                      >
-                        <ArrowRight className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="glass-card p-12 rounded-2xl text-center border-2 border-dashed border-slate-300 dark:border-slate-800">
-                  <div className="w-16 h-16 bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <AlertCircle className="w-8 h-8 text-slate-400" />
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                    No strategies yet
-                  </h3>
-                  <p className="text-slate-600 dark:text-slate-400 mb-6">
-                    Start by creating your first AI-powered content strategy.
-                  </p>
-                  <button
-                    onClick={() => navigate("/planner")}
-                    className="text-primary-600 font-bold hover:underline"
-                  >
-                    Create your first strategy →
-                  </button>
-                </div>
-              )}
-            </div>
+            )}
           </div>
 
-          {/* Quick Actions / Tips */}
-          <div className="space-y-6">
-            <div className="glass-card p-8 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 text-white shadow-xl shadow-primary-600/20" data-aos="fade-left">
-              <Sparkles className="w-10 h-10 mb-6 opacity-50" />
-              <h3 className="text-2xl font-black mb-2">Pro Tip</h3>
-              <p className="text-primary-100 mb-6 font-medium leading-relaxed">
-                Try using the "Deep Research" mode for more comprehensive strategy insights and detailed content blueprints.
-              </p>
-              <button
-                onClick={() => navigate("/planner")}
-                className="w-full py-3 bg-white text-primary-700 rounded-xl font-bold hover:bg-primary-50 transition-colors"
-              >
-                Try it now
-              </button>
-            </div>
-
-            {/* Analytics (Coming Soon) */}
-            <div className="glass-card p-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 opacity-60" data-aos="fade-left">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="p-3 bg-slate-200 dark:bg-slate-800 rounded-xl">
-                  <BarChart3 className="w-6 h-6 text-slate-500" />
+          <div className="space-y-4">
+            {strategies.length > 0 ? (
+              strategies.slice(0, 3).map((strategy, i) => (
+                <div
+                  key={strategy.id || i}
+                  onClick={() => navigate(strategy.id ? `/blueprint/${strategy.id}` : "/history")}
+                  className="bg-[#090d16]/50 border border-white/5 rounded-2xl p-5 hover:border-indigo-500/30 transition-all duration-300 group cursor-pointer flex items-center justify-between"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-white text-sm group-hover:text-indigo-400 transition-colors">
+                        {strategy.title || "Untitled Strategy Swarm"}
+                      </h3>
+                      <Badge variant={strategy.platform === "LinkedIn" ? "primary" : "cyan"}>
+                        {strategy.platform || "Multi-Channel"}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-slate-500 line-clamp-1">
+                      {strategy.objective || "No objectives defined"}
+                    </p>
+                    <div className="flex items-center gap-4 text-[9px] uppercase font-black text-slate-600 tracking-wider">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        {safeDate(strategy.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                  <button className="p-3 bg-white/5 group-hover:bg-[#6200EE] rounded-xl text-slate-400 group-hover:text-white transition-colors duration-300">
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Analytics Dashboard
-                </h3>
+              ))
+            ) : (
+              <div className="bg-[#090d16]/30 border border-dashed border-white/5 rounded-3xl p-12 text-center">
+                <AlertCircle className="w-10 h-10 text-slate-600 mx-auto mb-4" />
+                <h3 className="font-bold text-white text-sm">No Strategy Deployments Yet</h3>
+                <p className="text-xs text-slate-500 mt-1 mb-6">Create your first AI multi-agent strategy campaign.</p>
+                <Button onClick={() => navigate("/planner")} size="sm">
+                  Create first strategy
+                </Button>
               </div>
-              <p className="text-slate-600 dark:text-slate-400 mb-4">
-                Track performance metrics and ROI for your content strategies
-              </p>
-              <div className="flex items-center gap-2 text-slate-500 font-medium">
-                <span>Coming Soon</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Recent Activity - If strategies exist */}
-        {strategies.length > 0 && (
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6" data-aos="fade-up">
-              Recent Activity
-            </h2>
-            <div className="space-y-3">
-              {strategies.slice(0, 3).map((strategy, index) => (
-                <button
-                  key={strategy.id || index}
-                  onClick={() => navigate("/history")}
-                  className="w-full glass-card p-4 rounded-xl transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5 group flex items-center justify-between"
-                  data-aos="fade-up"
-                  data-aos-delay={index * 100}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <div className="text-left">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">
-                        {strategy.title || "Untitled Strategy"}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {safeDate(strategy.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-transform" />
-                </button>
-              ))}
-            </div>
+        {/* Sidebar Actions Column */}
+        <div className="space-y-6">
+          <h2 className="text-lg font-black text-white uppercase tracking-wider">
+            Workspace Hub
+          </h2>
+
+          {/* Pro Tip Card */}
+          <div className="bg-gradient-to-br from-[#0c1224] to-[#080b13] border border-[#6200EE]/30 rounded-3xl p-6 shadow-xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-600/10 blur-2xl rounded-full" />
+            <Sparkles className="w-8 h-8 text-indigo-400 mb-6" />
+            <h3 className="text-base font-black text-white uppercase tracking-wider">Deploy Bold Mode</h3>
+            <p className="text-xs text-slate-400 mt-2 mb-6 leading-relaxed">
+              Use "Bold Engine Mode" in the Strategic Planner to generate highly visionary hook concepts and maximize organic audience click-throughs.
+            </p>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => navigate("/planner")}
+              className="w-full text-xs font-bold"
+            >
+              Open Planner Swarm
+            </Button>
           </div>
-        )}
+
+          {/* Analytics quick status */}
+          <div className="bg-[#090d16]/50 border border-white/5 rounded-3xl p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-slate-400">
+                <BarChart3 className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-white">Analytics Index</h4>
+                <span className="text-[9px] font-black uppercase text-slate-500 tracking-wider">Post-publish audits</span>
+              </div>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Unlock real-time reach data, click audits, and conversion KPIs for your strategies.
+            </p>
+            <button
+              onClick={() => navigate("/analytics")}
+              className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 group"
+            >
+              <span>View Analytics dashboard</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </div>
+
+        </div>
+
       </div>
+
+      {/* Recent Activity Logs */}
+      {strategies.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-black text-white uppercase tracking-wider">
+            Activity Timelines
+          </h2>
+          <div className="bg-[#090d16]/30 border border-white/5 rounded-2xl divide-y divide-white/5">
+            {strategies.slice(0, 3).map((strategy, idx) => (
+              <div
+                key={strategy.id || idx}
+                onClick={() => navigate("/history")}
+                className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs text-slate-300 font-bold">
+                    Strategy swarms compiled for: <span className="text-white">"{strategy.title}"</span>
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-500 font-medium">
+                  {safeDate(strategy.createdAt)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
